@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://provider.poc.saml.itst.dk/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	xmlns:wsaws="http://www.w3.org/2006/05/addressing/wsdl" xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy"
+	xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust" xmlns:sc="http://schemas.sun.com/2006/03/wss/server"
+	xmlns:wspp="http://java.sun.com/xml/ns/wsit/policy" targetNamespace="http://provider.poc.saml.itst.dk/" name="ProviderService">
+	<message name="echo" />
+	<message name="echoResponse" />
+	<portType name="Provider">
+		<operation name="echo">
+			<input message="tns:echo"></input>
+			<output message="tns:echoResponse"></output>
+		</operation>
+	</portType>
+	<binding name="ProviderPortBinding" type="tns:Provider">
+		<wsp:PolicyReference URI="#PortBindingPolicySymm" />
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap:binding>
+		<operation name="echo">
+			<soap:operation soapAction=""></soap:operation>
+			<input>
+				<soap:body use="literal"></soap:body>
+				<wsp:PolicyReference URI="#Input_Policy" />
+			</input>
+			<output>
+				<soap:body use="literal"></soap:body>
+			</output>
+		</operation>
+	</binding>
+	<service name="ProviderService">
+		<port name="ProviderPort" binding="tns:ProviderPortBinding">
+			<soap:address location="http://localhost:8080/poc-provider/ProviderService"></soap:address>
+		</port>
+	</service>
+	<wsp:Policy wsu:Id="PortBindingPolicy">
+		<wsp:ExactlyOne>
+			<wsp:All>
+				<wsaws:UsingAddressing xmlns:wsaws="http://www.w3.org/2006/05/addressing/wsdl"/>
+				<sp:TransportBinding>
+					<wsp:Policy>
+						<sp:TransportToken>
+							<wsp:Policy>
+								<sp:HttpsToken>
+								
+								</sp:HttpsToken>
+							</wsp:Policy>
+						</sp:TransportToken>
+						<sp:AlgorithmSuite>
+							<wsp:Policy>
+								<sp:Basic128 />
+							</wsp:Policy>
+						</sp:AlgorithmSuite>
+						<sp:IncludeTimestamp/>
+					</wsp:Policy>
+				</sp:TransportBinding>
+				<sp:Wss11>
+					<wsp:Policy>
+						<sp:MustSupportRefKeyIdentifier />
+						<sp:MustSupportRefIssuerSerial />
+						<sp:MustSupportRefThumbprint />
+						<sp:MustSupportRefEncryptedKey />
+						<sp:RequireSignatureConfirmation />
+					</wsp:Policy>
+				</sp:Wss11>
+				<sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks"
+					location="server-keystore.jks" />
+				<sc:TrustStore wspp:visibility="private" location="server-truststore.jks" storepass="changeit" />
+			</wsp:All>
+		</wsp:ExactlyOne>
+	</wsp:Policy>
+
+	<wsp:Policy wsu:Id="PortBindingPolicySymm">
+		<wsp:ExactlyOne>
+			<wsp:All>
+				<wsaws:UsingAddressing xmlns:wsaws="http://www.w3.org/2006/05/addressing/wsdl"/>
+				 <sp:AsymmetricBinding>
+				 	<wsp:Policy>
+				 		<sp:InitiatorToken>
+				 			<wsp:Policy>
+				 				<sp:X509Token><!--  sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never"> -->
+				 					<wsp:Policy>
+				 						<sp:WssX509V3Token11 />
+				 					</wsp:Policy>
+				 				</sp:X509Token>
+				 			</wsp:Policy>
+				 		</sp:InitiatorToken>
+				 		<sp:RecipientToken>
+				 			<wsp:Policy>
+				 				<sp:X509Token /><!--  sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never"/> -->
+				 			</wsp:Policy>
+				 		</sp:RecipientToken>
+						<sp:AlgorithmSuite>
+							<wsp:Policy>
+								<sp:Basic128 />
+							</wsp:Policy>
+						</sp:AlgorithmSuite>
+						<sp:IncludeTimestamp/>
+						<sp:OnlySignEntireHeadersAndBody />
+						<sp:ProtectTokens/>
+				 	</wsp:Policy>
+				 </sp:AsymmetricBinding>
+				<sp:Wss11>
+					<wsp:Policy>
+						<sp:MustSupportRefKeyIdentifier />
+						<sp:MustSupportRefIssuerSerial />
+						<sp:MustSupportRefThumbprint />
+						<sp:MustSupportRefEncryptedKey />
+						<!-- sp:RequireSignatureConfirmation /> -->
+					</wsp:Policy>
+				</sp:Wss11>
+				<sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks" alias="xws-security-server"
+					location="server-keystore.jks" />
+				<sc:TrustStore wspp:visibility="private" location="truststore" storepass="changeit" />
+			</wsp:All>
+		</wsp:ExactlyOne>
+	</wsp:Policy>
+	
+	<wsp:Policy wsu:Id="Input_Policy">
+		<sp:SignedSupportingTokens>
+			<wsp:Policy>
+				<sp:SamlToken>
+					<wsp:Policy>
+						<sp:WssSamlV20Token11 />
+					</wsp:Policy>
+				</sp:SamlToken>
+			</wsp:Policy>
+		</sp:SignedSupportingTokens>
+		<sp:SignedParts>
+			<sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing" />
+			<sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing" />
+			<sp:Header Name="ReplyTo" Namespace="http://www.w3.org/2005/08/addressing" />
+			<sp:Header Name="MessageID" Namespace="http://www.w3.org/2005/08/addressing" />
+			<sp:Body />
+		</sp:SignedParts>
+	</wsp:Policy>
+	
+	<wsp:Policy wsu:Id="Input_Policy2">
+		<wsp:All>
+			<sp:SupportingTokens>
+					<sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Once">
+						<wsp:Policy>
+							<sp:WssX509V3Token11 />
+						</wsp:Policy>
+					</sp:X509Token>
+					<sp:SignedParts>
+						<sp:Body />
+					</sp:SignedParts>
+			</sp:SupportingTokens>
+			<sp:SignedEndorsingSupportingTokens>
+				<wsp:Policy>
+				<!-- 
+					<sp:SamlToken>
+						<wsp:Policy>
+							<sp:WssSamlV20Token11 />
+						</wsp:Policy>
+					</sp:SamlToken>
+					-->
+					<sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Once">
+						<wsp:Policy>
+							<sp:WssX509V3Token11 />
+						</wsp:Policy>
+					</sp:X509Token>
+				</wsp:Policy>
+			</sp:SignedEndorsingSupportingTokens>
+			<sp:Wss11>
+				<!-- sp:RequireSignatureConfirmation /> -->
+			</sp:Wss11>
+			</wsp:All>
+	</wsp:Policy>
+</definitions>
