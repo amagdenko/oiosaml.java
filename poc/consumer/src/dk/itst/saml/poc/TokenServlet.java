@@ -1,14 +1,12 @@
 package dk.itst.saml.poc;
 
 import java.io.IOException;
-import java.net.URL;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.namespace.QName;
 
 import liberty.sb._2006_08.Framework;
 
@@ -56,7 +54,7 @@ public class TokenServlet extends HttpServlet {
 				
 				AssertionHolder.set(stsToken);
 				
-				Provider port = new ProviderService(new URL("http://recht-laptop:8880/poc-provider/ProviderService?wsdl"), new QName("http://provider.poc.saml.itst.dk/", "ProviderService")).getProviderPort();
+				Provider port = new ProviderService().getProviderPort();
 				
 				Framework fw = new Framework();
 				fw.setVersion("2.0");
