@@ -1,14 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
-	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
-	<display-name>poc-provider</display-name>
-	<servlet>
-		<servlet-name>ProviderService</servlet-name>
-		<servlet-class>dk.itst.saml.poc.provider.Provider</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>ProviderService</servlet-name>
-		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>poc-provider</display-name>
+  <servlet>
+    <servlet-name>ProviderService</servlet-name>
+    <servlet-class>dk.itst.saml.poc.provider.Provider</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>SAMLDispatcherServlet</servlet-name>
+    <servlet-class>
+			dk.itst.oiosaml.sp.service.DispatcherServlet
+		</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProviderService</servlet-name>
+    <url-pattern>/ProviderService</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SAMLDispatcherServlet</servlet-name>
+    <url-pattern>/saml/*</url-pattern>
+  </servlet-mapping>
+  <filter>
+    <filter-name>LoginFilter</filter-name>
+    <filter-class>dk.itst.oiosaml.sp.service.SPFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>LoginFilter</filter-name>
+    <url-pattern>/interact.jsp</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>LoginFilter</filter-name>
+    <url-pattern>/interact</url-pattern>
+  </filter-mapping>
+  <servlet>
+    <description></description>
+    <display-name>InteractServlet</display-name>
+    <servlet-name>InteractServlet</servlet-name>
+    <servlet-class>dk.itst.saml.poc.provider.InteractServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>InteractServlet</servlet-name>
+    <url-pattern>/interact</url-pattern>
+  </servlet-mapping>
 </web-app>

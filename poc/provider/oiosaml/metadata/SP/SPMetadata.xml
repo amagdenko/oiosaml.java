@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="saml.poc-provider.trifork.com">
+   <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARu3R6smMA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwODEyMTQxNzUyWhcNMTgwODEwMTQxNzUyWjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJsGdBMry8t3pi2+Tz/v+TnpnlvYH3rsWk4sD2zg
+y5j6qevBWXtlsTWIiVcfe6X2Z63dc/V0+l6BF9GKsSX47CxEhZsYFNcSSNwLw+nEjGAdc9Szw7ex
+vJdI4Bl5105R5TNEnvXqzZXBJr7yrMjohSbDf3LeQ50bEz3gq48s+erBAgMBAAGjQjBAMB0GA1Ud
+DgQWBBRVZFRbQy71sPxCCOsJ36LM8BWjmzAfBgNVHSMEGDAWgBRVZFRbQy71sPxCCOsJ36LM8BWj
+mzANBgkqhkiG9w0BAQUFAAOBgQALVbJVJpY4wJuL2YP8fzmWMcVI1tNjrX9egf+KqqgvVSoG2q0u
+MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
+3DHqdQz6MUp73GqlcXp1ZererJWdYwHCR8ATfNkoSWiqnQ==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:KeyDescriptor use="encryption">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARu3R6smMA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwODEyMTQxNzUyWhcNMTgwODEwMTQxNzUyWjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJsGdBMry8t3pi2+Tz/v+TnpnlvYH3rsWk4sD2zg
+y5j6qevBWXtlsTWIiVcfe6X2Z63dc/V0+l6BF9GKsSX47CxEhZsYFNcSSNwLw+nEjGAdc9Szw7ex
+vJdI4Bl5105R5TNEnvXqzZXBJr7yrMjohSbDf3LeQ50bEz3gq48s+erBAgMBAAGjQjBAMB0GA1Ud
+DgQWBBRVZFRbQy71sPxCCOsJ36LM8BWjmzAfBgNVHSMEGDAWgBRVZFRbQy71sPxCCOsJ36LM8BWj
+mzANBgkqhkiG9w0BAQUFAAOBgQALVbJVJpY4wJuL2YP8fzmWMcVI1tNjrX9egf+KqqgvVSoG2q0u
+MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
+3DHqdQz6MUp73GqlcXp1ZererJWdYwHCR8ATfNkoSWiqnQ==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:Organization>
+         <md:OrganizationName xml:lang="">Trifork</md:OrganizationName>
+         <md:OrganizationDisplayName xml:lang="">Trifork</md:OrganizationDisplayName>
+         <md:OrganizationURL xml:lang="">http://trifork.com</md:OrganizationURL>
+      </md:Organization>
+      <md:ContactPerson>
+         <md:EmailAddress>jre@trifork.com</md:EmailAddress>
+      </md:ContactPerson>
+      <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="0" isDefault="true"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceHTTPRedirect" ResponseLocation="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceHTTPRedirectResponse"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceSOAP"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="0" isDefault="true"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="1" isDefault="false"/>
+   </md:SPSSODescriptor>
+</md:EntityDescriptor>

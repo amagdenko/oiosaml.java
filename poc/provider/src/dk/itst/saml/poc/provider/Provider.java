@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.security.auth.Subject;
@@ -40,6 +41,10 @@ import com.sun.xml.ws.util.xml.StAXSource;
 import com.sun.xml.wss.SubjectAccessor;
 
 import dk.itst.oiosaml.sp.service.util.Utils;
+import dk.itst.saml.poc.idws.Framework;
+import dk.itst.saml.poc.idws.FrameworkMismatchFault;
+import dk.itst.saml.poc.idws.RequestToInteractFault;
+import dk.itst.saml.poc.idws.UserInteraction;
 
 @WebService
 @SOAPBinding(style=SOAPBinding.Style.DOCUMENT)
@@ -51,8 +56,11 @@ public class Provider {
 	private WebServiceContext context;
 
 	@WebMethod
-	public String echo() {
+	public String echo(
+			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework) {
 		try {
+			FrameworkMismatchFault.throwIfNecessary(framework);
+			
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
 
@@ -70,9 +78,29 @@ public class Provider {
 //			sb.append("Subject: ").append(YAML.dump(subject));
 			
 			return sb.toString();
+		} catch (FrameworkMismatchFault e) {
+			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return YAML.dump(e);		
+		}
+	}
+	
+	@WebMethod
+	public String requestInteract(
+			@WebParam(name="UserInteraction", header=true, targetNamespace="urn:liberty:sb:2006-08") UserInteraction interact,
+			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework,
+			@WebParam(name="user") String user) throws RequestToInteractFault {
+		FrameworkMismatchFault.throwIfNecessary(framework);
+		
+		String info = InfoRepository.getInfo(user);
+		if (info == null) {
+			if (interact == null) {
+				throw new RuntimeException("Missing info, and no UserInteraction");
+			}
+			throw new RequestToInteractFault("Please go here", "http://jre-mac.trifork.com:8880/poc-provider/interact.jsp");
+		} else {
+			return info;
 		}
 	}
 
@@ -116,6 +144,6 @@ public class Provider {
 	}
 
 	public static void main(String[] args) {
-		Endpoint.publish("http://localhost:8888/provider", new Provider());
+		Endpoint.publish("http://recht-laptop:8880/poc-provider/ProviderService", new Provider());
 	}
 }
