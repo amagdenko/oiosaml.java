@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<project name="jaxws-fromwsdl-client" basedir="."> 
+    <property name="encoding" value="UTF-8"/>
+    <property environment="env"/>
+    <property name="glassfish.home" value="/pack/glassfish-v2ur1/"/>
+    <property name="wsdl.uri" value="https://recht-laptop:8181/poc-provider/ProviderService?wsdl"/>
+    <property file="build.properties"/>
+
+    <path id="classpath">
+        <fileset dir="${glassfish.home}/lib/">
+            <include name="webservices-tools.jar"/>
+        	<include name="javaee.jar"/>
+        </fileset>
+    </path>
+
+    <target name="init" depends="load-jaxws-tasks">
+        <mkdir dir="target/gensrc"/>
+        <mkdir dir="target/genclasses"/>
+    </target>
+    
+    <path id="apt-classpath" >
+        <path refid="classpath"/>
+        <fileset file="${env.JAVA_HOME}/lib/tools.jar"/>
+        <pathelement path="${basedir}/bin"/>
+    </path>
+
+    <target name="load-jaxws-tasks">
+        <taskdef name="jaxws-apt" classname="com.sun.tools.ws.ant.Apt">
+            <classpath refid="classpath"/>
+        </taskdef>
+    
+        <taskdef name="jaxws-wsimport" classname="com.sun.tools.ws.ant.WsImport">
+            <classpath refid="classpath"/>
+        </taskdef>
+        <taskdef name="jaxws-wsgen" classname="com.sun.tools.ws.ant.WsGen">
+            <classpath refid="classpath"/>
+        </taskdef>
+    </target>
+    
+	<target name="jaxws-fromwsdl" depends="init">
+	        <jaxws-wsimport
+	                xendorsed="true"
+	                verbose="${verbose}"
+	                keep="true"
+	                destdir="target/genclasses"
+	                sourcedestdir="target/gensrc"
+	                wsdl="${wsdl.uri}"
+	        		fork="true"
+	        >
+	        	<jvmarg value="-Djavax.net.ssl.trustStore=/pack/glassfish-v2ur1/domains/saml/config/cacerts.jks" />
+	        </jaxws-wsimport>
+	    </target>
+
+</project>
