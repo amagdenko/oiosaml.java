@@ -5,7 +5,12 @@
     <br /><br />
 
 	<div style="text-align: center; float: left">
-    <a href="sp/priv1.jsp">Page requiring login</a><br /><br />
+    <a href="sp/priv1.jsp">Page requiring login</a>
+
+ 	- <a href="ia">Trigger Request to Interact</a>
+	- <a href="token">Trigger token request</a>
+
+	<br /><br />
     
     <img src="oiosaml.gif" alt="oiosaml.java" />
     </div>

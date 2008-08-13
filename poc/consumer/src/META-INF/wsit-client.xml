@@ -4,6 +4,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://provider.poc.saml.itst.dk/"
 	xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:sc="http://schemas.sun.com/2006/03/wss/client"
 	xmlns:wspp="http://java.sun.com/xml/ns/wsit/policy"
+	xmlns:tc="http://schemas.sun.com/ws/2006/05/trust/client"
 	name="ProviderService">
 	
 	<types>
@@ -51,10 +52,14 @@
 					location="TestMOCES1.pfx" />
 				<sc:TrustStore wspp:visibility="private" location="client-truststore.jks" storepass="changeit" />
 				<sc:CallbackHandlerConfiguration wspp:visibility="private">
-					<sc:CallbackHandler default="Alice" name="usernameHandler" />
-					<sc:CallbackHandler default="ecilA" name="passwordHandler" />
 					<sc:CallbackHandler name="samlHandler" classname="dk.itst.saml.poc.SAMLCallback" />
 				</sc:CallbackHandlerConfiguration>
+				<!-- tc:PreconfiguredSTS 
+					endpoint="http://localhost:8880/sts/TokenServiceService" 
+					wsdlLocation="http://localhost:8880/sts/TokenServiceService?wsdl" 
+					serviceName="TokenServiceService" 
+					portName="ITokenServiceService_Port"
+					namespace="http://tempuri.org/" /> -->
 			</wsp:All>
 		</wsp:ExactlyOne>
 	</wsp:Policy>

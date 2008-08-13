@@ -29,6 +29,7 @@ public class SAMLCallback implements CallbackHandler {
                 try{
                     com.sun.xml.wss.impl.callback.SAMLCallback samlCallback = (com.sun.xml.wss.impl.callback.SAMLCallback)callbacks[i];
                     System.out.println(samlCallback.getRuntimeProperties());
+                    System.out.println("Confirmation method: " + samlCallback.getConfirmationMethod());
                     System.out.println("SAML Callback: " + samlCallback);
                     samlCallback.setAssertionElement(createSVSAMLAssertion());
 //                    if (samlCallback.getConfirmationMethod().equals(com.sun.xml.wss.impl.callback.SAMLCallback.SV_ASSERTION_TYPE)) {

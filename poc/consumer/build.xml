@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<project name="jaxws-fromwsdl-client" basedir="."> 
+<project name="poc-consumer" basedir="."> 
     <property name="encoding" value="UTF-8"/>
     <property environment="env"/>
     <property name="glassfish.home" value="/pack/glassfish-v2ur1/"/>
-    <property name="wsdl.uri" value="https://recht-laptop:8181/poc-provider/ProviderService?wsdl"/>
+    <property name="wsdl.uri" value="http://recht-laptop:8880/poc-provider/ProviderService?wsdl"/>
     <property file="build.properties"/>
 
     <path id="classpath">
@@ -11,6 +11,7 @@
             <include name="webservices-tools.jar"/>
         	<include name="javaee.jar"/>
         </fileset>
+    	<fileset dir="lib" />
     </path>
 
     <target name="init" depends="load-jaxws-tasks">
@@ -46,9 +47,32 @@
 	                sourcedestdir="target/gensrc"
 	                wsdl="${wsdl.uri}"
 	        		fork="true"
+	        		extension="true"
 	        >
 	        	<jvmarg value="-Djavax.net.ssl.trustStore=/pack/glassfish-v2ur1/domains/saml/config/cacerts.jks" />
 	        </jaxws-wsimport>
 	    </target>
+	
+	<target name="compile">
+		<mkdir dir="target/build"/>
+		<javac includes="**/*.java" destdir="target/build" encoding="ISO-8859-1" debug="true" source="1.5" target="1.5" classpathref="classpath">
+			<src path="src" />
+			<src path="target/gensrc"/>
+		</javac>
+		<copy todir="target/build">
+			<fileset dir="src" excludes="**/*.java" />
+		</copy>
+	</target>
+	
+	<target name="war" depends="compile">
+		<war destfile="target/poc-consumer.war" webxml="webapp/WEB-INF/web.xml">
+			<fileset dir="webapp" />
+			<lib dir="lib">
+				<exclude name="servletapi-2.4.jar" />
+				<include name="*.jar" />
+			</lib>
+			<classes dir="target/build" />
+		</war>
+	</target>
 
 </project>

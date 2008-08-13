@@ -43,5 +43,6 @@
   <a href="<%= request.getContextPath() %>/saml/login">Force login</a><br />
   <% } %>
   
+  <a href="../token">Call Service Provider with token</a>
   </body>
 </html>

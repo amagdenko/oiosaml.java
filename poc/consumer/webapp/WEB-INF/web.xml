@@ -19,6 +19,11 @@
 		<servlet-class>dk.itst.saml.poc.TokenServlet</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>InteractServlet</servlet-name>
+		<servlet-class>dk.itst.saml.poc.InteractServlet</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>SAMLDispatcherServlet</servlet-name>
 		<url-pattern>/saml/*</url-pattern>
@@ -27,6 +32,11 @@
 	<servlet-mapping>
 		<servlet-name>TokenServlet</servlet-name>
 		<url-pattern>/token</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>InteractServlet</servlet-name>
+		<url-pattern>/ia</url-pattern>
 	</servlet-mapping>
 
 	<filter>
@@ -40,6 +50,10 @@
 	<filter-mapping>
 		<filter-name>LoginFilter</filter-name>
 		<url-pattern>/token</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>LoginFilter</filter-name>
+		<url-pattern>/ia</url-pattern>
 	</filter-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

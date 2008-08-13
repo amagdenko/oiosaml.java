@@ -17,7 +17,6 @@
 	<classpathentry kind="lib" path="lib/joda-time-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.9.jar"/>
-	<classpathentry kind="lib" path="lib/oiosaml.java-sp-2982.jar"/>
 	<classpathentry kind="lib" path="lib/opensaml-2.0.0-jdk-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/openws-1.0.0-jdk-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/servletapi-2.4.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/sts-interceptors-core-2.8.0.11.jar"/>
 	<classpathentry kind="lib" path="lib/openliberty.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/com.sun.enterprise.jst.server.runtimeTarget/GlassFish V2 Java EE 5"/>
+	<classpathentry kind="lib" path="lib/oiosaml.java-sp-3197.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
