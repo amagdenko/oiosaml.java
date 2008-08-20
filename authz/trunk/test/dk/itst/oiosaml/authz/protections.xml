@@ -1,0 +1,19 @@
+<Protections xmlns="http://www.itst.dk/oiosaml/authz/2008/08/" default="deny">
+
+	<Resource name="urn:dk:cvr:cVRnumberIdentifier:13124930">
+		<Url path="/admin/.*">
+			<Privilege name="urn:dk:serviceprovider1:privilege:administerTaxes" />
+		</Url>
+		
+		<Url path=".*" method="get">
+			<Privilege name="urn:dk:serviceprovider1:privilege:fileSecretStatistics" />
+			<Privilege name="urn:dk:serviceprovider1:privilege:viewEmployeeInformation" />
+		</Url>	
+	</Resource>
+
+	<Resource name="urn:dk:cvr:productionUnitIdentifier:1029275212">
+		<Url path=".*" method="get">
+			<Privilege name="urn:dk:serviceprovider1:privilege:fileSecretStatistics" />
+		</Url>	
+	</Resource>
+</Protections>

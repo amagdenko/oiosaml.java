@@ -1,0 +1,22 @@
+<brs:Authorisations xmlns:brs="http://www.eogs.dk/2007/07/brs">
+	<brs:Authorisation resource="urn:dk:cvr:cVRnumberIdentifier:13124930">
+		<brs:Privilege>
+			urn:dk:serviceprovider1:privilege:fileSecretStatistics
+		</brs:Privilege>
+		<brs:Privilege>
+			urn:dk:serviceprovider1:privilege:administerTaxes
+		</brs:Privilege>
+	</brs:Authorisation>
+	
+	<brs:Authorisation resource="urn:dk:cvr:productionUnitIdentifier:1029275212">
+		<brs:Privilege>
+			urn:dk:serviceprovider1:privilege:viewEmployeeInformation
+		</brs:Privilege>
+	</brs:Authorisation>
+	
+	<brs:Authorisation resource="urn:dk:cvr:productionUnitIdentifier:1029275224">
+		<brs:Privilege>
+			urn:dk:serviceprovider1:privilege:viewEmployeeInformation
+		</brs:Privilege>
+	</brs:Authorisation>
+</brs:Authorisations>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:brs="http://www.eogs.dk/2007/07/brs" targetNamespace="http://www.eogs.dk/2007/07/brs"
+	elementFormDefault="qualified" attributeFormDefault="unqualified" blockDefault="substitution" version="2.0">
+	<annotation>
+		<documentation>
+      Custom types for BRS
+        </documentation>
+	</annotation>
+  <!-- Attributes within the SAML assertion -->
+	<element name="Authorisations" type="brs:AuthorisationsType" />
+	<complexType name="AuthorisationsType">
+		<sequence>
+						<element ref="brs:Authorisation" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+	<element name="Authorisation" type="brs:AuthorisationType" />
+	<complexType name="AuthorisationType">
+		<sequence>
+			<element name="Privilege" type="brs:PrivilegeType" maxOccurs="unbounded" />
+		</sequence>
+		<attribute name="resource" type="anyURI" />
+	</complexType>
+	<complexType name="PrivilegeType">
+		<simpleContent>
+			<extension base="string">
+			</extension>
+		</simpleContent>
+	</complexType>
+	<element name="AssuranceLevel" type="brs:AssuranceLevelType" />
+	<simpleType name="AssuranceLevelType">
+		<restriction base="positiveInteger">
+			<pattern value="\d{1}" />
+		</restriction>
+	</simpleType>
+
+  <!-- Used for self procurement of access roles -->
+	<element name="MissingAuthorisationRequest" type="brs:MissingAuthorisationRequestType" />
+	<complexType name="MissingAuthorisationRequestType">
+		<sequence>
+			<element name="SessionIndex" type="string" />
+			<element ref="brs:Authorisation" />
+			<element name="TargetUrl" type="anyURI" />
+		</sequence>
+	</complexType>
+
+  <!-- Used for metadata description of a service provider -->
+	<element name="Attribute" type="brs:AttributeType" />
+	<complexType name="AttributeType">
+		<attribute name="Name" type="string" use="required" />
+		<attribute name="NameFormat" type="anyURI" use="optional" />
+		<attribute name="FriendlyName" type="string" use="optional" />
+	</complexType>
+</schema>

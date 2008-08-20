@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:authz="http://www.itst.dk/oiosaml/authz/2008/08/" targetNamespace="http://www.itst.dk/oiosaml/authz/2008/08/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<element name="Protections" type="authz:ProtectionsType" />
+	
+	<complexType name="ProtectionsType">
+		<sequence>
+			<element name="Resource" type="authz:ResourceType" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="default" default="allow" use="optional">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="allow" />
+					<enumeration value="deny" />
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+
+	<complexType name="ResourceType">
+		<sequence>
+			<element name="Url" type="authz:UrlType" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+		<attribute use="required" name="name" type="anyURI" />
+	</complexType>
+
+	<complexType name="UrlType">
+		<sequence>
+			<element name="Privilege" type="authz:PrivilegeType" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute use="required" name="path" type="string" />
+		<attribute use="optional" name="method">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="post" />
+					<enumeration value="get" />
+					<enumeration value="put" />
+					<enumeration value="delete" />
+					<enumeration value="head" />
+					<enumeration value="*" />
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+	
+	<complexType name="PrivilegeType">
+		<attribute name="name" use="required" type="string" />
+	</complexType>
+	
+
+</schema>
