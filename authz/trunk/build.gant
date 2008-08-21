@@ -46,7 +46,6 @@ target (init : 'Initialize build') {
 		if (m.matches())
 			version = m.group(1) 
 	})
-	taskdef (classpathref: 'classpath', resource: 'tasks.properties')
 	println "Building ${system} version ${version}"
 }
 
