@@ -161,7 +161,7 @@ target (javadoc: 'Generate javadocs') {
 }
 
 target (build_everything: 'Build project') {
-	depends(compile, javadoc, test, jar)
+	depends(clean, compile, javadoc, test, jar)
 }
 
 setDefaultTarget ( jar )
