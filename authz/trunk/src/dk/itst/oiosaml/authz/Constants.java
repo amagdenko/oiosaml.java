@@ -4,7 +4,7 @@ public final class Constants {
 
 	private Constants() {}
 	
-	public static final String AUTHORISATIONS_ATTRIBUTE = "dk:gov:virk:saml:attribute:Authrisations";
+	public static final String AUTHORISATIONS_ATTRIBUTE = "dk:gov:virk:saml:attribute:Authorisations";
 	public static final String PRODUCTION_CODE_ATTRIBUTE = "dk:gov:virk:saml:attribute:ProductionUnitIdentifier";
 	
 	public static final String RESOURCE_CVR_NUMBER_PREFIX ="urn:dk:cvr:cVRnumberIdentifier:";

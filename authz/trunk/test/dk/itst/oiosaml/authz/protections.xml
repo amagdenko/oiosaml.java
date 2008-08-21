@@ -12,6 +12,10 @@
 	</Resource>
 
 	<Resource name="urn:dk:cvr:productionUnitIdentifier:1029275212">
+		<Url path="/test">
+			<Privilege name="urn:dk:serviceprovider1:privilege:viewEmployeeInformation" />
+		</Url>
+	
 		<Url path=".*" method="get">
 			<Privilege name="urn:dk:serviceprovider1:privilege:fileSecretStatistics" />
 		</Url>	

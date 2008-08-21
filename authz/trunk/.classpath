@@ -7,5 +7,17 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/servletapi-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/test/asm-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/asm-tree-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/hamcrest-core-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/hamcrest-library-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/jakarta-oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/test/jmock-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/test/jmock-junit4-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/test/junit.jar"/>
+	<classpathentry kind="lib" path="lib/opensaml-2.0.0-jdk-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/xmltooling-1.0.0-jdk-1.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

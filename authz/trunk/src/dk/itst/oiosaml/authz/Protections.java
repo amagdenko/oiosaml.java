@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class Protections {
+	private static final Logger log = Logger.getLogger(Protections.class);
 	
 	private static final String PROTECTIONS_DEFAULT = "default";
 	private static final String RESOURCE_NAME = "name";
@@ -36,6 +38,8 @@ public class Protections {
 		}
 		
 		NodeList resources = element.getChildNodes();
+		if (log.isDebugEnabled()) log.debug("Parsing " + resources.getLength() + " resources");
+		
 		for (int i = 0; i < resources.getLength(); i++) {
 			if (!(resources.item(i) instanceof Element)) continue;
 			
@@ -64,6 +68,8 @@ public class Protections {
 				protections.put(resourceName, urlList);
 			}
 		}
+		
+		if (log.isDebugEnabled()) log.debug("Protections: " + protections);
 	}
 	
 	private Collection<String> getPrivileges(Element url) {
