@@ -1,3 +1,25 @@
+/*
+ * The contents of this file are subject to the Mozilla Public 
+ * License Version 1.1 (the "License"); you may not use this 
+ * file except in compliance with the License. You may obtain 
+ * a copy of the License at http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an 
+ * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express 
+ * or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ *
+ * The Original Code is OIOSAML Authz
+ * 
+ * The Initial Developer of the Original Code is Trifork A/S. Portions 
+ * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
+ * and Telecom Agency (http://www.itst.dk). All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   Joakim Recht <jre@trifork.com>
+ *
+ */
 package dk.itst.oiosaml.authz;
 
 import java.io.File;
@@ -38,11 +60,11 @@ import dk.itst.oiosaml.sp.UserAttribute;
  */
 public class AuthzFilter implements Filter {
 	private static final Logger log = Logger.getLogger(AuthzFilter.class);
-	private Protections protections;
-	private Authorisations NO_AUTHS = new Authorisations("<Authorisations xmlns=\"http://www.eogs.dk/2007/07/brs\"></Authorisations>");
+	
+	private Authz authz;
 
 	public void destroy() {
-		protections = null;
+		Authz.setProtections(null);
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
@@ -60,13 +82,6 @@ public class AuthzFilter implements Filter {
 			log.fatal(msg);
 			throw new ServletException(msg);
 		}
-		UserAttribute auths = p.getAssertion().getAttribute(Constants.AUTHORISATIONS_ATTRIBUTE);
-		Authorisations authorisations;
-		if (auths == null) {
-			authorisations = NO_AUTHS;
-		} else {
-			authorisations = new Authorisations(auths.getValue());
-		}
 		
 		String resource = extractResource(p);
 		if (resource == null) {
@@ -77,8 +92,8 @@ public class AuthzFilter implements Filter {
 
 		String url = r.getRequestURI().substring(r.getContextPath().length());
 		if (log.isDebugEnabled()) log.debug("Checking access to " + url + " for user " + p.getName() + ", resource " + resource);
-		
-		if (protections.isAuthorised(resource, url, r.getMethod(), authorisations)) {
+
+		if (authz.hasAccess(resource, url, r.getMethod(), p.getAssertion())) {
 			log.debug("Access granted to " + url + " granted to " + p.getName());
 			fc.doFilter(req, res);
 			return;
@@ -119,7 +134,9 @@ public class AuthzFilter implements Filter {
 			log.info("Reading authz config from " + configFile);
 			String xml = FileUtils.readFileToString(new File(configFile));
 
-			protections = new Protections(xml);
+			Protections protections = new Protections(xml);
+			Authz.setProtections(protections);
+			authz = new Authz(protections);
 		} catch (IOException e) {
 			String msg = "Unable to read config file. Make sure that " + Constants.PROP_PROTECTION_CONFIG_FILE + " points to a valid XML file";
 			log.fatal(msg, e);
