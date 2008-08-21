@@ -55,6 +55,9 @@ public class AuthzFilterTest {
 		req = context.mock(HttpServletRequest.class);
 		res = context.mock(HttpServletResponse.class);
 		chain = context.mock(FilterChain.class);
+		context.checking(new Expectations() {{
+			allowing(req).getServletPath(); will(returnValue("/servlet"));
+		}});
 		
 		filter = new AuthzFilter();
 
@@ -156,6 +159,32 @@ public class AuthzFilterTest {
 		filter.doFilter(req, res, chain);
 	}
 	
+	@Test
+	public void alwaysGrantAccessOnSAMLServletRequest() throws Exception {
+		props.put(dk.itst.oiosaml.sp.service.util.Constants.PROP_SAML_SERVLET, "/servlet");
+		context.checking(new Expectations() {{
+			one(chain).doFilter(req, res);
+		}});
+		filter.doFilter(req, res, chain);
+	}
+	
+	@Test
+	public void testErrorServetOnAccessDenied() throws Exception{
+		// if an error servlet has been defined in config, use it instead of sending standard 403 error.
+		
+		props.put(Constants.PROP_PROTECTION_ERROR_SERVLET, "/error");
+		final OIOAssertion assertion = getAssertion("assertion.xml", "1029275212");
+		
+		context.checking(new Expectations() {{
+			one(req).getUserPrincipal(); will(returnValue(new OIOPrincipal(new UserAssertionImpl(assertion))));
+			one(req).getRequestURI(); will(returnValue("/test"));
+			one(req).getMethod(); will(returnValue("get"));
+			one(req).getContextPath(); will(returnValue(""));
+			one(req).getRequestDispatcher("/error");
+		}});
+		filter.doFilter(req, res, chain);
+		
+	}
 	
 	private String generateConfigFile() throws IOException {
 		String xml = IOUtils.toString(getClass().getResourceAsStream("protections.xml"));

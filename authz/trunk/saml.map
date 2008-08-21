@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jar name="saml.war">
+    <dir path="" from="demo"/>
+    <dir path="WEB-INF/classes/dk" from="bin/dk"/>
+    <dir path="WEB-INF/lib" from="lib/dist"/>
+</jar>

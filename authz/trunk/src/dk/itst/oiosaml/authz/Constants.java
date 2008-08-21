@@ -17,6 +17,7 @@ public final class Constants {
 	public static final String ATTRIBUTE_RESOURCE = "resource";
 	
 	public static final String PROP_PROTECTION_CONFIG_FILE = "oiosaml.authz.config";
+	public static final String PROP_PROTECTION_ERROR_SERVLET = "oiosaml.authz.servlet";
 	
 
 	public static final String DENY_PRIVILEGE = "dk:gov:itst:oiosaml:deny";

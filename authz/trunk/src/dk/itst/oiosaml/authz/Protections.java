@@ -99,6 +99,7 @@ public class Protections {
 		for (Url u : urls) {
 			if (u.matches(url, method)) {
 				Collection<String> privs = u.getPrivileges();
+				if (log.isDebugEnabled()) log.debug("Found url " + u + ", required privileges: " + privs + ", available authorisations: " + auths);
 				for (String priv : privs) {
 					if (auths.isAuthorised(resource, priv)) {
 						return true;

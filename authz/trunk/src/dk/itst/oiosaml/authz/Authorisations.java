@@ -65,7 +65,11 @@ public class Authorisations {
 		
 		return authorisations.contains(new Key(resource, privilege));
 	}
-	
+
+	@Override
+	public String toString() {
+		return authorisations.toString();
+	}
 	
 	private static class Key {
 		private final String resource;
@@ -96,6 +100,11 @@ public class Authorisations {
 			if (!resource.equals(other.resource))
 				return false;
 			return true;
+		}
+		
+		@Override
+		public String toString() {
+			return "Key[resource=" + resource + ", privilege=" + privilege + "]";
 		}
 	}
 
