@@ -7,7 +7,7 @@ sourceDirectory = 'src'
 testSrcDir = 'test'
 javadocsDir = 'target/docs'
 testReports = 'target/reports'
-webDir = 'webapp'
+webDir = 'demo'
 version = 'unknown'
 
 includeTargets << gant.targets.Clean
@@ -160,8 +160,31 @@ target (javadoc: 'Generate javadocs') {
 	)	
 }
 
+target (dist: 'Generate distribution zip file') {
+	depends(compile, javadoc, jar, resolve_dist)
+	
+	war (destfile: "${distDir}/demo.war", webxml: "${webDir}/WEB-INF/web.xml") {
+		fileset (dir: webDir)
+		lib (dir: 'lib/dist', includes: '*.jar')
+		lib (dir: distDir, includes: "${system}-${version}.jar")
+	}
+	
+	zip (destfile: "${distDir}/${system}-${version}.zip") {
+		zipfileset (dir: 'docs', prefix: 'doc')
+		zipfileset (dir: javadocsDir, prefix: 'doc/javadoc')
+		fileset (dir: distDir) {
+			include(name: "${system}-*${version}.jar")
+			include(name: "demo.war")
+		}
+		fileset (dir: '.') {
+			include(name: 'LICENSE.txt')
+			include(name: 'README.txt')
+		}
+	}
+}
+
 target (build_everything: 'Build project') {
-	depends(clean, compile, javadoc, test, jar)
+	depends(clean, compile, javadoc, test, jar, dist)
 }
 
 setDefaultTarget ( jar )

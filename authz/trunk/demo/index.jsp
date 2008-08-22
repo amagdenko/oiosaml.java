@@ -4,5 +4,9 @@
 
 	<% UserAssertion ua = UserAssertionHolder.get(); %>
 
+	<h1>The application is working</h1>
+	oiosaml-authz is running, and the current user has been authorised to see this page.
+
+
     <h1>User NameID</h1>
     <%= ua.getSubject() %>
