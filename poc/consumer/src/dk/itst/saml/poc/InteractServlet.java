@@ -26,7 +26,8 @@ public class InteractServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String user = UserAssertionHolder.get().getSubject();
 		
-		Provider port = new ProviderService().getProviderPort();
+		ProviderService service = new ProviderService();
+		Provider port = service.getProviderPort();
 		try {
 			RequestInteract requestInteract = new RequestInteract();
 			requestInteract.setUser(user);
@@ -42,9 +43,10 @@ public class InteractServlet extends HttpServlet {
 			
 			String info = port.requestInteract(requestInteract, ui, fw).getReturn();
 			log.debug("Info for user " + user + ": " + info);
-			
-			resp.setContentType("text/plain");
-			resp.getWriter().println(info);
+
+			req.setAttribute("user", user);
+			req.setAttribute("info", info);
+			req.getRequestDispatcher("/info.jsp").forward(req, resp);
 		} catch (RequestToInteractFault e) {
 			String redirectURL = e.getFaultInfo().getRedirectURL();
 			log.debug("Received RTI to " + redirectURL);
@@ -65,7 +67,13 @@ public class InteractServlet extends HttpServlet {
 			
 			log.debug("Redirecting to " + redirectURL);
 			
-			resp.sendRedirect(redirectURL);
+			req.setAttribute("request", "requestInteract");
+			req.setAttribute("service", service.getServiceName());
+			req.setAttribute("url", redirectURL);
+			req.setAttribute("message", e.getFaultInfo().getMessage());
+			req.getRequestDispatcher("/redirect.jsp").forward(req, resp);
+			
+//			resp.sendRedirect(redirectURL);
 		}
 	}
 }

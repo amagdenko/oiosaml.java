@@ -98,7 +98,7 @@ public class Provider {
 			if (interact == null) {
 				throw new RuntimeException("Missing info, and no UserInteraction");
 			}
-			throw new RequestToInteractFault("Please go here", "http://jre-mac.trifork.com:8880/poc-provider/interact.jsp");
+			throw new RequestToInteractFault("User information is needed to complete request (this message was sent by poc-provider)", "http://jre-mac.trifork.com:8880/poc-provider/interact.jsp");
 		} else {
 			return info;
 		}

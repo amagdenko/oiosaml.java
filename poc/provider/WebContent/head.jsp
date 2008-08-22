@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Expires" content="0" />
-    <title>OIOSAML.java demo application</title>
+    <title>Service Provider</title>
             <style type="text/css">
     	body {background-color: white; margin: 20px;}
     	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
@@ -16,7 +16,7 @@
     </style>
   </head>
 <body>
-<h1>POC-CONSUMER</h1>
+<h1>POC-PROVIDER</h1>
 <%@page import="dk.itst.oiosaml.configuration.BRSConfiguration"%>
 <%@page import="org.apache.commons.configuration.Configuration"%>
 <%@page import="dk.itst.oiosaml.sp.service.util.Constants"%>
@@ -32,4 +32,3 @@
 <h2>System is not configured</h2>
 <a href="saml/configure">Configure the system here</a>.
 <% } %>
-<a href="<%= request.getContextPath() %>/docs/index.html">OIOSAML.java Documentation</a>
