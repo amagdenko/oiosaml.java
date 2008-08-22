@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>OIOSAML Authorisation Filter</title>
+</head>
+
+<body>
+
+Implementation of a authorisation filter based on OIOSAML.
+
+<h2>About</h2>
+
+The Authz filter can perform access control checks based on the value of a user assertion attribute.
+
+<h3>Requirements</h3>
+<ul>
+<li>OIOSAML.java must be installed and configured</li>
+<li>The AuthzFilter must be added to web.xml</li>
+<li>A configuration file with access control definitions must be created</li>
+<li>A oiosaml-sp property must be pointed to the configuration file</li>
+<li>The received assertions must contain one of the following attributes: dk:gov:virk:saml:attribute:ProductionUnitIdentifier or dk:gov:saml:attribute:CvrNumberIdentifier</li>
+<li>The received assertions must contain the attribute "dk:gov:virk:saml:attribute:Authorisations" (the user authorisations)</li>
+<li>The autorisations must follow the schema described below</li>
+</ul>
+
+<h3>Access rules</h3>
+
+Access control rules are defined in a separate xml file which follows a simple structure:
+<pre>
+&lt;Protections xmlns="http://www.itst.dk/oiosaml/authz/2008/08/" default="deny"&gt;
+	&lt;Resource name="urn:dk:cvr:cVRnumberIdentifier:13124930"&gt;
+		&lt;Url path="/admin/.*"&gt;
+			&lt;Privilege name="urn:dk:serviceprovider1:privilege:administerTaxes" /&gt;
+		&lt;/Url&gt;
+	&lt;/Resource&gt;
+&lt;/Protections&gt;
+</pre>
+ 
+ <ul>
+ <li>The top element is Protections, and the namespace is http://www.itst.dk/oiosaml/authz/2008/08/</li>
+ <li>The top element can have a default attribute of either allow or deny. The default value is allow. This defines what happens if no rules match a request.</li>
+ <li>Under Protections, a number of Resource tags can be defined. They have one required attribute, name, pointing to the required organisation.</li>
+ <li>Each Resource can have a list of Url tags. These describe conditions on a request url (without query parameters). The path attribute is required, and is used as a regular expression. 
+ Thus, /admin matches a request against /admin in the current servlet context. /admin/* matches all requests made under /admin.</li>
+ <li>The Url tag also accepts the "method" attribute if the restriction is only valid for specific HTTP methods. If the attribute is not set, or the value is "*", all methods will match.</li>
+ <li>Under each Url a number of Privileges can be added. These are the privileges required to access the path. If more than one privilege is defined, 
+ only one of them has to match the user's privileges.</li>
+ <li>Processing is top-down. This means that if more Urls match the same path, the first match will be used.</li>
+ <li>Several Resource tags with the same name will be collapsed into one Resource.</li>
+ </ul>
+
+<h2>Configuration</h2>
+<p>Step one is to write the access control file. Create the file, and place it somewhere on the server. It's probably a good idea to place it in 
+oiosaml-sp.home (unless configured otherwise, this will be $HOME/.oiosaml).</p>
+
+<p>Edit oiosaml-sp.properties and add a property named oiosaml.authz.config which should point to the access control file, relatively to oiosaml-sp.properties.</p>
+
+
+<p>Then enable the Authz filter. To do this, place oiosaml-authz.jar in WEB-INF/lib and add the following block to web.xml:</p>
+<pre>
+	... SPFilter here...
+	
+	&lt;filter&gt;
+		&lt;filter-name&gt;authz&lt;/filter-name&gt;
+		&lt;filter-class&gt;dk.itst.oiosaml.authz.AuthzFilter&lt;/filter-class&gt;
+	&lt;/filter&gt;
+	
+	... SPFilter mapping here ...
+	
+	&lt;filter-mapping&gt;
+		&lt;filter-name&gt;authz&lt;/filter-name&gt;
+		&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+	&lt;/filter-mapping&gt;
+</pre>
+
+<p>Edit the url-pattern to match local needs. Make sure the AuthzFilter is defined after the SPFilter, and that the filter-mapping is defined after the 
+SPFilter mappings. Any mapping for AuthzFilter must also be covered by SPFilter.</p>
+
+<p>Start the container and check that access is being controlled.</p>
+
+<h2>Customization</h2>
+
+By default, a HTTP 403 error is issued when access is denied. If this is not appropriate, a new servlet can be defined, and errors will be redirected to this.
+To do this, simply define a servlet (any will do, including jsp) and configure it in oiosaml-sp.properties:
+<pre>
+oiosaml.authz.servlet=/error.jsp
+</pre>
+
+<p>Set the property oiosaml.authz.servlet to point to the servlet path of the error servlet. No extra attributes are added to the request object.</p>
+
+</body>

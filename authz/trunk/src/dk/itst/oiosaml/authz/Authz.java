@@ -65,7 +65,7 @@ public class Authz {
 	 * @param url Requested url.
 	 * @param method HTTP method used.
 	 * @param authorisations User authorisations as a string.
-	 * @return
+	 * @return <code>true</code> if access can be granted, <code>false</code> otherwise.
 	 */
 	public boolean hasAccess(String resource, String url, String method, String authorisations) {
 		Utils.checkNotNull(authorisations, "authorisations");
