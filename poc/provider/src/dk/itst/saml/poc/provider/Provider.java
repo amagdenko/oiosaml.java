@@ -10,6 +10,7 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500PrivateCredential;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,6 +24,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
 import org.apache.log4j.Logger;
 import org.jvyaml.YAML;
@@ -98,7 +100,9 @@ public class Provider {
 			if (interact == null) {
 				throw new RuntimeException("Missing info, and no UserInteraction");
 			}
-			throw new RequestToInteractFault("User information is needed to complete request (this message was sent by poc-provider)", "http://jre-mac.trifork.com:8880/poc-provider/interact.jsp");
+			HttpServletRequest req = (HttpServletRequest) context.getMessageContext().get(MessageContext.SERVLET_REQUEST);
+			StringBuilder url = new StringBuilder(req.getScheme()).append("://").append(req.getHeader("Host")).append(req.getContextPath()).append("/interact.jsp");
+			throw new RequestToInteractFault("User information is needed to complete request (this message was sent by poc-provider)", url.toString());
 		} else {
 			return info;
 		}
