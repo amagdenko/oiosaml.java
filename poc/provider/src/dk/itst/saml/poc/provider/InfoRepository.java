@@ -14,4 +14,8 @@ public class InfoRepository {
 	public static void setInfo(String user, String info) {
 		InfoRepository.info.put(user, info);
 	}
+	
+	public static void removeInfo(String user) {
+		InfoRepository.info.remove(user);
+	}
 }

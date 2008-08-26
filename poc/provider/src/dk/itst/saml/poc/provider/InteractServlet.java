@@ -21,5 +21,15 @@ public class InteractServlet extends HttpServlet {
 		
 		response.sendRedirect(request.getParameter("ReturnToURL"));
 	}
+	
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String user = UserAssertionHolder.get().getSubject();
+		
+		InfoRepository.removeInfo(user);
+		
+		resp.getWriter().println("Cleared");
+	}
 
 }
