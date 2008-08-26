@@ -50,7 +50,7 @@
 			<wsp:All>
 				<sc:KeyStore wspp:visibility="private" storepass="Test1234" type="pkcs12"
 					location="TestMOCES1.pfx" />
-				<sc:TrustStore wspp:visibility="private" location="client-truststore.jks" storepass="changeit" />
+				<sc:TrustStore wspp:visibility="private" location="tdc" storepass="changeit" />
 				<sc:CallbackHandlerConfiguration wspp:visibility="private">
 					<sc:CallbackHandler name="samlHandler" classname="dk.itst.saml.poc.SAMLCallback" />
 				</sc:CallbackHandlerConfiguration>
