@@ -32,12 +32,12 @@ import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 
 @RunWith(JMock.class)
@@ -61,7 +61,7 @@ public class AuthzFilterTest {
 		
 		filter = new AuthzFilter();
 
-		props.put(BRSUtil.OIOSAML_HOME, System.getProperty("java.io.tmpdir"));
+		props.put(SAMLUtil.OIOSAML_HOME, System.getProperty("java.io.tmpdir"));
 		BRSConfiguration.setSystemConfiguration(new MapConfiguration(props));
 		
 		configFile = generateConfigFile();
@@ -118,7 +118,7 @@ public class AuthzFilterTest {
 		XSAny ep = builder.buildObject(SAMLConstants.SAML20_NS, AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME, SAMLConstants.SAML20_PREFIX);
 
 		XSAnyUnmarshaller unmarshaller = new XSAnyUnmarshaller();
-		XMLObject val = unmarshaller.unmarshall(BRSUtil.loadElementFromString(IOUtils.toString(getClass().getResourceAsStream("authorisations.xml"))));
+		XMLObject val = unmarshaller.unmarshall(SAMLUtil.loadElementFromString(IOUtils.toString(getClass().getResourceAsStream("authorisations.xml"))));
 		ep.getUnknownXMLObjects().add(val);
 		attr.getAttributeValues().add(ep);
 		
@@ -143,7 +143,7 @@ public class AuthzFilterTest {
 		XSAny ep = builder.buildObject(SAMLConstants.SAML20_NS, AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME, SAMLConstants.SAML20_PREFIX);
 
 		XSAnyUnmarshaller unmarshaller = new XSAnyUnmarshaller();
-		XMLObject val = unmarshaller.unmarshall(BRSUtil.loadElementFromString(IOUtils.toString(getClass().getResourceAsStream("authorisations.xml"))));
+		XMLObject val = unmarshaller.unmarshall(SAMLUtil.loadElementFromString(IOUtils.toString(getClass().getResourceAsStream("authorisations.xml"))));
 		ep.getUnknownXMLObjects().add(val);
 		attr.getAttributeValues().add(ep);
 		
@@ -196,7 +196,7 @@ public class AuthzFilterTest {
 	}
 	
 	private OIOAssertion getAssertion(String name, String pCode) throws IOException {
-		Assertion assertion = (Assertion) BRSUtil.unmarshallElementFromString(IOUtils.toString(getClass().getResourceAsStream(name)));
+		Assertion assertion = (Assertion) SAMLUtil.unmarshallElementFromString(IOUtils.toString(getClass().getResourceAsStream(name)));
 		if (pCode != null) {
 			Attribute attr = AttributeUtil.createAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE, null, "");
 			attr.getAttributeValues().add(AttributeUtil.createAttributeValue(pCode));
