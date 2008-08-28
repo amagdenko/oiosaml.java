@@ -47,7 +47,7 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 
-public class TokenClientTest extends AbstractTests {
+public class TokenClientTest extends TrustTests {
 
 	private Assertion assertion;
 

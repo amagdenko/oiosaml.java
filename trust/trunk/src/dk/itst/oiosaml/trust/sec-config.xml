@@ -38,7 +38,7 @@
         <ObjectProvider qualifiedName="wssu:SecurityTokenReference">
             <BuilderClass className="dk.itst.oiosaml.trust.SecurityTokenReferenceBuilder" />
             <MarshallingClass className="dk.itst.oiosaml.trust.TrustObjectMarshaller" />
-            <UnmarshallingClass className="dk.itst.oiosaml.trust.TrustObjectUnmarshaller" />
+            <UnmarshallingClass className="dk.itst.oiosaml.trust.SecurityTokenReferenceUnmarshaller" />
         </ObjectProvider>
         
         <ObjectProvider qualifiedName="wssu:KeyIdentifier">

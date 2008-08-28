@@ -16,8 +16,7 @@ public class RequestedSecurityToken extends TrustObject {
     
 	private List<Assertion> assertions = new ArrayList<Assertion>();
 	
-	protected RequestedSecurityToken(String namespaceURI, String elementLocalName, String namespacePrefix) 
-	{
+	protected RequestedSecurityToken(String namespaceURI, String elementLocalName, String namespacePrefix) {
 		super(namespaceURI, elementLocalName, namespacePrefix);
 	}
 	

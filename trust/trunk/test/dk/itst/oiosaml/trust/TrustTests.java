@@ -23,12 +23,21 @@
  */
 package dk.itst.oiosaml.trust;
 
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.opensaml.DefaultBootstrap;
+import org.opensaml.xml.ConfigurationException;
 
-public abstract class TrustTests extends AbstractTests {
+@RunWith(JMock.class)
+public abstract class TrustTests {
+
+	protected Mockery context = new Mockery();
 
 	@BeforeClass
-	public final static void configure() {
+	public final static void configure() throws ConfigurationException {
+		DefaultBootstrap.bootstrap();
 		TrustBootstrap.bootstrap();
 	}
 	
