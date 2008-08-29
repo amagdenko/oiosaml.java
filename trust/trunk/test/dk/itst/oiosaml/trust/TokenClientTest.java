@@ -55,6 +55,7 @@ public class TokenClientTest extends TrustTests {
 	}
 
 	@Test
+	@Ignore
 	public void testRequest() throws Exception {
 		EndpointReference epr = SAMLUtil.buildXMLObject(EndpointReference.class);
 		
