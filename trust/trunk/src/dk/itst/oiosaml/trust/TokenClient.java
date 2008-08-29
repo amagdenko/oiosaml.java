@@ -28,11 +28,9 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -52,30 +50,35 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
-import org.openliberty.xmltooling.Konstantz;
-import org.openliberty.xmltooling.disco.SecurityContext;
-import org.openliberty.xmltooling.security.Token;
-import org.openliberty.xmltooling.wsa.Action;
-import org.openliberty.xmltooling.wsa.EndpointReference;
-import org.openliberty.xmltooling.wsse.Security;
-import org.openliberty.xmltooling.wsu.Created;
-import org.openliberty.xmltooling.wsu.Expires;
-import org.openliberty.xmltooling.wsu.Timestamp;
+import org.joda.time.DateTime;
+import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.soap.soap11.Header;
-import org.opensaml.ws.soap.util.SOAPConstants;
+import org.opensaml.ws.wsaddressing.Action;
+import org.opensaml.ws.wsaddressing.Address;
+import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wspolicy.AppliesTo;
+import org.opensaml.ws.wssecurity.Created;
+import org.opensaml.ws.wssecurity.Expires;
+import org.opensaml.ws.wssecurity.KeyIdentifier;
+import org.opensaml.ws.wssecurity.Security;
+import org.opensaml.ws.wssecurity.SecurityTokenReference;
+import org.opensaml.ws.wssecurity.Timestamp;
+import org.opensaml.ws.wssecurity.WSSecurityConstants;
+import org.opensaml.ws.wstrust.Issuer;
+import org.opensaml.ws.wstrust.OnBehalfOf;
+import org.opensaml.ws.wstrust.RequestSecurityToken;
+import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
+import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
 import org.opensaml.xml.AttributeExtensibleXMLObject;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.schema.XSAny;
-import org.opensaml.xml.schema.impl.XSAnyBuilder;
+import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
@@ -84,6 +87,8 @@ import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.liberty.SecurityContext;
+import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -116,7 +121,7 @@ public class TokenClient {
 		TrustBootstrap.bootstrap();
 	}
 
-	public Element request() {
+	public Element request() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		String xml = toXMLRequest();
 		
 		log.debug(xml);
@@ -132,165 +137,35 @@ public class TokenClient {
 				throw new TrustException("Unable to retrieve STS token: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(f));
 			} else {
 				RequestSecurityTokenResponseCollection c = (RequestSecurityTokenResponseCollection) res;
-				RequestSecurityTokenResponse tokenResponse = c.getResponses().get(0);
+				RequestSecurityTokenResponse tokenResponse = c.getRequestSecurityTokenResponses().get(0);
 				
-				return tokenResponse.getRequestedToken().getAssertions().get(0).getDOM();
+				return tokenResponse.getRequestedSecurityToken().getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0).getDOM();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	private String addSignatureElement(XMLSignatureFactory xmf, Map<AttributeExtensibleXMLObject, String> references, AttributeExtensibleXMLObject obj) {
-		String id = Utils.generateUUID();
-		obj.getUnknownAttributes().put(new QName(Konstantz.WSU_NS, "Id", Konstantz.WSU_PREFIX), id);
-		
-		references.put(obj, id);
-		
-		return id;
-	}
 	
-	private Element sign(XMLSignatureFactory xmf, Map<AttributeExtensibleXMLObject, String> references, Envelope env, String keyId) {
-        try {
-			CanonicalizationMethod canonicalizationMethod = xmf.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null);
-			SignatureMethod signatureMethod = xmf.newSignatureMethod(SignatureMethod.RSA_SHA1, null);
-
-	        XSAnyBuilder builder = new XSAnyBuilder();
-	        XSAny str = builder.buildObject(Konstantz.WSSE_NS, "SecurityTokenReference", Konstantz.WSSE_PREFIX);
-	        XSAny kref = builder.buildObject(Konstantz.WSSE_NS, "Reference", Konstantz.WSSE_PREFIX);
-	        kref.getUnknownAttributes().put(new QName("ValueType"), "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
-	        kref.getUnknownAttributes().put(new QName("URI"), "#" + keyId);
-	        str.getUnknownXMLObjects().add(kref);
-//	        addSignatureElement(xmf, references, str);
-	        
-			List<Reference> refs = new ArrayList<Reference>();
-			
-			DigestMethod digestMethod = xmf.newDigestMethod(DigestMethod.SHA1, null);
-			List<Transform> transforms = new ArrayList<Transform>(2);
-			transforms.add(xmf.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",new ExcC14NParameterSpec(Collections.singletonList("xsd"))));
-
-			for (Map.Entry<AttributeExtensibleXMLObject, String> ref : references.entrySet()) {
-				Reference r = xmf.newReference("#"+ref.getValue(), digestMethod, transforms, null, null);
-				refs.add(r);
-			}
-
-			// Create the SignedInfo
-			SignedInfo signedInfo = xmf.newSignedInfo(canonicalizationMethod, signatureMethod, refs);
-			
-	        KeyInfoFactory keyInfoFactory = xmf.getKeyInfoFactory();
-	        X509Data x509Data = keyInfoFactory.newX509Data(Collections.singletonList(credential.getEntityCertificate()));
-//	        KeyValue kv = keyInfoFactory.newKeyValue(credential.getPublicKey());
-//	        KeyInfo ki = keyInfoFactory.newKeyInfo(Collections.singletonList(new DOMStructure(new XSAnyMarshaller().marshall(str))));
-	        KeyInfo ki = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data));
-	        
-	        XMLSignature signature = xmf.newXMLSignature(signedInfo, ki);
-	        
-	        String xml = XMLHelper.nodeToString(SAMLUtil.marshallObject(env));
-	        log.debug(xml);
-	        Element element = SAMLUtil.loadElementFromString(xml);
-
-	        Node security = element.getElementsByTagNameNS(Konstantz.WSSE_NS, "Security").item(0);
-            
-	        DOMSignContext signContext = new DOMSignContext(credential.getPrivateKey(), security); 
-	        signContext.putNamespacePrefix("http://www.w3.org/2000/09/xmldsig#", "ds");
-	        signContext.putNamespacePrefix("http://www.w3.org/2001/10/xml-exc-c14n#", "ec");
-
-	        for (AttributeExtensibleXMLObject o : references.keySet()) {
-	        	NodeList nl = element.getElementsByTagNameNS(o.getDOM().getNamespaceURI(), o.getDOM().getLocalName());
-	        	for (int i = 0; i < nl.getLength(); i++) {
-	        		Element e = (Element) nl.item(i);
-	        		if (e.hasAttributeNS(Konstantz.WSU_NS, "Id")) {
-	        			signContext.setIdAttributeNS(e, Konstantz.WSU_NS, "Id");
-	        		}
-	        	}
-	        }
-	        
-	        // Marshal, generate (and sign) the detached XMLSignature. The DOM
-	        // Document will contain the XML Signature if this method returns
-	        // successfully.
-	        // HIERARCHY_REQUEST_ERR: Raised if this node is of a type that does not allow children of the type of the newChild  node, or if the node to insert is one of this node's ancestors.
-	        signature.sign(signContext);
-
-	        return element;
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		} catch (InvalidAlgorithmParameterException e) {
-			throw new RuntimeException(e);
-		} catch (MarshalException e) {
-			throw new RuntimeException(e);
-		} catch (XMLSignatureException e) {
-			throw new RuntimeException(e);
-//		} catch (MarshallingException e) {
-//			throw new RuntimeException(e);
-		}
-	}
-	
-	public String toXMLRequest() {
-		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getSecurityContexts());
+	public String toXMLRequest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
 		
-		XMLSignatureFactory xmf = getXMLSignature();
-        Map<AttributeExtensibleXMLObject, String> references = new HashMap<AttributeExtensibleXMLObject, String>();
-		
-		
-		RequestSecurityToken req = SAMLUtil.buildXMLObject(RequestSecurityToken.class);
+        OIOIssueRequest req = OIOIssueRequest.buildRequest();
+        req.setIssuer("urn:issuer");
+        
 		token.getAssertion().detach();
-		req.setOnBehalfOf(token.getAssertion());
+		
+		req.setOnBehalfOf(token.getAssertion().getID());
+		
 		req.setAppliesTo(appliesTo);
-		req.setIssuer("urn:issuer");
-		
-		Body body = SAMLUtil.buildXMLObject(Body.class);
-		body.getUnknownXMLObjects().add(req);
-		addSignatureElement(xmf, references, body);
 
-		// Build output...
-		Envelope envelope = SAMLUtil.buildXMLObject(Envelope.class);
-		envelope.setBody(body);
-
-		Header header = SAMLUtil.buildXMLObject(Header.class);
-		envelope.setHeader(header);
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
+		env.setBody(req);
+		env.setAction("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
+		env.setTimestamp(5);
+		env.addSecurityToken(token.getAssertion());
 		
-		Action action = new Action();
-		action.setValue("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
-		header.getUnknownXMLObjects().add(action);
-		addSignatureElement(xmf, references, action);
-		
-		Security security = SAMLUtil.buildXMLObject(Security.class);
-		security.getUnknownAttributes().put(new QName(SOAPConstants.SOAP11_NS, "mustUnderstand", SOAPConstants.SOAP11_PREFIX), "1");
-		header.getUnknownXMLObjects().add(security);
-
-		Timestamp timestamp = SAMLUtil.buildXMLObject(Timestamp.class);
-		
-		try {
-			Created created = SAMLUtil.buildXMLObject(Created.class);
-			GregorianCalendar gc = new GregorianCalendar();
-			XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
-			created.setValue(cal.toXMLFormat());
-			timestamp.setCreated(created);
-			
-			XSAny exp = new XSAnyBuilder().buildObject(Expires.DEFAULT_ELEMENT_NAME);
-			gc.add(Calendar.MINUTE, 5);
-			cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
-			exp.setTextContent(cal.toXMLFormat());
-			timestamp.getUnknownXMLObjects().add(exp);
-			
-		} catch (DatatypeConfigurationException e1) {}
-		security.getUnknownXMLObjects().add(timestamp);
-		addSignatureElement(xmf, references, timestamp);
-		
-		security.getUnknownXMLObjects().add(token.getAssertion());
-		
-//        XSAny bst = new XSAnyBuilder().buildObject(Konstantz.WSSE_NS, "BinarySecurityToken", Konstantz.WSSE_PREFIX);
-//        try {
-//			bst.setTextContent(Base64.encodeBytes(credential.getEntityCertificate().getEncoded()));
-//		} catch (CertificateEncodingException e) {
-//			throw new RuntimeException(e);
-//		}
-//        bst.getUnknownAttributes().put(new QName("ValueType"), "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
-//        bst.getUnknownAttributes().put(new QName("EncodingType"), "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
-//        security.getUnknownXMLObjects().add(bst);
-//        String keyId = addSignatureElement(xmf, references, bst);
-		
-		Element signed = sign(xmf, references, envelope, null);
+		Element signed = env.sign(credential);
 		return XMLHelper.nodeToString(signed);
 	}
 
@@ -302,28 +177,16 @@ public class TokenClient {
 		this.appliesTo = appliesTo;
 	}
 
-	private Token getToken(String usage, Collection<SecurityContext> contexts) {
-		for (SecurityContext ctx : contexts) {
+	private Token getToken(String usage, List<XMLObject> list) {
+		for (Iterator<XMLObject> iterator = list.iterator(); iterator.hasNext();) {
+			SecurityContext ctx = (SecurityContext) iterator.next();
 			for (Token t : ctx.getTokens()) {
 				if (usage.equals(t.getUsage())) {
 					return t;
 				}
 			}
-			
 		}
 		throw new IllegalArgumentException("No token with usage type " + usage);
 	}
 	
-	private XMLSignatureFactory getXMLSignature() {
-        // First, create a DOM XMLSignatureFactory that will be used to
-        // generate the XMLSignature and marshal it to DOM.
-        String providerName = System.getProperty("jsr105Provider", "org.jcp.xml.dsig.internal.dom.XMLDSigRI");
-        try {
-			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM", (Provider) Class.forName(providerName).newInstance());
-			return xmlSignatureFactory;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-	}
 }

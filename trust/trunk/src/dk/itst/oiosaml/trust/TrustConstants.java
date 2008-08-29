@@ -26,6 +26,8 @@ package dk.itst.oiosaml.trust;
 public class TrustConstants {
 
 	public static final String SAMLID = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID";
+	public static final String TOKEN_TYPE_SAML_20 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+	
 	public static final String WST_NS = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
 	public static final String WST_PREFIX = "wst";
 	public static final String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";

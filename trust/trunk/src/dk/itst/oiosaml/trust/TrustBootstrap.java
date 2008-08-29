@@ -24,7 +24,6 @@
 package dk.itst.oiosaml.trust;
 
 import org.apache.log4j.Logger;
-import org.openliberty.wsc.OpenLibertyBootstrap;
 import org.opensaml.Configuration;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLConfigurator;
@@ -38,12 +37,20 @@ public class TrustBootstrap {
 		if (!bootstrapped) {
 	        Class<Configuration> clazz = Configuration.class;
 	
-	        String config = "/dk/itst/oiosaml/trust/sec-config.xml";
+	        String[] config = {
+	        		"/wsaddressing-config.xml",
+	        		"/wspolicy-config.xml",
+	        		"/wssecurity-config.xml",
+	        		"/wstrust-config.xml",
+	        		"/dk/itst/oiosaml/liberty/liberty-config.xml",
+	        };
 	        if (log.isDebugEnabled())  log.debug("Loading XMLTooling configuration " + config);
 	        try {
-	        	OpenLibertyBootstrap.bootstrap();
 	        	XMLConfigurator configurator = new XMLConfigurator();
-				configurator.load(clazz.getResourceAsStream(config));
+	        	for (String c : config) {
+	        		log.debug("Loading config " + c);
+	        		configurator.load(clazz.getResourceAsStream(c));	
+				}
 			} catch (ConfigurationException e) {
 				throw new RuntimeException(e);
 			}

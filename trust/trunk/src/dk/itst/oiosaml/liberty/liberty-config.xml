@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMLTooling xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.opensaml.org/xmltooling-config ../../src/schema/xmltooling-config.xsd"
+ xmlns:disco="urn:liberty:disco:2006-08"
+ xmlns:sec="urn:liberty:security:2006-08"
+ xmlns="http://www.opensaml.org/xmltooling-config">
+    
+    <ObjectProviders>
+
+        <ObjectProvider qualifiedName="disco:SecurityMechID">
+            <BuilderClass className="dk.itst.oiosaml.liberty.SecurityMechIDBuilder" />
+            <MarshallingClass className="dk.itst.oiosaml.liberty.SecurityMechIDMarshaller" />
+            <UnmarshallingClass className="dk.itst.oiosaml.liberty.SecurityMechIDUnmarshaller" />
+        </ObjectProvider>
+
+        <ObjectProvider qualifiedName="disco:SecurityContext">
+            <BuilderClass className="dk.itst.oiosaml.liberty.SecurityContextBuilder" />
+            <MarshallingClass className="dk.itst.oiosaml.liberty.SecurityContextMarshaller" />
+            <UnmarshallingClass className="dk.itst.oiosaml.liberty.SecurityContextUnmarshaller" />
+        </ObjectProvider>        
+        <ObjectProvider qualifiedName="sec:Token">
+            <BuilderClass className="dk.itst.oiosaml.liberty.Token$Builder" />
+            <MarshallingClass className="dk.itst.oiosaml.liberty.Token$Marshaller" />
+            <UnmarshallingClass className="dk.itst.oiosaml.liberty.Token$Unmarshaller" />
+        </ObjectProvider>
+                                
+                        
+    </ObjectProviders>
+
+</XMLTooling>
