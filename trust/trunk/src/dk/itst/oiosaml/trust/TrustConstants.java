@@ -23,6 +23,10 @@
  */
 package dk.itst.oiosaml.trust;
 
+import javax.xml.namespace.QName;
+
+import org.opensaml.ws.wssecurity.WSSecurityConstants;
+
 public class TrustConstants {
 
 	public static final String SAMLID = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID";
@@ -39,5 +43,5 @@ public class TrustConstants {
 	public static final String WSP_NS = "http://schemas.xmlsoap.org/ws/2002/12/policy";
 	public static final String WSP_PREFIX = "wsp";
 
-
+	public static final QName WSU_ID = new QName(WSSecurityConstants.WSU_NS, "Id", WSSecurityConstants.WSU_PREFIX);
 }

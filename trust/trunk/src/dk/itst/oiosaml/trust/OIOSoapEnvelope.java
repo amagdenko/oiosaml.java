@@ -25,7 +25,6 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
-import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -189,6 +188,10 @@ public class OIOSoapEnvelope {
         return element;
 	}
 	
+	public XMLObject getXMLObject() {
+		return envelope;
+	}
+	
 	private XMLSignatureFactory getXMLSignature() {
         // First, create a DOM XMLSignatureFactory that will be used to
         // generate the XMLSignature and marshal it to DOM.
@@ -204,7 +207,7 @@ public class OIOSoapEnvelope {
 
 	private String addSignatureElement(AttributeExtensibleXMLObject obj) {
 		String id = Utils.generateUUID();
-		obj.getUnknownAttributes().put(new QName(WSSecurityConstants.WSU_NS, "Id", WSSecurityConstants.WSU_PREFIX), id);
+		obj.getUnknownAttributes().put(TrustConstants.WSU_ID, id);
 		
 		references.put(obj, id);
 		
