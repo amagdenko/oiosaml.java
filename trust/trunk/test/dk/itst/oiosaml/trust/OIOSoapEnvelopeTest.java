@@ -96,12 +96,6 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		assertFalse(sec.getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).isEmpty());
 	}
 	
-	@Test(expected=RuntimeException.class)
-	public void signFailsWhenEnvelopeIsEmpty() throws Exception {
-		BasicX509Credential credential = TestHelper.getCredential();
-		env.sign(credential);
-	}
-	
 	@Test
 	public void testSign() throws Exception {
 		env.setAction("action");
@@ -116,10 +110,10 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		assertFalse(sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).isEmpty());
 		
 		SignatureImpl signature = (SignatureImpl) sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).get(0);
-		assertEquals(1, signature.getXMLSignature().getSignedInfo().getLength());
+		assertEquals(3, signature.getXMLSignature().getSignedInfo().getLength());
 		
 		Action action = (Action) envelope.getHeader().getUnknownXMLObjects(Action.ELEMENT_NAME).get(0);
-		assertEquals("#" + action.getUnknownAttributes().get(TrustConstants.WSU_ID), signature.getXMLSignature().getSignedInfo().getReferencedContentBeforeTransformsItem(0).getSourceURI());
+		assertEquals("#" + action.getUnknownAttributes().get(TrustConstants.WSU_ID), signature.getXMLSignature().getSignedInfo().getReferencedContentBeforeTransformsItem(2).getSourceURI());
 	
 		SignatureValidator validator = new SignatureValidator(credential);
 		validator.validate(signature);
