@@ -26,64 +26,23 @@ package dk.itst.oiosaml.trust;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.Reference;
-import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.crypto.dsig.SignedInfo;
-import javax.xml.crypto.dsig.Transform;
-import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.crypto.dsig.XMLSignatureFactory;
-import javax.xml.crypto.dsig.dom.DOMSignContext;
-import javax.xml.crypto.dsig.keyinfo.KeyInfo;
-import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
-import javax.xml.crypto.dsig.keyinfo.X509Data;
-import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
-import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
-import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
-import org.opensaml.ws.soap.soap11.Header;
-import org.opensaml.ws.wsaddressing.Action;
-import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
-import org.opensaml.ws.wspolicy.AppliesTo;
-import org.opensaml.ws.wssecurity.Created;
-import org.opensaml.ws.wssecurity.Expires;
-import org.opensaml.ws.wssecurity.KeyIdentifier;
-import org.opensaml.ws.wssecurity.Security;
-import org.opensaml.ws.wssecurity.SecurityTokenReference;
-import org.opensaml.ws.wssecurity.Timestamp;
-import org.opensaml.ws.wssecurity.WSSecurityConstants;
-import org.opensaml.ws.wstrust.Issuer;
-import org.opensaml.ws.wstrust.OnBehalfOf;
-import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
-import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
-import org.opensaml.xml.AttributeExtensibleXMLObject;
+import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
@@ -128,18 +87,28 @@ public class TokenClient {
 		
 		HttpSOAPClient client = new HttpSOAPClient();
 		try {
-			XMLObject res = client.wsCall(new LogUtil(getClass(), ""), endpoint, null, null, true, xml);
+			Envelope env = client.wsCall(new LogUtil(getClass(), ""), endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 			
-			log.debug("STS Response: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(res));
+			//TODO: Validate signature
+
+			//TODO: Support tokens in security header
 			
+			log.debug("STS Response: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(env));
+			XMLObject res = env.getBody().getUnknownXMLObjects().get(0);
 			if (res instanceof Fault) {
 				Fault f = (Fault) res;
 				throw new TrustException("Unable to retrieve STS token: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(f));
-			} else {
-				RequestSecurityTokenResponseCollection c = (RequestSecurityTokenResponseCollection) res;
-				RequestSecurityTokenResponse tokenResponse = c.getRequestSecurityTokenResponses().get(0);
+			} else if (res instanceof RequestSecurityTokenResponse) {
+				RequestSecurityTokenResponse tokenResponse = (RequestSecurityTokenResponse) res;
 				
 				return tokenResponse.getRequestedSecurityToken().getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0).getDOM();
+			} else {
+				for (XMLObject object : res.getOrderedChildren()) {
+					if (object.getElementQName().equals(RequestedSecurityToken.ELEMENT_NAME)) {
+						return ((RequestedSecurityToken)object).getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0).getDOM();
+					}
+				}
+				throw new TrustException("Got a " + res.getElementQName() + ", expected " + RequestSecurityTokenResponse.ELEMENT_NAME);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -162,6 +131,8 @@ public class TokenClient {
 		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
 		env.setBody(req);
 		env.setAction("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
+		env.setTo(endpoint);
+		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
 		env.setTimestamp(5);
 		env.addSecurityToken(token.getAssertion());
 		

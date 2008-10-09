@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
@@ -25,6 +26,7 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
+import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -34,6 +36,10 @@ import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Header;
 import org.opensaml.ws.wsaddressing.Action;
+import org.opensaml.ws.wsaddressing.Address;
+import org.opensaml.ws.wsaddressing.MessageID;
+import org.opensaml.ws.wsaddressing.ReplyTo;
+import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.ws.wssecurity.Created;
 import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.Security;
@@ -41,7 +47,9 @@ import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
 import org.opensaml.xml.AttributeExtensibleXMLObject;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.XSBooleanValue;
+import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
@@ -73,17 +81,32 @@ public class OIOSoapEnvelope {
 		}
 	}
 	
+	private OIOSoapEnvelope(Envelope envelope, MessageID msgId, XSAny framework) {
+		this(envelope);
+		addSignatureElement(msgId);
+		addSignatureElement(framework);
+	}
+	
 	public static OIOSoapEnvelope buildEnvelope() {
 		Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
 
 		Header header = SAMLUtil.buildXMLObject(Header.class);
 		env.setHeader(header);
 		
+		MessageID msgId = SAMLUtil.buildXMLObject(MessageID.class);
+		msgId.setValue(UUID.randomUUID().toString());
+		header.getUnknownXMLObjects().add(msgId);
+		
+		XSAny framework = new XSAnyBuilder().buildObject("urn:liberty:sb:2006-08", "Framework", "sbf");
+		framework.getUnknownAttributes().put(new QName("version"), "2.0");
+		framework.getUnknownAttributes().put(new QName("urn:liberty:sb:eGov", "profile"), "egovsimple");
+		header.getUnknownXMLObjects().add(framework);
+		
 		Security security = SAMLUtil.buildXMLObject(Security.class);
 		security.setMustUnderstand(new XSBooleanValue(true, true));
 		header.getUnknownXMLObjects().add(security);
 		
-		return new OIOSoapEnvelope(env);
+		return new OIOSoapEnvelope(env, msgId, framework);
 	}
 	
 	
@@ -134,12 +157,6 @@ public class OIOSoapEnvelope {
 		CanonicalizationMethod canonicalizationMethod = xsf.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null);
 		SignatureMethod signatureMethod = xsf.newSignatureMethod(SignatureMethod.RSA_SHA1, null);
 
-//		SecurityTokenReference str = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
-//		org.opensaml.ws.wssecurity.Reference kref = SAMLUtil.buildXMLObject(org.opensaml.ws.wssecurity.Reference.class);
-//		kref.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
-//		kref.setURI("#" + keyId);
-//		str.setReference(kref);
-        
 		List<Reference> refs = new ArrayList<Reference>();
 		
 		DigestMethod digestMethod = xsf.newDigestMethod(DigestMethod.SHA1, null);
@@ -212,6 +229,22 @@ public class OIOSoapEnvelope {
 		references.put(obj, id);
 		
 		return id;
+	}
+
+	public void setTo(String endpoint) {
+		To to = SAMLUtil.buildXMLObject(To.class);
+		to.setValue(endpoint);
+		envelope.getHeader().getUnknownXMLObjects().add(to);
+		addSignatureElement(to);
+	}
+
+	public void setReplyTo(String replyTo) {
+		ReplyTo reply = SAMLUtil.buildXMLObject(ReplyTo.class);
+		Address addr = SAMLUtil.buildXMLObject(Address.class);
+		addr.setValue(replyTo);
+		reply.setAddress(addr);
+		envelope.getHeader().getUnknownXMLObjects().add(reply);
+		addSignatureElement(reply);
 	}
 	
 }

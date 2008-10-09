@@ -8,6 +8,8 @@ import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wstrust.Issuer;
 import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
+import org.opensaml.ws.wstrust.RequestType;
+import org.opensaml.ws.wstrust.TokenType;
 import org.opensaml.xml.XMLObject;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -21,7 +23,16 @@ public class OIOIssueRequest {
 	}
 	
 	public static OIOIssueRequest buildRequest() {
-		return new OIOIssueRequest(SAMLUtil.buildXMLObject(RequestSecurityToken.class));
+		RequestSecurityToken req = SAMLUtil.buildXMLObject(RequestSecurityToken.class);
+		RequestType type = SAMLUtil.buildXMLObject(RequestType.class);
+		type.setValue("http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue");
+		req.setRequestType(type);
+
+		TokenType tokenType = SAMLUtil.buildXMLObject(TokenType.class);
+		tokenType.setValue(TrustConstants.TOKEN_TYPE_SAML_20);
+		req.setTokenType(tokenType);
+		
+		return new OIOIssueRequest(req);
 	}
 	
 	public void setIssuer(String issuer) {
