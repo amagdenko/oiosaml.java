@@ -3,6 +3,6 @@
 <jar name="oiosaml.war">
     <dir path="" from="webapp"/>
     <dir path="WEB-INF/classes" from="bin"/>
-    <dir path="WEB-INF/lib" from="lib"/>
+    <dir path="WEB-INF/lib" from="lib/build"/>
     <dir path="META-INF" from="src/META-INF"/>
 </jar>

@@ -7,19 +7,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.BindingProvider;
 
 import liberty.sb._2006_08.Framework;
 
 import org.apache.log4j.Logger;
-import org.openliberty.wsc.OpenLibertyBootstrap;
-import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAttribute;
-import dk.itst.oiosaml.trust.client.TokenClient;
-import dk.itst.oiosaml.trust.client.TrustException;
+import dk.itst.oiosaml.sp.metadata.SPMetadata;
+import dk.itst.oiosaml.trust.TokenClient;
+import dk.itst.oiosaml.trust.TrustBootstrap;
+import dk.itst.oiosaml.trust.TrustException;
 import dk.itst.saml.poc.provider.Echo;
 import dk.itst.saml.poc.provider.Provider;
 import dk.itst.saml.poc.provider.ProviderService;
@@ -29,11 +30,7 @@ public class TokenServlet extends HttpServlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		try {
-			OpenLibertyBootstrap.bootstrap();
-		} catch (ConfigurationException e) {
-			throw new ServletException(e);
-		}
+		TrustBootstrap.bootstrap();
 	}
 	
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -47,6 +44,11 @@ public class TokenServlet extends HttpServlet {
 		
 		try {
 			try {
+				Provider port = new ProviderService().getProviderPort();
+				BindingProvider bp = (BindingProvider) port;
+				
+				tokenClient.setAppliesTo((String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
+				tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 				Element stsToken = tokenClient.request();
 	
 				req.setAttribute("message", XMLHelper.nodeToString(stsToken));
@@ -54,7 +56,6 @@ public class TokenServlet extends HttpServlet {
 				
 				AssertionHolder.set(stsToken);
 				
-				Provider port = new ProviderService().getProviderPort();
 				
 				Framework fw = new Framework();
 				fw.setVersion("2.0");

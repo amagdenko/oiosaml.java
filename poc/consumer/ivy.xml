@@ -1,0 +1,21 @@
+<ivy-module version="1.0">
+    <info module="poc-consumer" organisation="dk.itst.oiosaml" status="integration"/>
+    <configurations>
+      <conf name="dist"/>
+      <conf name="build" extends="dist"/>
+      <conf name="test" extends="build"/>
+    </configurations>
+    <dependencies>
+        <dependency org="dk.itst.oiosaml" name="oiosaml-trust" rev="latest.integration" conf="*->@" />
+	<dependency org="com.sun.xml.ws" name="webservices-rt" rev="1.3" transitive="false">
+		<artifact name="webservices-rt" type="jar" />
+		<exclude org="javax.xml" />
+	</dependency>
+	<dependency org="javax.xml" name="webservices-api" rev="1.3" transitive="false">
+		<artifact name="webservices-api" type="jar" />
+	</dependency>
+	<dependency org="com.sun.tools.ws" name="webservices-tools" rev="1.3">
+		<artifact name="webservices-tools" type="jar" />
+	</dependency>
+    </dependencies>
+</ivy-module>
