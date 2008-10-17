@@ -26,6 +26,8 @@ package dk.itst.oiosaml.trust;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,15 +39,20 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.security.x509.X509Credential;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.logging.LogUtil;
@@ -54,6 +61,14 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
+/**
+ * Client interface for retrieving STS tokens.
+ * 
+ * Call {@link #getToken()} to make an STS Issue request.
+ * 
+ * @author Joakim Recht
+ *
+ */
 public class TokenClient {
 	private static final Logger log = Logger.getLogger(TokenClient.class);
 	
@@ -61,17 +76,50 @@ public class TokenClient {
 	private final EndpointReference epr;
 	private final X509Credential credential;
 	private String appliesTo;
-	
+
+	private String issuer;
+
+	private PublicKey stsKey;
+
+	/**
+	 * Create a new client using default settings.
+	 * 
+	 * <p>The default settings are read from the OIOSAML configuration. The following properties are used:</p>
+	 * <ul>
+	 * <li>oiosaml-sp.certificate.location: SP keystore location</li>
+	 * <li>oiosaml-sp.certificate.password: SP keystore password</li>
+	 * <li>oiosaml-trust.certificate.location: Keystore containing STS certificate</li>
+	 * <li>oiosaml-trust.certificate.password: Password for the sts keystore</li>
+	 * <li>oiosaml-trust.certificate.alias: Certificate alias for the sts certificate</li>
+	 * </ul>
+	 * 
+	 * Furthermore, this constructor assumes that a valid SAML assertion has been placed in {@link UserAssertionHolder},
+	 * and that the assertion contains an DiscoveryEPR attribute.
+	 */
 	public TokenClient() {
 		this((EndpointReference) SAMLUtil.unmarshallElementFromString(UserAssertionHolder.get().getAttribute("DiscoveryEPR").getValue()), 
-				Utils.getCredential(BRSConfiguration.getStringPrefixedWithBRSHome(
-				BRSConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
-				BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)));
+				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
+				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
+				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)), null);
+		
+		X509Certificate certificate = Utils.getCertificate(SAMLConfiguration.getStringPrefixedWithBRSHome(SAMLConfiguration.getSystemConfiguration(), TrustConstants.PROP_CERTIFICATE_LOCATION),
+				SAMLConfiguration.getSystemConfiguration().getString(TrustConstants.PROP_CERTIFICATE_PASSWORD),
+				SAMLConfiguration.getSystemConfiguration().getString(TrustConstants.PROP_CERTIFICATE_ALIAS));
+		
+		stsKey = certificate.getPublicKey();
 	}
-	
-	public TokenClient(EndpointReference epr, X509Credential credential) {
+
+	/**
+	 * Create a new token client.
+	 * 
+	 * @param epr Discovery EPR value. The EPR must contain Metadata/SecurityContext/Assertion, and must have an Address pointing to the STS endpoint.
+	 * @param credential Credentials to use for signing the request.
+	 * @param stsKey The STS public key used for validating the response.
+	 */
+	public TokenClient(EndpointReference epr, X509Credential credential, PublicKey stsKey) {
 		this.epr = epr;
 		this.credential = credential;
+		this.stsKey = stsKey;
 		
 		if (epr != null) {
 			endpoint = epr.getAddress().getValue();
@@ -80,16 +128,24 @@ public class TokenClient {
 		TrustBootstrap.bootstrap();
 	}
 
-	public Element request() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
-		String xml = toXMLRequest();
-		
-		log.debug(xml);
-		
-		HttpSOAPClient client = new HttpSOAPClient();
+	/**
+	 * Execute a Issue request against the STS.
+	 * 
+	 * @return A DOM element with the returned token.
+	 * @throws TrustException If any error occurred.
+	 */
+	public Element getToken() throws TrustException {
 		try {
-			Envelope env = client.wsCall(new LogUtil(getClass(), ""), endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
+			String xml = toXMLRequest();
 			
-			//TODO: Validate signature
+			log.debug(xml);
+			
+			HttpSOAPClient client = new HttpSOAPClient();
+			
+			Envelope env = client.wsCall(new LogUtil(getClass(), ""), endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
+	
+			//TODO: finish validation when STS supports signatures in security header
+//			validateSignature(env);
 
 			//TODO: Support tokens in security header
 			
@@ -112,6 +168,28 @@ public class TokenClient {
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new TrustException(e);
+		} catch (InvalidAlgorithmParameterException e) {
+			throw new TrustException(e);
+		} catch (MarshalException e) {
+			throw new TrustException(e);
+		} catch (XMLSignatureException e) {
+			throw new TrustException(e);
+		}
+	}
+
+	private void validateSignature(Envelope env) {
+		Security sec = (Security) env.getHeader().getUnknownXMLObjects(Security.ELEMENT_NAME).get(0);
+		
+		Signature signature = (Signature) sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).get(0);
+		BasicX509Credential credential = new BasicX509Credential();
+		credential.setPublicKey(stsKey);
+		SignatureValidator validator = new SignatureValidator(credential);
+		try {
+			validator.validate(signature);
+		} catch (org.opensaml.xml.validation.ValidationException e) {
+			throw new ValidationException("STS signature is not valid: " + e.getMessage());
 		}
 	}
 	
@@ -120,7 +198,10 @@ public class TokenClient {
 		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
 		
         OIOIssueRequest req = OIOIssueRequest.buildRequest();
-        req.setIssuer("urn:issuer");
+        
+        if (issuer != null) {
+        	req.setIssuer(issuer);
+        }
         
 		token.getAssertion().detach();
 		
@@ -146,6 +227,10 @@ public class TokenClient {
 	
 	public void setAppliesTo(String appliesTo) {
 		this.appliesTo = appliesTo;
+	}
+	
+	public void setIssuer(String issuer) {
+		this.issuer = issuer;
 	}
 
 	private Token getToken(String usage, List<XMLObject> list) {

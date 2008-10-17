@@ -23,9 +23,14 @@
  */
 package dk.itst.oiosaml.trust;
 
+
 public class TrustException extends RuntimeException {
 
 	public TrustException(String message) {
 		super(message);
+	}
+
+	public TrustException(Throwable e) {
+		super(e);
 	}
 }
