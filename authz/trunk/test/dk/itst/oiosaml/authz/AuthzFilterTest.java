@@ -33,7 +33,7 @@ import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -62,7 +62,7 @@ public class AuthzFilterTest {
 		filter = new AuthzFilter();
 
 		props.put(SAMLUtil.OIOSAML_HOME, System.getProperty("java.io.tmpdir"));
-		BRSConfiguration.setSystemConfiguration(new MapConfiguration(props));
+		SAMLConfiguration.setSystemConfiguration(new MapConfiguration(props));
 		
 		configFile = generateConfigFile();
 		

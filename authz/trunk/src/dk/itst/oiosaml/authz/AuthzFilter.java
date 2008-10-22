@@ -38,7 +38,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAttribute;
 
@@ -70,7 +70,7 @@ public class AuthzFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
 		HttpServletRequest r = (HttpServletRequest) req;
 		
-		if (r.getServletPath().equals(BRSConfiguration.getSystemConfiguration().getProperty(dk.itst.oiosaml.sp.service.util.Constants.PROP_SAML_SERVLET))) {
+		if (r.getServletPath().equals(SAMLConfiguration.getSystemConfiguration().getProperty(dk.itst.oiosaml.sp.service.util.Constants.PROP_SAML_SERVLET))) {
 			log.debug("Request to SAML servlet, access granted");
 			fc.doFilter(req, res);
 			return;
@@ -105,7 +105,7 @@ public class AuthzFilter implements Filter {
 	}
 	
 	private void denyAccess(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-		String errorServlet = BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_PROTECTION_ERROR_SERVLET);
+		String errorServlet = SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_PROTECTION_ERROR_SERVLET);
 		if (errorServlet != null) {
 			log.debug("Redirecting to error servlet at " + errorServlet);
 			req.getRequestDispatcher(errorServlet).forward(req, res);
@@ -119,8 +119,8 @@ public class AuthzFilter implements Filter {
 		log.info("Initializing OIOSAML AuthzFilter");
 
 		try {
-			Configuration cfg = BRSConfiguration.getSystemConfiguration();
-			String configFile = BRSConfiguration.getStringPrefixedWithBRSHome(cfg, Constants.PROP_PROTECTION_CONFIG_FILE);
+			Configuration cfg = SAMLConfiguration.getSystemConfiguration();
+			String configFile = SAMLConfiguration.getStringPrefixedWithBRSHome(cfg, Constants.PROP_PROTECTION_CONFIG_FILE);
 			setConfiguration(configFile);
 		} catch (IllegalStateException e) {
 			String msg = "No OIOSAML.java configuration found! Please ensure that this filter is loaded after the OIOSAML.java filter";

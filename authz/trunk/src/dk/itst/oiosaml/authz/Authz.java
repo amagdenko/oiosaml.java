@@ -44,7 +44,7 @@ public class Authz {
 	public Authz(Protections protections) {
 		this.protections = protections;
 	}
-
+	
 	public boolean hasAccess(String resource, String url, String method, UserAssertion userAssertion) {
 		if (userAssertion == null) return false;
 		
@@ -56,6 +56,28 @@ public class Authz {
 			authorisations = new Authorisations(auths.getValue());
 		}
 		return protections.isAuthorised(resource, url, method, authorisations);
+	}
+	
+	/**
+	 * Check if the user has a given privilege for a resource
+	 * @param resource Resource to check for.
+	 * @param privilege Privilege to check for.
+	 * @param authorisations Authorisations as xml.
+	 * @return <code>true</code> if an authorisation exists, <code>false</code> otherwise.
+	 */
+	public boolean hasPrivilege(String resource, String privilege, String authorisations) {
+		if (authorisations == null) return false;
+		
+		Authorisations auths = new Authorisations(authorisations);
+		return auths.isAuthorised(resource, privilege);
+	}
+	
+	public boolean hasPrivilege(String resource, String privilege, UserAssertion userAssertion) {
+		if (userAssertion == null) return false;
+		
+		UserAttribute auths = userAssertion.getAttribute(Constants.AUTHORISATIONS_ATTRIBUTE);
+		if (auths == null) return false;
+		return hasPrivilege(resource, privilege, auths.getValue());
 	}
 
 	/**
