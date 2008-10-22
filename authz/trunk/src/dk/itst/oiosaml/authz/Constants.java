@@ -40,6 +40,9 @@ public final class Constants {
 	
 	public static final String PROP_PROTECTION_CONFIG_FILE = "oiosaml.authz.config";
 	public static final String PROP_PROTECTION_ERROR_SERVLET = "oiosaml.authz.servlet";
+	public static final String PROP_ATTRIBUTE_QUERY = "oiosaml.authz.attributequery";
+	
+	public static final String SESSION_AUTHORISATIONS = "dk:gov:virk:saml:attribute:Authorisations";
 	
 
 	public static final String DENY_PRIVILEGE = "dk:gov:itst:oiosaml:deny";

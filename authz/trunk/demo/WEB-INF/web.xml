@@ -30,11 +30,15 @@
 	
 	<filter-mapping>
 		<filter-name>LoginFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/sp/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>LoginFilter</filter-name>
+		<url-pattern>/protected/*</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>authz</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/protected/*</url-pattern>
 	</filter-mapping>
 	
 	<welcome-file-list>

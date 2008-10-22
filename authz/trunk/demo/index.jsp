@@ -1,12 +1,13 @@
+<!-- "$Id: index.jsp 3180 2008-07-21 11:48:20Z jre $"; -->
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@page import="dk.itst.oiosaml.sp.UserAssertionHolder"%>
-<%@page import="dk.itst.oiosaml.sp.UserAssertion"%>
+    <jsp:include page="head.jsp" />
+    <h1>Front page - OIOSAML.java Authz-enabled Service Provider Demo</h1>
+    <br /><br />
 
-	<% UserAssertion ua = UserAssertionHolder.get(); %>
-
-	<h1>The application is working</h1>
-	oiosaml-authz is running, and the current user has been authorised to see this page.
-
-
-    <h1>User NameID</h1>
-    <%= ua.getSubject() %>
+	<div style="text-align: center; float: left">
+    <a href="sp/priv1.jsp">Page requiring login</a> · <a href="protected/">Authz protected page</a> · <a href="configure.jsp">Runtime configuration</a><br /><br />
+    
+    <img src="oiosaml.gif" alt="oiosaml.java" />
+    </div>
+  </body>
+</html>

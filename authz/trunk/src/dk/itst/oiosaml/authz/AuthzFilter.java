@@ -24,6 +24,7 @@ package dk.itst.oiosaml.authz;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -41,6 +42,8 @@ import org.apache.log4j.Logger;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAttribute;
+import dk.itst.oiosaml.sp.UserAttributeQuery;
+import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 
 /**
  * OIOSAML Authorisation filter.
@@ -92,9 +95,38 @@ public class AuthzFilter implements Filter {
 
 		String url = r.getRequestURI().substring(r.getContextPath().length());
 		if (log.isDebugEnabled()) log.debug("Checking access to " + url + " for user " + p.getName() + ", resource " + resource);
+		
+		if (SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_ATTRIBUTE_QUERY, false)) {
+			log.debug("Retrieving authorisations via attribute query");
+			String auths = (String) r.getSession().getAttribute(Constants.SESSION_AUTHORISATIONS);
+			if (auths == null) {
+				if (log.isDebugEnabled()) log.debug("No authz info in session, performing AttributeQuery");
+				UserAttributeQuery query = new UserAttributeQuery();
+				try {
+					Collection<UserAttribute> attrs = query.query(p.getAssertion().getSubject(), p.getAssertion().getNameIDFormat(), UserAttribute.create(Constants.AUTHORISATIONS_ATTRIBUTE, 
+							IdpMetadata.getInstance().getMetadata(p.getAssertion().getIssuer()).getAttributeNameFormat(Constants.AUTHORISATIONS_ATTRIBUTE, "urn:oasis:names:tc:SAML:2.0:attrname-format:uri")));
+					auths = attrs.iterator().next().getValue();
+					r.getSession().setAttribute(Constants.SESSION_AUTHORISATIONS, auths);
+				} catch (Exception e) {
+					log.info("Unable to retrieve authorisations attribute for " + p.getAssertion().getSubject() + ": " + e.getMessage(), e);
+					auths = "<Authorisations xmlns=\"http://www.eogs.dk/2007/07/brs\"></Authorisations>";
+				}
+			}
+			if (log.isDebugEnabled()) log.debug("Using session auths: " + auths);
+			
+			if (authz.hasAccess(resource, url, r.getMethod(), auths)) {
+				if (log.isDebugEnabled()) log.debug("Access granted to " + url + " granted to " + p.getName());
+				fc.doFilter(req, res);
+				return;
+			} else {
+				log.error("Access to "  + url +  " denied for user " + p.getName());
+				denyAccess(r, (HttpServletResponse) res);
+				return;
+			}
+		}
 
 		if (authz.hasAccess(resource, url, r.getMethod(), p.getAssertion())) {
-			log.debug("Access granted to " + url + " granted to " + p.getName());
+			if (log.isDebugEnabled()) log.debug("Access granted to " + url + " granted to " + p.getName());
 			fc.doFilter(req, res);
 			return;
 		} else {
@@ -107,10 +139,10 @@ public class AuthzFilter implements Filter {
 	private void denyAccess(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
 		String errorServlet = SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_PROTECTION_ERROR_SERVLET);
 		if (errorServlet != null) {
-			log.debug("Redirecting to error servlet at " + errorServlet);
+			if (log.isDebugEnabled()) log.debug("Redirecting to error servlet at " + errorServlet);
 			req.getRequestDispatcher(errorServlet).forward(req, res);
 		} else {
-			log.debug("No error servlet defined in " + Constants.PROP_PROTECTION_ERROR_SERVLET + ", sending standard error");
+			if (log.isDebugEnabled()) log.debug("No error servlet defined in " + Constants.PROP_PROTECTION_ERROR_SERVLET + ", sending standard error");
 			res.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied to the requested resource");
 		}
 	}
