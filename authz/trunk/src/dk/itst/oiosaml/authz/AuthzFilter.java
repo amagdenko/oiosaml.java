@@ -24,7 +24,9 @@ package dk.itst.oiosaml.authz;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -88,15 +90,15 @@ public class AuthzFilter implements Filter {
 		}
 		
 		boolean attributeQuery = SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_ATTRIBUTE_QUERY, false);
-		String resource = extractResource(p, r.getSession(), attributeQuery);
-		if (resource == null) {
+		List<String> resources = extractResource(p, r.getSession(), attributeQuery);
+		if (resources.isEmpty()) {
 			log.error("User does not have cvr or " + Constants.PRODUCTION_CODE_ATTRIBUTE + " attribute in assertion. Denying access");
 			denyAccess(r, (HttpServletResponse) res);
 			return;
 		}
 
 		String url = r.getRequestURI().substring(r.getContextPath().length());
-		if (log.isDebugEnabled()) log.debug("Checking access to " + url + " for user " + p.getName() + ", resource " + resource);
+		if (log.isDebugEnabled()) log.debug("Checking access to " + url + " for user " + p.getName() + ", resource " + resources);
 		
 		if (attributeQuery) {
 			log.debug("Retrieving authorisations via attribute query");
@@ -116,26 +118,28 @@ public class AuthzFilter implements Filter {
 			}
 			if (log.isDebugEnabled()) log.debug("Using session auths: " + auths);
 			
-			if (authz.hasAccess(resource, url, r.getMethod(), auths)) {
-				if (log.isDebugEnabled()) log.debug("Access granted to " + url + " granted to " + p.getName());
-				fc.doFilter(req, res);
-				return;
-			} else {
-				log.error("Access to "  + url +  " denied for user " + p.getName());
-				denyAccess(r, (HttpServletResponse) res);
-				return;
+			for (String resource : resources) {
+				if (authz.hasAccess(resource, url, r.getMethod(), auths)) {
+					if (log.isDebugEnabled()) log.debug("Access granted to " + url + " granted to " + p.getName() + " using " + resource);
+					fc.doFilter(req, res);
+					return;
+				}
 			}
-		}
-
-		if (authz.hasAccess(resource, url, r.getMethod(), p.getAssertion())) {
-			if (log.isDebugEnabled()) log.debug("Access granted to " + url + " granted to " + p.getName());
-			fc.doFilter(req, res);
-			return;
-		} else {
 			log.error("Access to "  + url +  " denied for user " + p.getName());
 			denyAccess(r, (HttpServletResponse) res);
 			return;
 		}
+
+		for (String resource : resources) {
+			if (authz.hasAccess(resource, url, r.getMethod(), p.getAssertion())) {
+				if (log.isDebugEnabled()) log.debug("Access granted to " + url + " granted to " + p.getName() + " using " + resource);
+				fc.doFilter(req, res);
+				return;
+			}			
+		}
+		log.error("Access to "  + url +  " denied for user " + p.getName());
+		denyAccess(r, (HttpServletResponse) res);
+		return;
 	}
 	
 	private void denyAccess(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
@@ -178,31 +182,32 @@ public class AuthzFilter implements Filter {
 		}
 	}
 
-	private String extractResource(OIOPrincipal p, HttpSession httpSession, boolean attributeQuery) {
-		String resource = null;
+	private List<String> extractResource(OIOPrincipal p, HttpSession httpSession, boolean attributeQuery) {
+		List<String> resource = new ArrayList<String>();
 		String cvr = p.getAssertion().getCVRNumberIdentifier();
 		if (cvr != null) {
-			resource = Constants.RESOURCE_CVR_NUMBER_PREFIX + cvr;
-		} else if (!attributeQuery) {
+			resource.add(Constants.RESOURCE_CVR_NUMBER_PREFIX + cvr);
+		} 
+		if (!attributeQuery) {
 			UserAttribute pcode = p.getAssertion().getAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE);
 			if (pcode != null) {
-				resource = Constants.RESOURCE_PNUMER_PREFIX + pcode.getValue();
+				resource.add(Constants.RESOURCE_PNUMER_PREFIX + pcode.getValue());
 			}
-		} else if (attributeQuery) {
+		} else {
 			String code = (String) httpSession.getAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE);
 			if (code == null) {
 				UserAttributeQuery query = new UserAttributeQuery();
 				try {
 					Collection<UserAttribute> attrs = query.query(p.getAssertion().getSubject(), p.getAssertion().getNameIDFormat(), UserAttribute.create(Constants.PRODUCTION_CODE_ATTRIBUTE, 
 							IdpMetadata.getInstance().getMetadata(p.getAssertion().getIssuer()).getAttributeNameFormat(Constants.PRODUCTION_CODE_ATTRIBUTE, "urn:oasis:names:tc:SAML:2.0:attrname-format:uri")));
-					code = attrs.iterator().next().getValue();
+					resource.add(attrs.iterator().next().getValue());
 					httpSession.setAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE, code);
 				} catch (Exception e) {
 					if (log.isDebugEnabled()) log.debug("No Production Unit Code in attribute query", e);
-					return null;
 				}
+			} else {
+				resource.add(code);
 			}
-			return code;
 		}
 		
 		return resource;
