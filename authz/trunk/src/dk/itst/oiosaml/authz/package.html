@@ -9,7 +9,13 @@ Implementation of a authorisation filter based on OIOSAML.
 
 <h2>About</h2>
 
-The Authz filter can perform access control checks based on the value of a user assertion attribute.
+<p>The Authz filter can perform access control checks based on the value of a user assertion attribute.</p>
+
+<p>The access control is performed on URLs. When a browser requests a specific URL, the URL is matched against a set of rules describing
+required privileges for that URL. If the user has one of the privileges, access is granted, otherwise access is denied.</p>
+
+<p>The filter performs these checks automatically. If more fine-grained checks are required, the checks can be done programatically using 
+the {@link dk.itst.oiosaml.authz.Authz} class.</p>
 
 <h3>Requirements</h3>
 <ul>
@@ -56,6 +62,7 @@ oiosaml-sp.home (unless configured otherwise, this will be $HOME/.oiosaml).</p>
 
 <p>Edit oiosaml-sp.properties and add a property named oiosaml.authz.config which should point to the access control file, relatively to oiosaml-sp.properties.</p>
 
+<p>If virk.dk attributes should be retrieved over AttributeQuery (if they're not present in the login Response), set oiosaml.authz.attributequery=true in oiosaml-sp.properties.</p>
 
 <p>Then enable the Authz filter. To do this, place oiosaml-authz.jar in WEB-INF/lib and add the following block to web.xml:</p>
 <pre>
