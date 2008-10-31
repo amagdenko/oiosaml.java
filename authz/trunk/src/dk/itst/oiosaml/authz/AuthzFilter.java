@@ -34,6 +34,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
@@ -86,7 +87,8 @@ public class AuthzFilter implements Filter {
 			throw new ServletException(msg);
 		}
 		
-		String resource = extractResource(p);
+		boolean attributeQuery = SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_ATTRIBUTE_QUERY, false);
+		String resource = extractResource(p, r.getSession(), attributeQuery);
 		if (resource == null) {
 			log.error("User does not have cvr or " + Constants.PRODUCTION_CODE_ATTRIBUTE + " attribute in assertion. Denying access");
 			denyAccess(r, (HttpServletResponse) res);
@@ -96,7 +98,7 @@ public class AuthzFilter implements Filter {
 		String url = r.getRequestURI().substring(r.getContextPath().length());
 		if (log.isDebugEnabled()) log.debug("Checking access to " + url + " for user " + p.getName() + ", resource " + resource);
 		
-		if (SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_ATTRIBUTE_QUERY, false)) {
+		if (attributeQuery) {
 			log.debug("Retrieving authorisations via attribute query");
 			String auths = (String) r.getSession().getAttribute(Constants.SESSION_AUTHORISATIONS);
 			if (auths == null) {
@@ -105,7 +107,7 @@ public class AuthzFilter implements Filter {
 				try {
 					Collection<UserAttribute> attrs = query.query(p.getAssertion().getSubject(), p.getAssertion().getNameIDFormat(), UserAttribute.create(Constants.AUTHORISATIONS_ATTRIBUTE, 
 							IdpMetadata.getInstance().getMetadata(p.getAssertion().getIssuer()).getAttributeNameFormat(Constants.AUTHORISATIONS_ATTRIBUTE, "urn:oasis:names:tc:SAML:2.0:attrname-format:uri")));
-					auths = attrs.iterator().next().getValue();
+					auths = new String(attrs.iterator().next().getBase64Value(), "UTF-8");
 					r.getSession().setAttribute(Constants.SESSION_AUTHORISATIONS, auths);
 				} catch (Exception e) {
 					log.info("Unable to retrieve authorisations attribute for " + p.getAssertion().getSubject() + ": " + e.getMessage(), e);
@@ -176,16 +178,31 @@ public class AuthzFilter implements Filter {
 		}
 	}
 
-	private String extractResource(OIOPrincipal p) {
+	private String extractResource(OIOPrincipal p, HttpSession httpSession, boolean attributeQuery) {
 		String resource = null;
 		String cvr = p.getAssertion().getCVRNumberIdentifier();
 		if (cvr != null) {
 			resource = Constants.RESOURCE_CVR_NUMBER_PREFIX + cvr;
-		} else {
+		} else if (!attributeQuery) {
 			UserAttribute pcode = p.getAssertion().getAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE);
 			if (pcode != null) {
 				resource = Constants.RESOURCE_PNUMER_PREFIX + pcode.getValue();
 			}
+		} else if (attributeQuery) {
+			String code = (String) httpSession.getAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE);
+			if (code == null) {
+				UserAttributeQuery query = new UserAttributeQuery();
+				try {
+					Collection<UserAttribute> attrs = query.query(p.getAssertion().getSubject(), p.getAssertion().getNameIDFormat(), UserAttribute.create(Constants.PRODUCTION_CODE_ATTRIBUTE, 
+							IdpMetadata.getInstance().getMetadata(p.getAssertion().getIssuer()).getAttributeNameFormat(Constants.PRODUCTION_CODE_ATTRIBUTE, "urn:oasis:names:tc:SAML:2.0:attrname-format:uri")));
+					code = attrs.iterator().next().getValue();
+					httpSession.setAttribute(Constants.PRODUCTION_CODE_ATTRIBUTE, code);
+				} catch (Exception e) {
+					if (log.isDebugEnabled()) log.debug("No Production Unit Code in attribute query", e);
+					return null;
+				}
+			}
+			return code;
 		}
 		
 		return resource;

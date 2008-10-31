@@ -90,6 +90,7 @@ public class AuthzFilterTest {
 		final OIOAssertion assertion = getAssertion("assertion.xml", "1029275212");
 		
 		context.checking(new Expectations() {{
+			one(req).getSession();
 			one(req).getUserPrincipal(); will(returnValue(new OIOPrincipal(new UserAssertionImpl(assertion))));
 			one(req).getRequestURI(); will(returnValue("/test"));
 			one(req).getMethod(); will(returnValue("get"));
@@ -104,6 +105,7 @@ public class AuthzFilterTest {
 		final OIOAssertion assertion = getAssertion("assertion.xml", null);
 		context.checking(new Expectations() {{
 			one(req).getUserPrincipal(); will(returnValue(new OIOPrincipal(new UserAssertionImpl(assertion))));
+			one(req).getSession();
 			one(res).sendError(with(equal(HttpServletResponse.SC_FORBIDDEN)), with(any(String.class)));
 		}});
 		filter.doFilter(req, res, chain);
@@ -126,6 +128,7 @@ public class AuthzFilterTest {
 		
 		context.checking(new Expectations() {{
 			one(req).getUserPrincipal(); will(returnValue(new OIOPrincipal(new UserAssertionImpl(assertion))));
+			one(req).getSession();
 			one(req).getRequestURI(); will(returnValue("/context/admin"));
 			one(req).getContextPath(); will(returnValue("/context"));
 			one(req).getMethod(); will(returnValue("post"));
@@ -151,6 +154,7 @@ public class AuthzFilterTest {
 		
 		context.checking(new Expectations() {{
 			one(req).getUserPrincipal(); will(returnValue(new OIOPrincipal(new UserAssertionImpl(assertion))));
+			one(req).getSession();
 			one(req).getRequestURI(); will(returnValue("/context/test"));
 			one(req).getContextPath(); will(returnValue("/context"));
 			one(req).getMethod(); will(returnValue("post"));
@@ -177,6 +181,7 @@ public class AuthzFilterTest {
 		
 		context.checking(new Expectations() {{
 			one(req).getUserPrincipal(); will(returnValue(new OIOPrincipal(new UserAssertionImpl(assertion))));
+			one(req).getSession();
 			one(req).getRequestURI(); will(returnValue("/test"));
 			one(req).getMethod(); will(returnValue("get"));
 			one(req).getContextPath(); will(returnValue(""));
