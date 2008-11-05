@@ -15,9 +15,12 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.Action;
+import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.WSAddressingConstants;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.Timestamp;
+import org.opensaml.xml.schema.XSAny;
+import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
@@ -68,7 +71,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 	
 	@Test
 	public void testBody() {
-		env.setBody(OIOIssueRequest.buildRequest());
+		env.setBody(OIOIssueRequest.buildRequest().getXMLObject());
 		
 		Envelope e = (Envelope) env.getXMLObject();
 		assertNotNull(e.getBody());
@@ -185,5 +188,20 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 
 		assertion = (Assertion) sec.getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0);
 		assertTrue(new OIOAssertion(assertion).verifySignature(credential.getPublicKey()));
+	}
+	
+	@Test
+	public void testRelatesTo() {
+		assertFalse(env.relatesTo("vlah"));
+		
+		
+		Envelope e = (Envelope) env.getXMLObject();
+		XSAny relatesTo = new XSAnyBuilder().buildObject(MessageID.ELEMENT_NAME.getNamespaceURI(), "RelatesTo", "wsa");
+		relatesTo.setTextContent("id");
+		
+		e.getHeader().getUnknownXMLObjects().add(relatesTo);
+		
+		OIOSoapEnvelope env = new OIOSoapEnvelope(e);
+		assertTrue(env.relatesTo("id"));
 	}
 }

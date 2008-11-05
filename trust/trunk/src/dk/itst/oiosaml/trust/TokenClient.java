@@ -81,6 +81,8 @@ public class TokenClient {
 
 	private PublicKey stsKey;
 
+	private Assertion token;
+
 	/**
 	 * Create a new client using default settings.
 	 * 
@@ -157,11 +159,15 @@ public class TokenClient {
 			} else if (res instanceof RequestSecurityTokenResponse) {
 				RequestSecurityTokenResponse tokenResponse = (RequestSecurityTokenResponse) res;
 				
-				return tokenResponse.getRequestedSecurityToken().getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0).getDOM();
+				Assertion dom = (Assertion) tokenResponse.getRequestedSecurityToken().getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0);
+				setToken(dom);
+				return dom.getDOM();
 			} else {
 				for (XMLObject object : res.getOrderedChildren()) {
 					if (object.getElementQName().equals(RequestedSecurityToken.ELEMENT_NAME)) {
-						return ((RequestedSecurityToken)object).getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0).getDOM();
+						Assertion dom = (Assertion) ((RequestedSecurityToken)object).getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0);
+						setToken(dom);
+						return dom.getDOM();
 					}
 				}
 				throw new TrustException("Got a " + res.getElementQName() + ", expected " + RequestSecurityTokenResponse.ELEMENT_NAME);
@@ -210,7 +216,7 @@ public class TokenClient {
 		req.setAppliesTo(appliesTo);
 
 		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
-		env.setBody(req);
+		env.setBody(req.getXMLObject());
 		env.setAction("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 		env.setTo(endpoint);
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
@@ -245,4 +251,37 @@ public class TokenClient {
 		throw new IllegalArgumentException("No token with usage type " + usage);
 	}
 	
+	
+	/**
+	 * Set the security token used for webservice requests.
+	 * @param token
+	 */
+	public void setToken(Assertion token) {
+		this.token = token;
+	}
+	
+	public XMLObject sendRequest(XMLObject body, String location, String action) {
+		body.detach();
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
+		env.setBody(body);
+		env.setAction(action);
+		env.setTo(endpoint);
+		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
+		env.setTimestamp(5);
+		env.addSecurityTokenReference(token);
+		
+		try {
+			Element signed = env.sign(credential);
+			
+			log.debug("Signed request: " + XMLHelper.nodeToString(signed));
+			
+			HttpSOAPClient client = new HttpSOAPClient();
+			
+			Envelope res = client.wsCall(new LogUtil(getClass(), ""), location, null, null, true, XMLHelper.nodeToString(signed), action);
+			
+			return res.getBody().getUnknownXMLObjects().get(0);
+		} catch (Exception e) {
+			throw new TrustException(e);
+		}
+	}
 }
