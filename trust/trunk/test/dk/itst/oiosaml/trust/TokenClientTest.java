@@ -105,7 +105,7 @@ public class TokenClientTest extends TrustTests {
 	public void testRequest() throws Exception {
 		BasicX509Credential credential = TestHelper.getCredential();//Utils.getCredential("/home/recht/download/TestMOCES1.pfx", "Test1234");
 		BasicX509Credential stsCredential = Utils.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
-		TokenClient client = new TokenClient(epr, credential, stsCredential.getPublicKey());
+		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setAppliesTo("urn:appliesto");
 		
 		
@@ -116,13 +116,13 @@ public class TokenClientTest extends TrustTests {
 
 	private void signingWithWrongKeyShouldFail(XMLObject request, AbstractCredential stsCredential) throws CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 		BasicX509Credential credential = TestHelper.getCredential();
-		TokenClient client = new TokenClient(epr, credential, stsCredential.getPublicKey());
+		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setAppliesTo("urn:appliesto");
 		Assertion token = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(client.getToken()));
 		
 		
 		credential = TestHelper.getCredential();
-		client = new TokenClient(epr, credential, stsCredential.getPublicKey());
+		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setToken(token);
 		try {
 			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest");
@@ -137,7 +137,7 @@ public class TokenClientTest extends TrustTests {
 	/**
 	 * Test that only the STS signature is actually accepted.
 	 */
-	private void wrongSAMLSignatureShouldFail(BasicX509Credential credential, TokenClient client, XMLObject request) throws CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
+	private void wrongSAMLSignatureShouldFail(BasicX509Credential credential, TrustClient client, XMLObject request) throws CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 		Element res = client.getToken();
 		Assertion rstrAssertion = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(res));
 		rstrAssertion.setSignature(null);
@@ -160,7 +160,7 @@ public class TokenClientTest extends TrustTests {
 		}
 	}
 
-	private void normalRequest(BasicX509Credential credential, TokenClient client, XMLObject request) throws CertificateEncodingException, UnmarshallingException {
+	private void normalRequest(BasicX509Credential credential, TrustClient client, XMLObject request) throws CertificateEncodingException, UnmarshallingException {
 		Element res = client.getToken();
 
 		Assertion rstrAssertion = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(res));

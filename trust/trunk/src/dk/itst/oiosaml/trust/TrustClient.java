@@ -69,8 +69,8 @@ import dk.itst.oiosaml.sp.service.util.Utils;
  * @author Joakim Recht
  *
  */
-public class TokenClient {
-	private static final Logger log = Logger.getLogger(TokenClient.class);
+public class TrustClient {
+	private static final Logger log = Logger.getLogger(TrustClient.class);
 	
 	private String endpoint;
 	private final EndpointReference epr;
@@ -98,7 +98,7 @@ public class TokenClient {
 	 * Furthermore, this constructor assumes that a valid SAML assertion has been placed in {@link UserAssertionHolder},
 	 * and that the assertion contains an DiscoveryEPR attribute.
 	 */
-	public TokenClient() {
+	public TrustClient() {
 		this((EndpointReference) SAMLUtil.unmarshallElementFromString(UserAssertionHolder.get().getAttribute("DiscoveryEPR").getValue()), 
 				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
 				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
@@ -118,7 +118,7 @@ public class TokenClient {
 	 * @param credential Credentials to use for signing the request.
 	 * @param stsKey The STS public key used for validating the response.
 	 */
-	public TokenClient(EndpointReference epr, X509Credential credential, PublicKey stsKey) {
+	public TrustClient(EndpointReference epr, X509Credential credential, PublicKey stsKey) {
 		this.epr = epr;
 		this.credential = credential;
 		this.stsKey = stsKey;
