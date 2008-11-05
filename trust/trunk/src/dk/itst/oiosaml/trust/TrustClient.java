@@ -55,7 +55,6 @@ import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
@@ -144,7 +143,7 @@ public class TrustClient {
 			
 			HttpSOAPClient client = new HttpSOAPClient();
 			
-			Envelope env = client.wsCall(new LogUtil(getClass(), ""), endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
+			Envelope env = client.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 	
 			//TODO: finish validation when STS supports signatures in security header
 //			validateSignature(env);
@@ -277,7 +276,7 @@ public class TrustClient {
 			
 			HttpSOAPClient client = new HttpSOAPClient();
 			
-			Envelope res = client.wsCall(new LogUtil(getClass(), ""), location, null, null, true, XMLHelper.nodeToString(signed), action);
+			Envelope res = client.wsCall(location, null, null, true, XMLHelper.nodeToString(signed), action);
 			
 			return res.getBody().getUnknownXMLObjects().get(0);
 		} catch (Exception e) {
