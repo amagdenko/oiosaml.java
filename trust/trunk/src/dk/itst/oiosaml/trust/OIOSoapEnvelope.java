@@ -3,6 +3,7 @@ package dk.itst.oiosaml.trust;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
+import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -64,6 +66,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.trust.internal.DOMSTRTransform;
 import dk.itst.oiosaml.trust.internal.STRTransform;
@@ -94,14 +97,12 @@ public class OIOSoapEnvelope {
 	private SecurityTokenReference securityTokenReference;
 
 	public OIOSoapEnvelope(Envelope envelope) {
+		if (envelope == null) throw new IllegalArgumentException("Envelope cannot be null");
+		
 		this.envelope = envelope;
 		xsf = getXMLSignature();
 
-		for (XMLObject obj : envelope.getHeader().getUnknownXMLObjects()) {
-			if (obj instanceof Security) {
-				security = (Security)obj;
-			}
-		}
+		security = SAMLUtil.getFirstElement(envelope.getHeader(), Security.class);
 	}
 	
 	private OIOSoapEnvelope(Envelope envelope, MessageID msgId, XSAny framework) {
@@ -153,15 +154,14 @@ public class OIOSoapEnvelope {
 	}
 	
 	public void addSecurityTokenReference(Assertion token) {
+		if (token == null) return;
+		
 		token.detach();
 		securityToken = token;
 		addSecurityToken(token);
 		
 		SecurityTokenReference str = createSecurityTokenReference(token);
 		security.getUnknownXMLObjects().add(str);
-//		addSignatureElement(str);
-		
-//		securityTokenReference = str;
 	}
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
@@ -207,6 +207,13 @@ public class OIOSoapEnvelope {
 		
 		security.getUnknownXMLObjects().add(timestamp);
 		addSignatureElement(timestamp);
+	}
+	
+	/**
+	 * Get the first element of the envelope body.
+	 */
+	public XMLObject getBody() {
+		return envelope.getBody().getUnknownXMLObjects().get(0);
 	}
 	
 	/**
@@ -317,7 +324,48 @@ public class OIOSoapEnvelope {
 		return envelope;
 	}
 	
-	private boolean isHolderOfKey() {
+	public boolean isSigned() {
+		boolean signed = SAMLUtil.getFirstElement(security, Signature.class) != null;
+		log.debug("Envelope signed: " + signed);
+		return signed;
+	}
+	
+	public void setTo(String endpoint) {
+		To to = SAMLUtil.buildXMLObject(To.class);
+		to.setValue(endpoint);
+		envelope.getHeader().getUnknownXMLObjects().add(to);
+		addSignatureElement(to);
+	}
+
+	public void setReplyTo(String replyTo) {
+		ReplyTo reply = SAMLUtil.buildXMLObject(ReplyTo.class);
+		Address addr = SAMLUtil.buildXMLObject(Address.class);
+		addr.setValue(replyTo);
+		reply.setAddress(addr);
+		envelope.getHeader().getUnknownXMLObjects().add(reply);
+		addSignatureElement(reply);
+	}
+
+	/**
+	 * Get an XML representation of the object.
+	 */
+	public String toXML() {
+		Element e = SAMLUtil.marshallObject(envelope);
+		return XMLHelper.nodeToString(e);
+	}
+	
+	public <T extends XMLObject> T getHeaderElement(Class<T> type) {
+		return SAMLUtil.getFirstElement(envelope.getHeader(), type);
+	}
+	
+	public boolean verifySignature(PublicKey key) {
+		if (!isSigned()) return false; 
+		return new OIOSamlObject(security).verifySignature(key);
+	}
+
+
+	
+	public boolean isHolderOfKey() {
 		if (securityToken == null) return false;
 		if (securityToken.getSubject() == null) return false;
 		if (securityToken.getSubject().getSubjectConfirmations().isEmpty()) return false;
@@ -347,22 +395,6 @@ public class OIOSoapEnvelope {
 		return id;
 	}
 
-	public void setTo(String endpoint) {
-		To to = SAMLUtil.buildXMLObject(To.class);
-		to.setValue(endpoint);
-		envelope.getHeader().getUnknownXMLObjects().add(to);
-		addSignatureElement(to);
-	}
-
-	public void setReplyTo(String replyTo) {
-		ReplyTo reply = SAMLUtil.buildXMLObject(ReplyTo.class);
-		Address addr = SAMLUtil.buildXMLObject(Address.class);
-		addr.setValue(replyTo);
-		reply.setAddress(addr);
-		envelope.getHeader().getUnknownXMLObjects().add(reply);
-		addSignatureElement(reply);
-	}
-	
 	@SuppressWarnings("unchecked")
 	private XMLSignatureFactory getSpecial() {
 		Provider p = new Provider("XMLStr", 1.0, "INFO") {

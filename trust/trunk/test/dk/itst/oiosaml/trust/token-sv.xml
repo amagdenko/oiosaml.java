@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<soapenv:Header>
+		<ns1:RelatesTo soapenv:mustUnderstand="0" xmlns:ns1="http://www.w3.org/2005/08/addressing">c053824f-1027-4ad9-96ed-1ff6ecfaf498</ns1:RelatesTo>
+		<ns2:MessageID soapenv:mustUnderstand="0" xmlns:ns2="http://www.w3.org/2005/08/addressing">urn:uuid:CDA7E04FD7905941E612234673523713</ns2:MessageID>
+		<ns3:To soapenv:mustUnderstand="1" xmlns:ns3="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</ns3:To>
+		<ns4:Security soapenv:mustUnderstand="1" xmlns:ns4="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+			<ns5:Timestamp xmlns:ns5="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+				<ns5:Created>2008-10-08T12:02:32.482Z</ns5:Created>
+				<ns5:Expires>2008-10-15T12:02:32.482Z</ns5:Expires>
+			</ns5:Timestamp>
+		</ns4:Security>
+	</soapenv:Header>
+	<soapenv:Body>
+		<RequestSecurityTokenResponse xmlns="http://schemas.xmlsoap.org/ws/2005/02/trust">
+			<wst:TokenType xmlns:wst="http://schemas.xmlsoap.org/ws/2005/02/trust">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+			<wst:RequestedSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+
+<saml:Assertion Version="2.0" IssueInstant="2008-04-03T11:51:26.375Z" ID="pVQYCtN.5RD5VtkGJx3Fhecjrkd" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+	<saml:Issuer>idp1.test.oio.dk</saml:Issuer>
+	<saml:Subject>
+		<saml:NameID
+			Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">
+			joetest
+		</saml:NameID>
+		<saml:SubjectConfirmation
+			Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+			<saml:SubjectConfirmationData
+				InResponseTo="_B8A23F23B5E279A7C71207223483890"
+				NotOnOrAfter="2008-04-03T11:56:26.375Z"
+				Recipient="http://jre-mac.trifork.com:8080/saml/SAMLAssertionConsumer" />
+		</saml:SubjectConfirmation>
+	</saml:Subject>
+	<saml:Conditions NotOnOrAfter="2008-04-03T11:56:26.375Z"
+		NotBefore="2008-04-03T11:46:26.375Z">
+		<saml:AudienceRestriction>
+			<saml:Audience>poc3.eogs.capgemini.dk.spref</saml:Audience>
+		</saml:AudienceRestriction>
+	</saml:Conditions>
+	<saml:AuthnStatement AuthnInstant="2008-04-03T11:51:26.375Z"
+		SessionIndex="pVQYCtN.5RD5VtkGJx3Fhecjrkd">
+		<saml:AuthnContext>
+			<saml:AuthnContextClassRef>
+				urn:oasis:names:tc:SAML:2.0:ac:classes:Password
+			</saml:AuthnContextClassRef>
+		</saml:AuthnContext>
+	</saml:AuthnStatement>
+	<saml:AttributeStatement
+		xmlns:xs="http://www.w3.org/2001/XMLSchema">
+		<saml:Attribute
+			NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+			Name="more">
+			<saml:AttributeValue xsi:type="xs:string"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				text
+			</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute
+			NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+			Name="dk:gov:saml:attribute:AssuranceLevel">
+			<saml:AttributeValue xsi:type="xs:string"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				2
+			</saml:AttributeValue>
+		</saml:Attribute>
+	</saml:AttributeStatement>
+</saml:Assertion>
+			</wst:RequestedSecurityToken>
+		</RequestSecurityTokenResponse>
+	</soapenv:Body>
+</soapenv:Envelope>

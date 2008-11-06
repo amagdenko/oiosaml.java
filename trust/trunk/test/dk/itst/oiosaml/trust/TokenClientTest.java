@@ -23,7 +23,10 @@
  */
 package dk.itst.oiosaml.trust;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -34,14 +37,24 @@ import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 
+import org.jmock.Expectations;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.ws.soap.soap11.Body;
+import org.opensaml.ws.soap.soap11.Detail;
+import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.ws.soap.soap11.Fault;
+import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.Metadata;
+import org.opensaml.ws.wsaddressing.ReplyTo;
+import org.opensaml.ws.wssecurity.Security;
+import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
@@ -57,23 +70,29 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
+import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPException;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 public class TokenClientTest extends TrustTests {
 
+	private static final String ADDRESS = "http://localhost:8088/TokenService/services/Trust";
 	private Assertion assertion;
 	private EndpointReference epr;
 	private XMLObject request;
+	private BasicX509Credential credential;
+	private BasicX509Credential stsCredential;
+	private TrustClient client;
+	private SOAPClient soapClient;
 
 	@Before
-	public void setUp() throws UnmarshallingException {
+	public void setUp() throws UnmarshallingException, CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 		assertion = (Assertion)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
 		epr = SAMLUtil.buildXMLObject(EndpointReference.class);
 		
 		Address address = SAMLUtil.buildXMLObject(Address.class);
-		address.setValue("http://localhost:8088/TokenService/services/Trust");
+		address.setValue(ADDRESS);
 		epr.setAddress(address);
 		
 		Metadata md = SAMLUtil.buildXMLObject(Metadata.class);
@@ -98,12 +117,105 @@ public class TokenClientTest extends TrustTests {
 		XSAnyUnmarshaller unmarshaller = new XSAnyUnmarshaller();
 		request = unmarshaller.unmarshall(SAMLUtil.loadElementFromString(echo));
 
-}
+		credential = TestHelper.getCredential();
+		stsCredential = TestHelper.getCredential();
+		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
+		soapClient = context.mock(SOAPClient.class);
+		client.setSOAPClient(soapClient);
+	}
+	
+	@Test
+	public void testGetToken() throws Exception {
+		client.setAppliesTo("urn:service");
+		
+		final Envelope response = (Envelope) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("token-sv.xml"));
+		Element assertion = (Element) response.getDOM().getElementsByTagNameNS(Assertion.DEFAULT_ELEMENT_NAME.getNamespaceURI(), "Assertion").item(0);
+		
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")));
+			will(returnValue(response));
+		}});
+		
+		Element token = client.getToken();
+		
+		assertEquals(XMLHelper.nodeToString(assertion), XMLHelper.nodeToString(token));
+		
+		OIOSoapEnvelope request = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
+		assertTrue(request.isSigned());
+		
+		assertTrue(request.getBody() instanceof RequestSecurityToken);
+		RequestSecurityToken rst = ((RequestSecurityToken)request.getBody());
+		assertEquals("urn:service", SAMLUtil.getFirstElement(rst.getAppliesTo(), EndpointReference.class).getAddress().getValue());
+		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", rst.getOnBehalfOf().getSecurityTokenReference().getKeyIdentifier().getValue());
+	}
+	
+	@Test(expected=TrustException.class)
+	public void testGetTokenFault() throws Exception {
+		client.setAppliesTo("urn:service");
+
+		final Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
+		response.setBody(SAMLUtil.buildXMLObject(Body.class));
+		Fault fault = SAMLUtil.buildXMLObject(Fault.class);
+		fault.setDetail(SAMLUtil.buildXMLObject(Detail.class));
+		response.getBody().getUnknownXMLObjects().add(fault);
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(any(String.class)), with(equal("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")));
+			will(returnValue(response));
+		}});
+		
+		client.getToken();
+	}
+	
+	@Test
+	public void sendRequestWithoutToken() throws Exception {
+		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
+		
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(returnValue(buildResponse()));
+		}});
+		XMLObject res = client.sendRequest(body, ADDRESS, "urn:action");
+		assertTrue(res instanceof Assertion);
+		
+		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
+		assertTrue(env.isSigned());
+		assertNotNull(env.getHeaderElement(MessageID.class));
+		assertNotNull(env.getHeaderElement(Action.class));
+		assertNotNull(env.getHeaderElement(ReplyTo.class));
+		
+		Security sec = env.getHeaderElement(Security.class);
+		assertNotNull(sec);
+		assertNull(SAMLUtil.getFirstElement(sec, Assertion.class));
+		
+		assertTrue(env.verifySignature(credential.getPublicKey()));
+	}
+
+	@Test
+	public void sendRequestWithToken() throws Exception {
+		client.setToken(assertion);
+		
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(returnValue(buildResponse()));
+		}});
+		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
+		client.sendRequest(body, ADDRESS, "urn:action");
+
+		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
+		assertFalse(env.isHolderOfKey());
+		assertTrue(env.isSigned());
+		
+		Security sec = env.getHeaderElement(Security.class);
+		assertNotNull(sec);
+		assertNotNull(SAMLUtil.getFirstElement(sec, Assertion.class));
+	} 
 
 	@Test
 	@Ignore
 	public void testRequest() throws Exception {
-		BasicX509Credential credential = TestHelper.getCredential();//Utils.getCredential("/home/recht/download/TestMOCES1.pfx", "Test1234");
 		BasicX509Credential stsCredential = Utils.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
 		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setAppliesTo("urn:appliesto");
@@ -115,7 +227,6 @@ public class TokenClientTest extends TrustTests {
 	}
 
 	private void signingWithWrongKeyShouldFail(XMLObject request, AbstractCredential stsCredential) throws CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
-		BasicX509Credential credential = TestHelper.getCredential();
 		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setAppliesTo("urn:appliesto");
 		Assertion token = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(client.getToken()));
@@ -177,4 +288,12 @@ public class TokenClientTest extends TrustTests {
 		client.setToken(rstrAssertion);
 		client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest");
 	}
+
+	private Envelope buildResponse() {
+		final Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
+		response.setBody(SAMLUtil.buildXMLObject(Body.class));
+		response.getBody().getUnknownXMLObjects().add(SAMLUtil.buildXMLObject(Assertion.class));
+		return response;
+	}
+	
 }

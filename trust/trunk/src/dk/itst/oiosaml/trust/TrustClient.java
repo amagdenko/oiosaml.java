@@ -58,6 +58,7 @@ import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
+import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
@@ -71,6 +72,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 public class TrustClient {
 	private static final Logger log = Logger.getLogger(TrustClient.class);
 	
+	private SOAPClient soapClient = new HttpSOAPClient();
 	private String endpoint;
 	private final EndpointReference epr;
 	private final X509Credential credential;
@@ -141,30 +143,28 @@ public class TrustClient {
 			
 			log.debug(xml);
 			
-			HttpSOAPClient client = new HttpSOAPClient();
-			
-			Envelope env = client.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
+			OIOSoapEnvelope env = new OIOSoapEnvelope(soapClient.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"));
 	
 			//TODO: finish validation when STS supports signatures in security header
 //			validateSignature(env);
 
 			//TODO: Support tokens in security header
 			
-			log.debug("STS Response: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(env));
-			XMLObject res = env.getBody().getUnknownXMLObjects().get(0);
+			log.debug("STS Response: " + env.toXML());
+			XMLObject res = env.getBody();
 			if (res instanceof Fault) {
 				Fault f = (Fault) res;
 				throw new TrustException("Unable to retrieve STS token: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(f));
 			} else if (res instanceof RequestSecurityTokenResponse) {
 				RequestSecurityTokenResponse tokenResponse = (RequestSecurityTokenResponse) res;
 				
-				Assertion dom = (Assertion) tokenResponse.getRequestedSecurityToken().getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0);
+				Assertion dom = SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class);
 				setToken(dom);
 				return dom.getDOM();
 			} else {
 				for (XMLObject object : res.getOrderedChildren()) {
 					if (object.getElementQName().equals(RequestedSecurityToken.ELEMENT_NAME)) {
-						Assertion dom = (Assertion) ((RequestedSecurityToken)object).getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).get(0);
+						Assertion dom = SAMLUtil.getFirstElement((RequestedSecurityToken)object, Assertion.class);
 						setToken(dom);
 						return dom.getDOM();
 					}
@@ -259,6 +259,15 @@ public class TrustClient {
 		this.token = token;
 	}
 	
+	/**
+	 * Execute a SOAP request.
+	 * 
+	 * A SOAP header is added automatically to the request containing the client's security token.
+	 * 
+	 * @param body The body of the request.
+	 * @param location Location to send request to.
+	 * @param action SOAP Action to invoke.
+	 */
 	public XMLObject sendRequest(XMLObject body, String location, String action) {
 		body.detach();
 		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
@@ -274,13 +283,15 @@ public class TrustClient {
 			
 			log.debug("Signed request: " + XMLHelper.nodeToString(signed));
 			
-			HttpSOAPClient client = new HttpSOAPClient();
+			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, XMLHelper.nodeToString(signed), action));
 			
-			Envelope res = client.wsCall(location, null, null, true, XMLHelper.nodeToString(signed), action);
-			
-			return res.getBody().getUnknownXMLObjects().get(0);
+			return res.getBody();
 		} catch (Exception e) {
 			throw new TrustException(e);
 		}
+	}
+	
+	public void setSOAPClient(SOAPClient client) {
+		this.soapClient = client;
 	}
 }
