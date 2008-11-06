@@ -116,7 +116,14 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		assertEquals(3, signature.getXMLSignature().getSignedInfo().getLength());
 		
 		Action action = (Action) envelope.getHeader().getUnknownXMLObjects(Action.ELEMENT_NAME).get(0);
-		assertEquals("#" + action.getUnknownAttributes().get(TrustConstants.WSU_ID), signature.getXMLSignature().getSignedInfo().getReferencedContentBeforeTransformsItem(2).getSourceURI());
+		
+		boolean found = false;
+		for (int i = 0; i < signature.getXMLSignature().getSignedInfo().getLength(); i++) {
+			if (("#" + action.getUnknownAttributes().get(TrustConstants.WSU_ID)).equals(signature.getXMLSignature().getSignedInfo().getReferencedContentBeforeTransformsItem(i).getSourceURI())) {
+				found = true;
+			}
+		}
+		assertTrue(found);
 	
 		SignatureValidator validator = new SignatureValidator(credential);
 		validator.validate(signature);
