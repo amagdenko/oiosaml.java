@@ -97,12 +97,29 @@ public class OIOSoapEnvelope {
 	private SecurityTokenReference securityTokenReference;
 
 	public OIOSoapEnvelope(Envelope envelope) {
+		this(envelope, false);
+	}
+	
+	public OIOSoapEnvelope(Envelope envelope, boolean signHeaderElements) {
 		if (envelope == null) throw new IllegalArgumentException("Envelope cannot be null");
 		
 		this.envelope = envelope;
 		xsf = getXMLSignature();
 
 		security = SAMLUtil.getFirstElement(envelope.getHeader(), Security.class);
+		if (signHeaderElements) {
+			if (security == null) {
+				security = SAMLUtil.buildXMLObject(Security.class);
+				security.setMustUnderstand(new XSBooleanValue(true, true));
+				envelope.getHeader().getUnknownXMLObjects().add(security);
+			}
+			for (XMLObject o : envelope.getHeader().getUnknownXMLObjects()) {
+				if (o instanceof AttributeExtensibleXMLObject) {
+					if (o instanceof Security) continue;
+					addSignatureElement((AttributeExtensibleXMLObject) o);
+				}
+			}
+		}
 	}
 	
 	private OIOSoapEnvelope(Envelope envelope, MessageID msgId, XSAny framework) {
@@ -373,6 +390,13 @@ public class OIOSoapEnvelope {
 		return TrustConstants.CONFIRMATION_METHOD_HOK.equals(securityToken.getSubject().getSubjectConfirmations().get(0).getMethod());
 	}
 	
+	public String getMessageID() {
+		MessageID mid = SAMLUtil.getFirstElement(envelope.getHeader(), MessageID.class);
+		if (mid == null) return null;
+		
+		return mid.getValue();
+	}
+	
 	private XMLSignatureFactory getXMLSignature() {
         // First, create a DOM XMLSignatureFactory that will be used to
         // generate the XMLSignature and marshal it to DOM.
@@ -387,6 +411,8 @@ public class OIOSoapEnvelope {
 	}
 
 	private String addSignatureElement(AttributeExtensibleXMLObject obj) {
+		if (obj == null) return null;
+		
 		String id = Utils.generateUUID();
 		obj.getUnknownAttributes().put(TrustConstants.WSU_ID, id);
 		

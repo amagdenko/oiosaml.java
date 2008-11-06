@@ -10,7 +10,7 @@
  * rights and limitations under the License.
  *
  *
- * The Original Code is OIOSAML Java Service Provider.
+ * The Original Code is OIOSAML Trust client.
  * 
  * The Initial Developer of the Original Code is Trifork A/S. Portions 
  * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
@@ -267,8 +267,9 @@ public class TrustClient {
 	 * @param body The body of the request.
 	 * @param location Location to send request to.
 	 * @param action SOAP Action to invoke.
+	 * @param verificationKey Key to use for signature verification on the response. If <code>null</code>, the signature is not checked. If the signature is not valid, a {@link TrustException} is thrown.
 	 */
-	public XMLObject sendRequest(XMLObject body, String location, String action) {
+	public XMLObject sendRequest(XMLObject body, String location, String action, PublicKey verificationKey) {
 		body.detach();
 		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
 		env.setBody(body);
@@ -284,6 +285,16 @@ public class TrustClient {
 			log.debug("Signed request: " + XMLHelper.nodeToString(signed));
 			
 			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, XMLHelper.nodeToString(signed), action));
+			if (!res.relatesTo(env.getMessageID())) {
+				log.error("Respose is not reply to " + env.getMessageID());
+				throw new TrustException("Respose is not reply to " + env.getMessageID());
+			}
+			if (verificationKey != null) {
+				log.debug("Verifying signature on response");
+				if (!res.verifySignature(verificationKey)) {
+					throw new TrustException("Signature on response is not valid. Response contains signature: " + res.isSigned());
+				}
+			}
 			
 			return res.getBody();
 		} catch (Exception e) {

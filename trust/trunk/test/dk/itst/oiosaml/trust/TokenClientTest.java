@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -37,7 +38,12 @@ import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+
 import org.jmock.Expectations;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -47,6 +53,7 @@ import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
+import org.opensaml.ws.soap.soap11.Header;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
@@ -57,6 +64,8 @@ import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.schema.XSAny;
+import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.credential.AbstractCredential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
@@ -174,9 +183,13 @@ public class TokenClientTest extends TrustTests {
 		final StringValueHolder holder = new StringValueHolder();
 		context.checking(new Expectations() {{
 			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
-			will(returnValue(buildResponse()));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					return buildResponse(holder.getValue(), false);
+				}
+			});
 		}});
-		XMLObject res = client.sendRequest(body, ADDRESS, "urn:action");
+		XMLObject res = client.sendRequest(body, ADDRESS, "urn:action", null);
 		assertTrue(res instanceof Assertion);
 		
 		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
@@ -193,16 +206,20 @@ public class TokenClientTest extends TrustTests {
 	}
 
 	@Test
-	public void sendRequestWithToken() throws Exception {
+	public void sendRequestWithSenderVouchexToken() throws Exception {
 		client.setToken(assertion);
 		
 		final StringValueHolder holder = new StringValueHolder();
 		context.checking(new Expectations() {{
 			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
-			will(returnValue(buildResponse()));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					return buildResponse(holder.getValue(), false);
+				}
+			});
 		}});
 		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
-		client.sendRequest(body, ADDRESS, "urn:action");
+		client.sendRequest(body, ADDRESS, "urn:action", null);
 
 		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
 		assertFalse(env.isHolderOfKey());
@@ -212,7 +229,55 @@ public class TokenClientTest extends TrustTests {
 		assertNotNull(sec);
 		assertNotNull(SAMLUtil.getFirstElement(sec, Assertion.class));
 	} 
+	
+	
+	@Test(expected=TrustException.class)
+	public void failIfResponseIsNotSigned() throws Exception {
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					return buildResponse(holder.getValue(), false);
+				}
+			});
+		}});
+		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
+		client.sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey());
+	}
+	
+	
+	@Test(expected=TrustException.class)
+	public void failIfResponseIsSignedWithValidKey() throws Exception {
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					return buildResponse(holder.getValue(), false);
+				}
+			});
+		}});
+		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
+		client.sendRequest(body, ADDRESS, "urn:action", credential.getPublicKey());
+	}
 
+	@Test
+	public void testValidateResponseSignature() throws Exception {
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					return buildResponse(holder.getValue(), true);
+				}
+			});
+		}});
+		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
+		client.sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey());
+	}
+	
+	
 	@Test
 	@Ignore
 	public void testRequest() throws Exception {
@@ -236,7 +301,7 @@ public class TokenClientTest extends TrustTests {
 		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setToken(token);
 		try {
-			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest");
+			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest", null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -259,7 +324,7 @@ public class TokenClientTest extends TrustTests {
 		client.setToken(rstr.getAssertion());
 		
 		try {
-			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest");
+			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest", null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -286,13 +351,25 @@ public class TokenClientTest extends TrustTests {
 		
 		
 		client.setToken(rstrAssertion);
-		client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest");
+		client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest", null);
 	}
 
-	private Envelope buildResponse() {
-		final Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
+	private Envelope buildResponse(String request, boolean sign) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(request));
+		
+		Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
+		response.setHeader(SAMLUtil.buildXMLObject(Header.class));
+		XSAny relatesTo = new XSAnyBuilder().buildObject(MessageID.ELEMENT_NAME.getNamespaceURI(), "RelatesTo", "wsa");
+		relatesTo.setTextContent(env.getMessageID());
+		response.getHeader().getUnknownXMLObjects().add(relatesTo);
+		
 		response.setBody(SAMLUtil.buildXMLObject(Body.class));
 		response.getBody().getUnknownXMLObjects().add(SAMLUtil.buildXMLObject(Assertion.class));
+		 
+		if (sign) {
+			response = (Envelope) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(new OIOSoapEnvelope(response, true).sign(stsCredential)));
+		}
+		
 		return response;
 	}
 	
