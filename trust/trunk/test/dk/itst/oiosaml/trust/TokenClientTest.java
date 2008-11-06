@@ -88,6 +88,7 @@ public class TokenClientTest extends TrustTests {
 
 	@Before
 	public void setUp() throws UnmarshallingException, CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
+		credential = TestHelper.getCredential();
 		assertion = (Assertion)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
 		epr = SAMLUtil.buildXMLObject(EndpointReference.class);
 		
@@ -105,7 +106,7 @@ public class TokenClientTest extends TrustTests {
 		assertion.getConditions().setNotOnOrAfter(new DateTime().plusMinutes(5));
 		assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).setAudienceURI("tri-test1.trifork.com");
 		assertion.setSignature(null);
-		new OIOAssertion(assertion).sign(Utils.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234"));
+		new OIOAssertion(assertion).sign(credential);
 		
 		Token token = new Token();
 		token.setUsage("urn:liberty:security:tokenusage:2006-08:SecurityToken");
@@ -117,7 +118,6 @@ public class TokenClientTest extends TrustTests {
 		XSAnyUnmarshaller unmarshaller = new XSAnyUnmarshaller();
 		request = unmarshaller.unmarshall(SAMLUtil.loadElementFromString(echo));
 
-		credential = TestHelper.getCredential();
 		stsCredential = TestHelper.getCredential();
 		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		soapClient = context.mock(SOAPClient.class);
