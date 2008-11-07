@@ -32,6 +32,7 @@ import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.UserInteraction;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
 
@@ -210,5 +211,18 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		
 		OIOSoapEnvelope env = new OIOSoapEnvelope(e);
 		assertTrue(env.relatesTo("id"));
+	}
+	
+	@Test
+	public void testUserInteraction() throws Exception {
+		assertNull(env.getHeaderElement(UserInteraction.class));
+		
+		env.setUserInteraction(dk.itst.oiosaml.trust.UserInteraction.IF_NEEDED, true);
+		
+		assertNotNull(env.getHeaderElement(UserInteraction.class));
+		
+		UserInteraction ui = env.getHeaderElement(UserInteraction.class);
+		assertTrue(ui.redirect());
+		assertEquals("InteractIfNeeded", ui.getInteract());
 	}
 }

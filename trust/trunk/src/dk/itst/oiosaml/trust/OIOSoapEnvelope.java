@@ -397,6 +397,23 @@ public class OIOSoapEnvelope {
 		return mid.getValue();
 	}
 	
+	public void setUserInteraction(UserInteraction interaction, boolean redirect) {
+		if (interaction == UserInteraction.NONE) {
+			dk.itst.oiosaml.liberty.UserInteraction ui = SAMLUtil.getFirstElement(envelope.getHeader(), dk.itst.oiosaml.liberty.UserInteraction.class);
+			if (ui != null) {
+				ui.detach();
+				envelope.getHeader().getUnknownXMLObjects().remove(ui);
+			}
+			return;
+		}
+		
+		dk.itst.oiosaml.liberty.UserInteraction ui = SAMLUtil.buildXMLObject(dk.itst.oiosaml.liberty.UserInteraction.class);
+		ui.setInteract(interaction.getValue());
+		ui.setRedirect(redirect);
+		envelope.getHeader().getUnknownXMLObjects().add(ui);
+		addSignatureElement(ui);
+	}
+	
 	private XMLSignatureFactory getXMLSignature() {
         // First, create a DOM XMLSignatureFactory that will be used to
         // generate the XMLSignature and marshal it to DOM.

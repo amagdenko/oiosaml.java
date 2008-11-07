@@ -86,6 +86,10 @@ public class TrustClient {
 
 	private Assertion token;
 
+	private UserInteraction interact;
+
+	private boolean redirect;
+
 	/**
 	 * Create a new client using default settings.
 	 * 
@@ -274,6 +278,8 @@ public class TrustClient {
 	 * @param verificationKey Key to use for signature verification on the response. If <code>null</code>, the signature is not checked. If the signature is not valid, a {@link TrustException} is thrown.
 	 */
 	public XMLObject sendRequest(XMLObject body, String location, String action, PublicKey verificationKey) {
+		log.debug("Invoking action " + action + " at service " + location);
+		
 		body.detach();
 		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
 		env.setBody(body);
@@ -282,6 +288,11 @@ public class TrustClient {
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
 		env.setTimestamp(5);
 		env.addSecurityTokenReference(token);
+		
+		if (interact != null) {
+			log.debug("UserInteract set: " + interact + ", redirect: " + redirect);
+			env.setUserInteraction(interact, redirect);
+		}
 		
 		try {
 			Element signed = env.sign(credential);
@@ -321,5 +332,13 @@ public class TrustClient {
 	 */
 	public void setSOAPClient(SOAPClient client) {
 		this.soapClient = client;
+	}
+
+	/**
+	 * Set the UserInteract value for requests.
+	 */
+	public void setUserInteraction(UserInteraction interact, boolean redirect) {
+		this.interact = interact;
+		this.redirect = redirect;
 	}
 }
