@@ -10,8 +10,8 @@ public class UserInteraction extends AbstractExtensibleXMLObject
 		public static final String LOCAL_NAME = "UserInteraction";
 	    public static final QName ELEMENT_NAME= new QName(LibertyConstants.SB_NS, LOCAL_NAME, LibertyConstants.SB_PREFIX);
 	    
-	    private static final QName ATTRIBUTE_INTERACT = new QName("interact");
-	    private static final QName ATTRIBUTE_REDIRECT = new QName("redirect");
+	    private String interact;
+	    private boolean redirect;
 				
 	    public UserInteraction() 
 	    {
@@ -24,18 +24,18 @@ public class UserInteraction extends AbstractExtensibleXMLObject
 		}	
 	    
 	    public String getInteract() {
-	    	return getUnknownAttributes().get(ATTRIBUTE_INTERACT);
+	    	return interact;
 	    }
 	    
 	    public void setInteract(String interact) {
-	    	getUnknownAttributes().put(ATTRIBUTE_INTERACT, interact);
+			this.interact = interact;
 	    }
 	    
 	    public boolean redirect() {
-	    	return Boolean.valueOf(getUnknownAttributes().get(ATTRIBUTE_REDIRECT));
+	    	return redirect;
 	    }
 	    
 	    public void setRedirect(boolean redirect) {
-	    	getUnknownAttributes().put(ATTRIBUTE_REDIRECT, Boolean.toString(redirect));
+			this.redirect = redirect;
 	    }
 }

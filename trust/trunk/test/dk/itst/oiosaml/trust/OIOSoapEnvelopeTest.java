@@ -224,5 +224,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		UserInteraction ui = env.getHeaderElement(UserInteraction.class);
 		assertTrue(ui.redirect());
 		assertEquals("InteractIfNeeded", ui.getInteract());
+		
+		System.out.println(env.toXML());
 	}
 }

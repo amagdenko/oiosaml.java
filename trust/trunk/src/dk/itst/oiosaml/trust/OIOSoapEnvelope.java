@@ -398,16 +398,16 @@ public class OIOSoapEnvelope {
 	}
 	
 	public void setUserInteraction(UserInteraction interaction, boolean redirect) {
+		dk.itst.oiosaml.liberty.UserInteraction ui = SAMLUtil.getFirstElement(envelope.getHeader(), dk.itst.oiosaml.liberty.UserInteraction.class);
+		if (ui != null) {
+			ui.detach();
+			envelope.getHeader().getUnknownXMLObjects().remove(ui);
+		}
 		if (interaction == UserInteraction.NONE) {
-			dk.itst.oiosaml.liberty.UserInteraction ui = SAMLUtil.getFirstElement(envelope.getHeader(), dk.itst.oiosaml.liberty.UserInteraction.class);
-			if (ui != null) {
-				ui.detach();
-				envelope.getHeader().getUnknownXMLObjects().remove(ui);
-			}
 			return;
 		}
 		
-		dk.itst.oiosaml.liberty.UserInteraction ui = SAMLUtil.buildXMLObject(dk.itst.oiosaml.liberty.UserInteraction.class);
+		ui = SAMLUtil.buildXMLObject(dk.itst.oiosaml.liberty.UserInteraction.class);
 		ui.setInteract(interaction.getValue());
 		ui.setRedirect(redirect);
 		envelope.getHeader().getUnknownXMLObjects().add(ui);
