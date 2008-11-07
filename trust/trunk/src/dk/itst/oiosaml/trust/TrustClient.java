@@ -62,7 +62,7 @@ import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
- * Client interface for retrieving STS tokens.
+ * Client interface for retrieving STS tokens and sending OIOIDWS-based SOAP requests.
  * 
  * Call {@link #getToken()} to make an STS Issue request.
  * 
@@ -133,6 +133,8 @@ public class TrustClient {
 
 	/**
 	 * Execute a Issue request against the STS.
+	 * 
+	 * The retrieved token is saved in the client for use if {@link #sendRequest(XMLObject, String, String, PublicKey)} is called.
 	 * 
 	 * @return A DOM element with the returned token.
 	 * @throws TrustException If any error occurred.
@@ -301,7 +303,10 @@ public class TrustClient {
 			throw new TrustException(e);
 		}
 	}
-	
+
+	/**
+	 * Set the client to use when executing the request.
+	 */
 	public void setSOAPClient(SOAPClient client) {
 		this.soapClient = client;
 	}
