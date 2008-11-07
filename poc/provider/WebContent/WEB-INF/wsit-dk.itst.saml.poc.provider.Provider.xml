@@ -30,12 +30,12 @@
 	</operation>
 	</portType>
 	<binding name="ProviderPortBinding" type="tns:Provider">
-		<wsp:PolicyReference URI="#PortBindingPolicySymm" />
+		<wsp:PolicyReference URI="#PortBindingPolicySymm"/>
 		<soap:binding transport="http://www.w3.org/2003/05/soap/bindings/HTTP/" style="document" />
 		<operation name="echo">
 			<soap:operation soapAction="" />
 			<input>
-				<wsp:PolicyReference URI="#Input_Policy" />
+				<wsp:PolicyReference URI="#Input_Policy"/>
 				<soap:body use="literal"></soap:body>
 			</input>
 			<output>
@@ -46,7 +46,7 @@
 		<operation name="requestInteract">
 			<soap:operation soapAction=""/>
 			<input>
-				<wsp:PolicyReference URI="#Signing_Policy" />
+				<wsp:PolicyReference URI="#Input_Policy" />
 				<soap:body use="literal" parts="parameters"/>
 				<soap:header message="tns:requestInteract" part="interact" use="literal"/>
 			</input>
@@ -74,11 +74,19 @@
 				 	<wsp:Policy>
 				 		<sp:InitiatorToken>
 				 			<wsp:Policy>
-				 				<sp:X509Token><!--  sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never"> -->
+				 			<!--  sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never"> -->
+				 			<!-- 
+				 				<sp:X509Token>
 				 					<wsp:Policy>
 				 						<sp:WssX509V3Token11 />
 				 					</wsp:Policy>
 				 				</sp:X509Token>
+				 				 -->
+				 				<sp:SamlToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+				 					<wsp:Policy>
+				 						<sp:WssSamlV20Token11 />
+				 					</wsp:Policy>
+				 				</sp:SamlToken>
 				 			</wsp:Policy>
 				 		</sp:InitiatorToken>
 				 		<sp:RecipientToken>
@@ -96,6 +104,7 @@
 						<sp:ProtectTokens/>
 				 	</wsp:Policy>
 				 </sp:AsymmetricBinding>
+				 <!-- 
 				<sp:Wss11>
 					<wsp:Policy>
 						<sp:MustSupportRefKeyIdentifier />
@@ -104,23 +113,25 @@
 						<sp:MustSupportRefEncryptedKey />
 					</wsp:Policy>
 				</sp:Wss11>
-				<sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks" alias="xws-security-server"
+				 -->
+				<sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks" alias="voces"
 					location="server-keystore.jks" />
 				<sc:TrustStore wspp:visibility="private" location="truststore" storepass="changeit" />
 			</wsp:All>
 		</wsp:ExactlyOne>
 	</wsp:Policy>
-	
 	<wsp:Policy wsu:Id="Input_Policy">
-		<sp:SignedSupportingTokens sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
-			<wsp:Policy>
-				<sp:SamlToken>
+	<!-- 
+				 <sp:SignedEndorsingSupportingTokens sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
 					<wsp:Policy>
-						<sp:WssSamlV20Token11 />
-					</wsp:Policy>
-				</sp:SamlToken>
-			</wsp:Policy>
-		</sp:SignedSupportingTokens>
+						<sp:SamlToken>
+							<wsp:Policy>
+								<sp:WssSamlV20Token11 />
+							</wsp:Policy>
+						</sp:SamlToken>
+		      		</wsp:Policy>
+				</sp:SignedEndorsingSupportingTokens>
+				 -->
 		<sp:SignedParts>
 			<sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing" />
 			<sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing" />
@@ -131,7 +142,6 @@
 			<sp:Body />
 		</sp:SignedParts>
 	</wsp:Policy>
-	
 	<wsp:Policy wsu:Id="Signing_Policy">
 		<sp:SignedParts>
 			<sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing" />

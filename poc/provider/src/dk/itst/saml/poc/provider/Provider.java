@@ -1,45 +1,20 @@
 package dk.itst.saml.poc.provider;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.security.auth.Subject;
-import javax.security.auth.x500.X500PrivateCredential;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMResult;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.log4j.Logger;
-import org.jvyaml.YAML;
-import org.opensaml.xml.security.x509.BasicX509Credential;
-import org.opensaml.xml.util.XMLHelper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.pingidentity.sts.clientapi.STSClient;
-import com.pingidentity.sts.clientapi.STSClientException;
-import com.pingidentity.sts.clientapi.model.RequestSecurityTokenData;
-import com.pingidentity.sts.clientapi.model.STSResponse;
-import com.pingidentity.sts.clientapi.protocol.KeyIdentifierTokenReference;
-import com.pingidentity.sts.clientapi.protocol.KeyIdentifierTokenReference.IdProvider;
-import com.sun.xml.ws.util.xml.StAXSource;
 import com.sun.xml.wss.SubjectAccessor;
 
 import dk.itst.oiosaml.sp.service.util.Utils;
@@ -61,7 +36,7 @@ public class Provider {
 	public String echo(
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework) {
 		try {
-			FrameworkMismatchFault.throwIfNecessary(framework);
+			FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
 			
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
@@ -72,7 +47,9 @@ public class Provider {
 			sb.append("Provider Request: ").append(Utils.beautifyAndHtmlXML((String)context.getMessageContext().get("envelope"), "&nbsp;&nbsp;&nbsp;&nbsp;")).append("\n");
 			
 			if (cred instanceof XMLStreamReader) {
-				validateAssertion(subject, sb);
+//				validateAssertion(subject, sb);
+				sb.append("Credential: " + printCredential((XMLStreamReader)cred)).append("\n");
+				
 			} else {
 				sb.append("Credential: " + cred).append("\n");
 			}
@@ -84,16 +61,22 @@ public class Provider {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return YAML.dump(e);		
+			throw new RuntimeException(e);
 		}
 	}
 	
+	private String printCredential(XMLStreamReader cred) {
+		log.info("Credential: " + cred);
+		
+		return new StAXOMBuilder(cred).getDocumentElement().toString();
+	}
+
 	@WebMethod
 	public String requestInteract(
 			@WebParam(name="UserInteraction", header=true, targetNamespace="urn:liberty:sb:2006-08") UserInteraction interact,
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework,
-			@WebParam(name="user") String user) throws RequestToInteractFault {
-		FrameworkMismatchFault.throwIfNecessary(framework);
+			@WebParam(name="user", targetNamespace="http://provider.poc.saml.itst.dk/") String user) throws RequestToInteractFault {
+		FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
 		
 		String info = InfoRepository.getInfo(user);
 		if (info == null) {
@@ -108,11 +91,12 @@ public class Provider {
 		}
 	}
 
+	/*
 	private void validateAssertion(Subject subject, StringBuffer sb)
 			throws ParserConfigurationException,
 			TransformerFactoryConfigurationError,
 			TransformerConfigurationException, TransformerException,
-			MalformedURLException, STSClientException, IOException {
+			MalformedURLException, IOException {
 		XMLStreamReader r = (XMLStreamReader) subject.getPublicCredentials().iterator().next();
 		DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
 		df.setNamespaceAware(true);
@@ -145,7 +129,7 @@ public class Provider {
 		} else {
 			sb.append("Fail message: ").append(response.getSoapFault().getDetail()).append("\n");
 		}
-	}
+	}*/
 
 	public static void main(String[] args) {
 		Endpoint.publish("http://recht-laptop:8880/poc-provider/ProviderService", new Provider());

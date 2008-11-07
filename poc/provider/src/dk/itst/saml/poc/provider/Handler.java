@@ -3,6 +3,8 @@ package dk.itst.saml.poc.provider;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -27,6 +29,14 @@ public class Handler implements SOAPHandler<SOAPMessageContext> {
 
 	public boolean handleMessage(SOAPMessageContext ctx) {
 		if ((Boolean)ctx.get("javax.xml.ws.handler.message.outbound")) return true;
+		
+		try {
+			SOAPHeader header = ctx.getMessage().getSOAPHeader();
+		} catch (SOAPException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ctx.put("envelope", XMLHelper.nodeToString(ctx.getMessage().getSOAPPart().getDocumentElement()));
 		System.out.println(ctx.get("envelope"));
 		

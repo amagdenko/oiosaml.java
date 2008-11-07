@@ -3,6 +3,7 @@ package dk.itst.saml.poc.idws;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
 public class FrameworkMismatchFault extends SOAPFaultException {
@@ -24,16 +25,23 @@ public class FrameworkMismatchFault extends SOAPFaultException {
 		}
 	}
 	
-	public static void throwIfNecessary(Framework fw) {
+	public static void throwIfNecessary(Framework fw, MessageContext messageContext) {
 		if (fw == null) {
+			setError(messageContext);
 			throw createFault(fw);
 		}
 		if (!"egovsimple".equals(fw.getProfile())) {
+			setError(messageContext);
 			throw createFault(fw);
 		}
 		if (!"2.0".equals(fw.getVersion())) {
+			setError(messageContext);
 			throw createFault(fw);
 		}
+	}
+	
+	private static void setError(MessageContext ctx) {
+		ctx.put(MessageContext.HTTP_RESPONSE_CODE, 500);
 	}
 
 }
