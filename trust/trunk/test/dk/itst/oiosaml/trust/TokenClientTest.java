@@ -76,11 +76,11 @@ import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.service.util.SOAPException;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 
