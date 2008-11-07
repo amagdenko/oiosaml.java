@@ -42,7 +42,7 @@ doCompile = { srcdir, destdir ->
 }
 
 doResolve = { 
-	ivy.retrieve(pattern: "WebContent/WEB-INF/lib/[organisation]-[artifact].[ext]", conf: conf)
+	ivy.retrieve(pattern: "WebContent/WEB-INF/lib/[organisation]-[artifact].[ext]")
 }
 
 target (init : 'Initialize build') {

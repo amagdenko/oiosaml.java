@@ -16704,3 +16704,141 @@ MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
   prime exponent p: 8307148568074798133080389072902433182250424365705117058928259451314001810103783111452079375669914620772456370012307626009788007052500363860193608051297223
   prime exponent q: 3286840427553582830042112232905622486637294616786002327904624480993465914342375389648909104639836854846634831843722402745139315584127728502325542696499983
   crt coefficient:  3333809746620324323469498450995334512135220864918972496777233116796565192143642483305845852397119061514661246487810365181143385518210564732820881591769805
+[2008-11-07 14:05:57,502] [INFO ] [httpWorkerThread-4848-0] [dk.itst.oiosaml.sp.metadata.IdpMetadata] Loading metadata from /home/recht/eclipse/poc-provider/oiosaml/./metadata/IdP/oiosaml.trifork.com-simple.xml
+[2008-11-07 14:05:57,505] [DEBUG] [httpWorkerThread-4848-0] [dk.itst.oiosaml.common.SAMLUtil] <?xml version="1.0"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://oiosaml.trifork.com/simplesaml/saml2/idp/metadata.php"><IDPSSODescriptor xmlns:ds="http://www.w3.org/2000/09/xmldsig#" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><KeyDescriptor><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>MIIDTDCCArWgAwIBAgIJAM1W5wm/tCTdMA0GCSqGSIb3DQEBBQUAMHgxCzAJBgNVBAYTAkRLMQ0wCwYDVQQIEwRNaWR0MQ8wDQYDVQQHEwZBYXJodXMxEDAOBgNVBAoTB1RyaWZvcmsxGTAXBgNVBAsTEFRyaWZvcmsgU2VydmljZXMxHDAaBgNVBAMTE29pb3NhbWwudHJpZm9yay5jb20wHhcNMDgwODExMTAzODM4WhcNMTgwODA5MTAzODM4WjB4MQswCQYDVQQGEwJESzENMAsGA1UECBMETWlkdDEPMA0GA1UEBxMGQWFyaHVzMRAwDgYDVQQKEwdUcmlmb3JrMRkwFwYDVQQLExBUcmlmb3JrIFNlcnZpY2VzMRwwGgYDVQQDExNvaW9zYW1sLnRyaWZvcmsuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDqKmrTB1Jq9WfmbWCgNfb5M84c89ehRxFY0OG+5jk5qfp7BjIhJcJ6QloESufomwF4d1X5vmqghpXinsebk+oB9ycoy636n7rkpb4qhNr9Nuziq+vjW+RBUNVqhJ+dy7HatYLZpz6RG1oULKQZKZ4RjLKianMDXzKYkcQYY/DSoQIDAQABo4HdMIHaMB0GA1UdDgQWBBSIQ0X+sCr2F/07QQC2UybVBQCHXjCBqgYDVR0jBIGiMIGfgBSIQ0X+sCr2F/07QQC2UybVBQCHXqF8pHoweDELMAkGA1UEBhMCREsxDTALBgNVBAgTBE1pZHQxDzANBgNVBAcTBkFhcmh1czEQMA4GA1UEChMHVHJpZm9yazEZMBcGA1UECxMQVHJpZm9yayBTZXJ2aWNlczEcMBoGA1UEAxMTb2lvc2FtbC50cmlmb3JrLmNvbYIJAM1W5wm/tCTdMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAP37PabhOXc5SvrA3df94UzxRL+jie3LQs0oXHhv976jzKsgDZtmId3UAdOwfCw1ix8z8buG99NpX61bYazoNvbNWlJl0P3zuhjMa8wMwDwyUA+1FrEPFUudNU5gF7h2qr/zPRMJGJz8xxGUMJrLwAtdlFfeVNjYkIebisqUB2UA=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></KeyDescriptor><SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://oiosaml.trifork.com/simplesaml/saml2/idp/SingleLogoutService.php"/><SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://oiosaml.trifork.com/simplesaml/saml2/idp/SSOService.php"/></IDPSSODescriptor><ContactPerson contactType="technical"><SurName>Administrator</SurName><EmailAddress>na@example.org</EmailAddress></ContactPerson></EntityDescriptor>
+
+[2008-11-07 14:05:57,603] [INFO ] [httpWorkerThread-4848-0] [dk.itst.oiosaml.sp.service.SPFilter] Discovery profile disabled, only one metadata file found
+[2008-11-07 14:05:57,605] [INFO ] [httpWorkerThread-4848-0] [dk.itst.oiosaml.sp.service.SPFilter] Home url: /poc-provider
+[2008-11-07 14:05:57,606] [INFO ] [httpWorkerThread-4848-0] [dk.itst.oiosaml.sp.service.SPFilter] Assurance leve: 2
+[2008-11-07 14:05:57,606] [INFO ] [httpWorkerThread-4848-0] [dk.itst.oiosaml.sp.service.SPFilter] SP entity ID: null
+[2008-11-07 14:05:57,640] [DEBUG] [httpWorkerThread-4848-0] [dk.itst.oiosaml.common.SAMLUtil] <?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="saml.poc-provider.trifork.com">
+   <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARu3R6smMA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwODEyMTQxNzUyWhcNMTgwODEwMTQxNzUyWjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJsGdBMry8t3pi2+Tz/v+TnpnlvYH3rsWk4sD2zg
+y5j6qevBWXtlsTWIiVcfe6X2Z63dc/V0+l6BF9GKsSX47CxEhZsYFNcSSNwLw+nEjGAdc9Szw7ex
+vJdI4Bl5105R5TNEnvXqzZXBJr7yrMjohSbDf3LeQ50bEz3gq48s+erBAgMBAAGjQjBAMB0GA1Ud
+DgQWBBRVZFRbQy71sPxCCOsJ36LM8BWjmzAfBgNVHSMEGDAWgBRVZFRbQy71sPxCCOsJ36LM8BWj
+mzANBgkqhkiG9w0BAQUFAAOBgQALVbJVJpY4wJuL2YP8fzmWMcVI1tNjrX9egf+KqqgvVSoG2q0u
+MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
+3DHqdQz6MUp73GqlcXp1ZererJWdYwHCR8ATfNkoSWiqnQ==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:KeyDescriptor use="encryption">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARu3R6smMA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwODEyMTQxNzUyWhcNMTgwODEwMTQxNzUyWjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJsGdBMry8t3pi2+Tz/v+TnpnlvYH3rsWk4sD2zg
+y5j6qevBWXtlsTWIiVcfe6X2Z63dc/V0+l6BF9GKsSX47CxEhZsYFNcSSNwLw+nEjGAdc9Szw7ex
+vJdI4Bl5105R5TNEnvXqzZXBJr7yrMjohSbDf3LeQ50bEz3gq48s+erBAgMBAAGjQjBAMB0GA1Ud
+DgQWBBRVZFRbQy71sPxCCOsJ36LM8BWjmzAfBgNVHSMEGDAWgBRVZFRbQy71sPxCCOsJ36LM8BWj
+mzANBgkqhkiG9w0BAQUFAAOBgQALVbJVJpY4wJuL2YP8fzmWMcVI1tNjrX9egf+KqqgvVSoG2q0u
+MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
+3DHqdQz6MUp73GqlcXp1ZererJWdYwHCR8ATfNkoSWiqnQ==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:Organization>
+         <md:OrganizationName xml:lang="">Trifork</md:OrganizationName>
+         <md:OrganizationDisplayName xml:lang="">Trifork</md:OrganizationDisplayName>
+         <md:OrganizationURL xml:lang="">http://trifork.com</md:OrganizationURL>
+      </md:Organization>
+      <md:ContactPerson>
+         <md:EmailAddress>jre@trifork.com</md:EmailAddress>
+      </md:ContactPerson>
+      <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="0" isDefault="true"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceHTTPRedirect" ResponseLocation="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceHTTPRedirectResponse"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceSOAP"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="0" isDefault="true"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="1" isDefault="false"/>
+   </md:SPSSODescriptor>
+</md:EntityDescriptor>
+
+[2008-11-07 14:05:57,657] [DEBUG] [httpWorkerThread-4848-0] [dk.itst.oiosaml.sp.service.util.Utils] publicKey..:Sun RSA public key, 1024 bits
+  modulus: 108862403649478419645756559456949308899598995437752392034496286341340685765226843308516470962644520888897727863613322780610813599005141132155804131559194936007580704407776948197210805950028321413571582986514676501457067305129434826870554637015837703944889605481369478977224490878596869136053962213154551884481
+  public exponent: 65537, privateKey: Sun RSA private CRT key, 1024 bits
+  modulus:          108862403649478419645756559456949308899598995437752392034496286341340685765226843308516470962644520888897727863613322780610813599005141132155804131559194936007580704407776948197210805950028321413571582986514676501457067305129434826870554637015837703944889605481369478977224490878596869136053962213154551884481
+  public exponent:  65537
+  private exponent: 40133428972565849780446529945517070545237214531814632100118479245207017543885831838153508017279617150566214549228092401274667246983585072463133552384175478466560993426584279970775051584375475244669278541746363490604802052185273921047641938682310431915773759702633056778777756475045077557843611412468312115973
+  prime p:          13022978009949002397983242642526175420766560498868945262312674073932920383417572868681615262367640102895932857827929790355303830120792162332388673384950751
+  prime q:          8359255737536542276862505700956023939879249381051039410294748519960758105795966312678821684612557257017498039293027867154650755769994138028519115670011231
+  prime exponent p: 8307148568074798133080389072902433182250424365705117058928259451314001810103783111452079375669914620772456370012307626009788007052500363860193608051297223
+  prime exponent q: 3286840427553582830042112232905622486637294616786002327904624480993465914342375389648909104639836854846634831843722402745139315584127728502325542696499983
+  crt coefficient:  3333809746620324323469498450995334512135220864918972496777233116796565192143642483305845852397119061514661246487810365181143385518210564732820881591769805
+[2008-11-07 14:06:20,065] [INFO ] [httpWorkerThread-4848-1] [dk.itst.oiosaml.sp.metadata.IdpMetadata] Loading metadata from /home/recht/eclipse/poc-provider/oiosaml/./metadata/IdP/oiosaml.trifork.com-simple.xml
+[2008-11-07 14:06:20,068] [DEBUG] [httpWorkerThread-4848-1] [dk.itst.oiosaml.common.SAMLUtil] <?xml version="1.0"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://oiosaml.trifork.com/simplesaml/saml2/idp/metadata.php"><IDPSSODescriptor xmlns:ds="http://www.w3.org/2000/09/xmldsig#" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><KeyDescriptor><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>MIIDTDCCArWgAwIBAgIJAM1W5wm/tCTdMA0GCSqGSIb3DQEBBQUAMHgxCzAJBgNVBAYTAkRLMQ0wCwYDVQQIEwRNaWR0MQ8wDQYDVQQHEwZBYXJodXMxEDAOBgNVBAoTB1RyaWZvcmsxGTAXBgNVBAsTEFRyaWZvcmsgU2VydmljZXMxHDAaBgNVBAMTE29pb3NhbWwudHJpZm9yay5jb20wHhcNMDgwODExMTAzODM4WhcNMTgwODA5MTAzODM4WjB4MQswCQYDVQQGEwJESzENMAsGA1UECBMETWlkdDEPMA0GA1UEBxMGQWFyaHVzMRAwDgYDVQQKEwdUcmlmb3JrMRkwFwYDVQQLExBUcmlmb3JrIFNlcnZpY2VzMRwwGgYDVQQDExNvaW9zYW1sLnRyaWZvcmsuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDqKmrTB1Jq9WfmbWCgNfb5M84c89ehRxFY0OG+5jk5qfp7BjIhJcJ6QloESufomwF4d1X5vmqghpXinsebk+oB9ycoy636n7rkpb4qhNr9Nuziq+vjW+RBUNVqhJ+dy7HatYLZpz6RG1oULKQZKZ4RjLKianMDXzKYkcQYY/DSoQIDAQABo4HdMIHaMB0GA1UdDgQWBBSIQ0X+sCr2F/07QQC2UybVBQCHXjCBqgYDVR0jBIGiMIGfgBSIQ0X+sCr2F/07QQC2UybVBQCHXqF8pHoweDELMAkGA1UEBhMCREsxDTALBgNVBAgTBE1pZHQxDzANBgNVBAcTBkFhcmh1czEQMA4GA1UEChMHVHJpZm9yazEZMBcGA1UECxMQVHJpZm9yayBTZXJ2aWNlczEcMBoGA1UEAxMTb2lvc2FtbC50cmlmb3JrLmNvbYIJAM1W5wm/tCTdMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAP37PabhOXc5SvrA3df94UzxRL+jie3LQs0oXHhv976jzKsgDZtmId3UAdOwfCw1ix8z8buG99NpX61bYazoNvbNWlJl0P3zuhjMa8wMwDwyUA+1FrEPFUudNU5gF7h2qr/zPRMJGJz8xxGUMJrLwAtdlFfeVNjYkIebisqUB2UA=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></KeyDescriptor><SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://oiosaml.trifork.com/simplesaml/saml2/idp/SingleLogoutService.php"/><SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://oiosaml.trifork.com/simplesaml/saml2/idp/SSOService.php"/></IDPSSODescriptor><ContactPerson contactType="technical"><SurName>Administrator</SurName><EmailAddress>na@example.org</EmailAddress></ContactPerson></EntityDescriptor>
+
+[2008-11-07 14:06:20,184] [INFO ] [httpWorkerThread-4848-1] [dk.itst.oiosaml.sp.service.SPFilter] Discovery profile disabled, only one metadata file found
+[2008-11-07 14:06:20,186] [INFO ] [httpWorkerThread-4848-1] [dk.itst.oiosaml.sp.service.SPFilter] Home url: /poc-provider
+[2008-11-07 14:06:20,186] [INFO ] [httpWorkerThread-4848-1] [dk.itst.oiosaml.sp.service.SPFilter] Assurance leve: 2
+[2008-11-07 14:06:20,187] [INFO ] [httpWorkerThread-4848-1] [dk.itst.oiosaml.sp.service.SPFilter] SP entity ID: null
+[2008-11-07 14:06:20,222] [DEBUG] [httpWorkerThread-4848-1] [dk.itst.oiosaml.common.SAMLUtil] <?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="saml.poc-provider.trifork.com">
+   <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARu3R6smMA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwODEyMTQxNzUyWhcNMTgwODEwMTQxNzUyWjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJsGdBMry8t3pi2+Tz/v+TnpnlvYH3rsWk4sD2zg
+y5j6qevBWXtlsTWIiVcfe6X2Z63dc/V0+l6BF9GKsSX47CxEhZsYFNcSSNwLw+nEjGAdc9Szw7ex
+vJdI4Bl5105R5TNEnvXqzZXBJr7yrMjohSbDf3LeQ50bEz3gq48s+erBAgMBAAGjQjBAMB0GA1Ud
+DgQWBBRVZFRbQy71sPxCCOsJ36LM8BWjmzAfBgNVHSMEGDAWgBRVZFRbQy71sPxCCOsJ36LM8BWj
+mzANBgkqhkiG9w0BAQUFAAOBgQALVbJVJpY4wJuL2YP8fzmWMcVI1tNjrX9egf+KqqgvVSoG2q0u
+MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
+3DHqdQz6MUp73GqlcXp1ZererJWdYwHCR8ATfNkoSWiqnQ==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:KeyDescriptor use="encryption">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARu3R6smMA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwODEyMTQxNzUyWhcNMTgwODEwMTQxNzUyWjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJsGdBMry8t3pi2+Tz/v+TnpnlvYH3rsWk4sD2zg
+y5j6qevBWXtlsTWIiVcfe6X2Z63dc/V0+l6BF9GKsSX47CxEhZsYFNcSSNwLw+nEjGAdc9Szw7ex
+vJdI4Bl5105R5TNEnvXqzZXBJr7yrMjohSbDf3LeQ50bEz3gq48s+erBAgMBAAGjQjBAMB0GA1Ud
+DgQWBBRVZFRbQy71sPxCCOsJ36LM8BWjmzAfBgNVHSMEGDAWgBRVZFRbQy71sPxCCOsJ36LM8BWj
+mzANBgkqhkiG9w0BAQUFAAOBgQALVbJVJpY4wJuL2YP8fzmWMcVI1tNjrX9egf+KqqgvVSoG2q0u
+MWzh/uKmiY8DgUbhsdUfrF4Utox4jDT+5FdugxDy0BQ+Bc6DEa5hF4eIS3dSXEdcPOh0yNUkdkit
+3DHqdQz6MUp73GqlcXp1ZererJWdYwHCR8ATfNkoSWiqnQ==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:Organization>
+         <md:OrganizationName xml:lang="">Trifork</md:OrganizationName>
+         <md:OrganizationDisplayName xml:lang="">Trifork</md:OrganizationDisplayName>
+         <md:OrganizationURL xml:lang="">http://trifork.com</md:OrganizationURL>
+      </md:Organization>
+      <md:ContactPerson>
+         <md:EmailAddress>jre@trifork.com</md:EmailAddress>
+      </md:ContactPerson>
+      <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="0" isDefault="true"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceHTTPRedirect" ResponseLocation="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceHTTPRedirectResponse"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/LogoutServiceSOAP"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="0" isDefault="true"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="http://jre-mac.trifork.com:8880/poc-provider/saml/SAMLAssertionConsumer" index="1" isDefault="false"/>
+   </md:SPSSODescriptor>
+</md:EntityDescriptor>
+
+[2008-11-07 14:06:20,237] [DEBUG] [httpWorkerThread-4848-1] [dk.itst.oiosaml.sp.service.util.Utils] publicKey..:Sun RSA public key, 1024 bits
+  modulus: 108862403649478419645756559456949308899598995437752392034496286341340685765226843308516470962644520888897727863613322780610813599005141132155804131559194936007580704407776948197210805950028321413571582986514676501457067305129434826870554637015837703944889605481369478977224490878596869136053962213154551884481
+  public exponent: 65537, privateKey: Sun RSA private CRT key, 1024 bits
+  modulus:          108862403649478419645756559456949308899598995437752392034496286341340685765226843308516470962644520888897727863613322780610813599005141132155804131559194936007580704407776948197210805950028321413571582986514676501457067305129434826870554637015837703944889605481369478977224490878596869136053962213154551884481
+  public exponent:  65537
+  private exponent: 40133428972565849780446529945517070545237214531814632100118479245207017543885831838153508017279617150566214549228092401274667246983585072463133552384175478466560993426584279970775051584375475244669278541746363490604802052185273921047641938682310431915773759702633056778777756475045077557843611412468312115973
+  prime p:          13022978009949002397983242642526175420766560498868945262312674073932920383417572868681615262367640102895932857827929790355303830120792162332388673384950751
+  prime q:          8359255737536542276862505700956023939879249381051039410294748519960758105795966312678821684612557257017498039293027867154650755769994138028519115670011231
+  prime exponent p: 8307148568074798133080389072902433182250424365705117058928259451314001810103783111452079375669914620772456370012307626009788007052500363860193608051297223
+  prime exponent q: 3286840427553582830042112232905622486637294616786002327904624480993465914342375389648909104639836854846634831843722402745139315584127728502325542696499983
+  crt coefficient:  3333809746620324323469498450995334512135220864918972496777233116796565192143642483305845852397119061514661246487810365181143385518210564732820881591769805
