@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.BindingProvider;
 
-import liberty.sb._2006_08.Framework;
-
 import org.apache.log4j.Logger;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
@@ -18,10 +16,11 @@ import org.w3c.dom.Element;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
-import dk.itst.oiosaml.trust.TokenClient;
 import dk.itst.oiosaml.trust.TrustBootstrap;
+import dk.itst.oiosaml.trust.TrustClient;
 import dk.itst.oiosaml.trust.TrustException;
 import dk.itst.saml.poc.provider.Echo;
+import dk.itst.saml.poc.provider.EchoResponse;
 import dk.itst.saml.poc.provider.Provider;
 import dk.itst.saml.poc.provider.ProviderService;
 
@@ -34,7 +33,7 @@ public class TokenServlet extends HttpServlet {
 	}
 	
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		TokenClient tokenClient = new TokenClient();
+		TrustClient tokenClient = new TrustClient();
 		
 		UserAttribute bootstrap = UserAssertionHolder.get().getAttribute("DiscoveryEPR");
 		log.debug("Bootstrap data: " + bootstrap);
@@ -49,20 +48,14 @@ public class TokenServlet extends HttpServlet {
 				
 				tokenClient.setAppliesTo((String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
 				tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
-				Element stsToken = tokenClient.request();
+				Element stsToken = tokenClient.getToken();
 	
 				req.setAttribute("message", XMLHelper.nodeToString(stsToken));
 				log.debug("SAML Token: " + req.getAttribute("token"));
 				
-				AssertionHolder.set(stsToken);
-				
-				
-				Framework fw = new Framework();
-				fw.setVersion("2.0");
-				fw.setProfile("egovsimple");
-				req.setAttribute("spResponse", port.echo(new Echo(), fw).getReturn());
-				
 
+				EchoResponse response = (EchoResponse) Utils.request(new Echo(), tokenClient, bp, "http://provider.poc.saml.itst.dk/Provider/echoRequest");
+				req.setAttribute("spResponse", response.getReturn());
 				
 				req.getRequestDispatcher("/sp/ticket.jsp").forward(req, resp);
 

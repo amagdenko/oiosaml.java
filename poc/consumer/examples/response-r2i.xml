@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:exc14n="http://www.w3.org/2001/10/xml-exc-c14n#">
+	<S:Header>
+		<To xmlns="http://www.w3.org/2005/08/addressing" wsu:Id="_5005">http://www.w3.org/2005/08/addressing/anonymous
+		</To>
+		<Action xmlns="http://www.w3.org/2005/08/addressing" wsu:Id="_5003">
+			http://provider.poc.saml.itst.dk/Provider/requestInteract/Fault/RequestToInteractFault</Action>
+		<MessageID xmlns="http://www.w3.org/2005/08/addressing" wsu:Id="_5002">uuid:8516b643-77ee-4260-8dc9-2272bcf4a4d7
+		</MessageID>
+		<RelatesTo xmlns="http://www.w3.org/2005/08/addressing" wsu:Id="_5004">bf8ad1ca-d743-4b19-b3f3-c62fc4047d64
+		</RelatesTo>
+		<wsse:Security S:mustUnderstand="1">
+			<wsu:Timestamp xmlns:ns16="http://docs.oasis-open.org/ws-sx/ws-secureconversation/200512" xmlns:ns15="http://www.w3.org/2003/05/soap-envelope"
+				wsu:Id="_3">
+				<wsu:Created>2008-11-07T12:45:29Z</wsu:Created>
+				<wsu:Expires>2008-11-07T12:50:29Z</wsu:Expires>
+			</wsu:Timestamp>
+			<wsse:BinarySecurityToken xmlns:ns16="http://docs.oasis-open.org/ws-sx/ws-secureconversation/200512" xmlns:ns15="http://www.w3.org/2003/05/soap-envelope"
+				wsu:Id="uuid_c3642ef7-5337-4902-89f9-9993a3a2ac37" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+				ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3">
+				MIIFEjCCBHugAwIBAgIEQDasETANBgkqhkiG9w0BAQUFADA/MQswCQYDVQQGEwJESzEMMAoGA1UEChMDVERDMSIwIAYDVQQDExlUREMgT0NFUyBTeXN0ZW10ZXN0IENBIElJMB4XDTA3MDYwODA4MjIzM1oXDTA5MDYwODA4NTIzM1owgZExCzAJBgNVBAYTAkRLMS8wLQYDVQQKFCZUREMgVE9UQUxM2FNOSU5HRVIgQS9TIC8vIENWUjoyNTc2NzUzNTFRMCUGA1UEBRMeQ1ZSOjI1NzY3NTM1LVVJRDoxMTAwMDgwMTMwNTk3MCgGA1UEAxQhVERDIFRPVEFMTNhTTklOR0VSIEEvUyAtIFREQyBUZXN0MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8IT7+NERFT19vJkAH+SuwBnSQRZuZezn2dGGtLudL7lxdZsX4KtdK9GImW31h48rKjPsGEQ7nAsjwmAiWBzqE+4ySUCDjVP1r0t3hcIRDjyTmAYb1L1M0+jB+2j5ApVJU4bXl4K73oKKH4dau7lkOytg73wap7qPxGYgXbc8eZwIDAQABo4ICxjCCAsIwDgYDVR0PAQH/BAQDAgO4MCsGA1UdEAQkMCKADzIwMDcwNjA4MDgyMjMzWoEPMjAwOTA2MDgwODUyMzNaMEYGCCsGAQUFBwEBBDowODA2BggrBgEFBQcwAYYqaHR0cDovL3Rlc3Qub2NzcC5jZXJ0aWZpa2F0LmRrL29jc3Avc3RhdHVzMIIBAwYDVR0gBIH7MIH4MIH1BgkpAQEBAQEBAQMwgecwLwYIKwYBBQUHAgEWI2h0dHA6Ly93d3cuY2VydGlmaWthdC5kay9yZXBvc2l0b3J5MIGzBggrBgEFBQcCAjCBpjAKFgNUREMwAwIBARqBl1REQyBUZXN0IENlcnRpZmlrYXRlciBmcmEgZGVubmUgQ0EgdWRzdGVkZXMgdW5kZXIgT0lEIDEuMS4xLjEuMS4xLjEuMS4xLjMuIFREQyBUZXN0IENlcnRpZmljYXRlcyBmcm9tIHRoaXMgQ0EgYXJlIGlzc3VlZCB1bmRlciBPSUQgMS4xLjEuMS4xLjEuMS4xLjEuMy4wFwYJYIZIAYb4QgENBAoWCG9yZ2FuV2ViMBwGA1UdEQQVMBOBEWNlcnRpZmlrYXRAdGRjLmRrMIGWBgNVHR8EgY4wgYswVqBUoFKkUDBOMQswCQYDVQQGEwJESzEMMAoGA1UEChMDVERDMSIwIAYDVQQDExlUREMgT0NFUyBTeXN0ZW10ZXN0IENBIElJMQ0wCwYDVQQDEwRDUkw1MDGgL6AthitodHRwOi8vdGVzdC5jcmwub2Nlcy5jZXJ0aWZpa2F0LmRrL29jZXMuY3JsMB8GA1UdIwQYMBaAFByYCUcaTDi5EMUEKVvx9E6Aasx+MB0GA1UdDgQWBBRleNffSNDK4jqx7uV5ITqAcZ0+XTAJBgNVHRMEAjAAMBkGCSqGSIb2fQdBAAQMMAobBFY3LjEDAgOoMA0GCSqGSIb3DQEBBQUAA4GBAJ4w+6UOvcyGgs5lWoAzksD4q0yRrZ93ckI3DZ3GPfSk5Cjrluz8I41Q6uyRR8gdq70pYsp4pg0d9zPEeRF7E6a6YgKZrCncVaAdli4ZVyEcFDoCuYDE89iXgyFhPd1txIF8kvOepbPtCyJrU6nKAt3l1NDmvlcoIOaw9azmSB8/
+			</wsse:BinarySecurityToken>
+			<ds:Signature xmlns:ns16="http://docs.oasis-open.org/ws-sx/ws-secureconversation/200512" xmlns:ns15="http://www.w3.org/2003/05/soap-envelope"
+				Id="_1">
+				<ds:SignedInfo>
+					<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+						<exc14n:InclusiveNamespaces PrefixList="wsse S" />
+					</ds:CanonicalizationMethod>
+					<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+					<ds:Reference URI="#_5002">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<exc14n:InclusiveNamespaces PrefixList="S" />
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>7UOb3Gh3w1t2z7g90TPWXFUkK10=</ds:DigestValue>
+					</ds:Reference>
+					<ds:Reference URI="#_5003">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<exc14n:InclusiveNamespaces PrefixList="S" />
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>U53lI0T7oqqAcw/1R9MeLKb/Nfk=</ds:DigestValue>
+					</ds:Reference>
+					<ds:Reference URI="#_5004">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<exc14n:InclusiveNamespaces PrefixList="S" />
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>DzTiJVu8Rr2Fo3kafDD81tQpucs=</ds:DigestValue>
+					</ds:Reference>
+					<ds:Reference URI="#_5005">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<exc14n:InclusiveNamespaces PrefixList="S" />
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>Nd/8wVmBdLowQKMblBRYK+6xcjA=</ds:DigestValue>
+					</ds:Reference>
+					<ds:Reference URI="#_5006">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<exc14n:InclusiveNamespaces PrefixList="S" />
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>CuXVZSVRXCwI6OrdsmgshIvT2PE=</ds:DigestValue>
+					</ds:Reference>
+					<ds:Reference URI="#_3">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<exc14n:InclusiveNamespaces PrefixList="wsu wsse S" />
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>xuNNllYlvguPJLnIYZSlfxuunp8=</ds:DigestValue>
+					</ds:Reference>
+					<ds:Reference URI="#_4">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#STR-Transform">
+								<wsse:TransformationParameters>
+									<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+								</wsse:TransformationParameters>
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+						<ds:DigestValue>ET1yFd+x0f5MpX+is5kOflTAeYU=</ds:DigestValue>
+					</ds:Reference>
+				</ds:SignedInfo>
+				<ds:SignatureValue>
+					ZpIs4oD/jdm4FUJsrgiRrVhX2aXXFlHMkyCkRZn8ELv+75Kf0yaToZOMCdh69bI8bZan+w0U0Fj/96q7YMW/pi8qyTzxWjQfIwle4XVwKwda3nVZOyvVl2xGrTAi5P5VzjK0wz4VbBPLbHzFKhLUR4axeLjOrYOTwSID39nnFLA=
+				</ds:SignatureValue>
+				<ds:KeyInfo>
+					<wsse:SecurityTokenReference wsu:Id="_4">
+						<wsse:Reference ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" URI="#uuid_c3642ef7-5337-4902-89f9-9993a3a2ac37" />
+					</wsse:SecurityTokenReference>
+				</ds:KeyInfo>
+			</ds:Signature>
+		</wsse:Security>
+	</S:Header>
+	<S:Body wsu:Id="_5006">
+		<S:Fault xmlns:ns4="http://www.w3.org/2003/05/soap-envelope">
+			<faultcode>S:Server</faultcode>
+			<faultstring>User information is needed to complete request (this message was sent by poc-provider)</faultstring>
+			<detail>
+				<ns2:RedirectRequest xmlns:ns2="urn:liberty:sb:2006-08" xmlns:ns3="urn:liberty:sb:eGov" xmlns:ns4="http://schemas.xmlsoap.org/soap/envelope/"
+					xmlns:ns5="http://provider.poc.saml.itst.dk/" RedirectURL="http://recht-laptop:8880/poc-provider/interact.jsp">
+					<message>User information is needed to complete request (this message was sent by poc-provider)</message>
+				</ns2:RedirectRequest>
+				<ns2:exception xmlns:ns2="http://jax-ws.dev.java.net/" class="dk.itst.saml.poc.idws.RequestToInteractFault"
+					note="To disable this feature, set com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace system property to false">
+					<message>User information is needed to complete request (this message was sent by poc-provider)</message>
+					<ns2:stackTrace>
+						<ns2:frame class="dk.itst.saml.poc.provider.Provider" file="Provider.java" line="101" method="requestInteract" />
+						<ns2:frame class="sun.reflect.NativeMethodAccessorImpl" file="NativeMethodAccessorImpl.java" line="native" method="invoke0" />
+						<ns2:frame class="sun.reflect.NativeMethodAccessorImpl" file="NativeMethodAccessorImpl.java" line="39" method="invoke" />
+						<ns2:frame class="sun.reflect.DelegatingMethodAccessorImpl" file="DelegatingMethodAccessorImpl.java" line="25" method="invoke" />
+						<ns2:frame class="java.lang.reflect.Method" file="Method.java" line="597" method="invoke" />
+						<ns2:frame class="com.sun.enterprise.webservice.InstanceResolverImpl$1" file="InstanceResolverImpl.java" line="112" method="invoke" />
+						<ns2:frame class="com.sun.xml.ws.server.InvokerTube$2" file="InvokerTube.java" line="146" method="invoke" />
+						<ns2:frame class="com.sun.xml.ws.server.sei.EndpointMethodHandler" file="EndpointMethodHandler.java" line="257" method="invoke" />
+						<ns2:frame class="com.sun.xml.ws.server.sei.SEIInvokerTube" file="SEIInvokerTube.java" line="93" method="processRequest" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="598" method="__doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="557" method="_doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="542" method="doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="439" method="runSync" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.helper.AbstractTubeImpl" file="AbstractTubeImpl.java" line="112" method="process" />
+						<ns2:frame class="com.sun.enterprise.webservice.MonitoringPipe" file="MonitoringPipe.java" line="147" method="process" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.helper.PipeAdapter" file="PipeAdapter.java" line="115" method="processRequest" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="598" method="__doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="557" method="_doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="542" method="doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="439" method="runSync" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.helper.AbstractTubeImpl" file="AbstractTubeImpl.java" line="112" method="process" />
+						<ns2:frame class="com.sun.enterprise.webservice.CommonServerSecurityPipe" file="CommonServerSecurityPipe.java" line="218"
+							method="processRequest" />
+						<ns2:frame class="com.sun.enterprise.webservice.CommonServerSecurityPipe" file="CommonServerSecurityPipe.java" line="129"
+							method="process" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.helper.PipeAdapter" file="PipeAdapter.java" line="115" method="processRequest" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="598" method="__doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="557" method="_doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="542" method="doRun" />
+						<ns2:frame class="com.sun.xml.ws.api.pipe.Fiber" file="Fiber.java" line="439" method="runSync" />
+						<ns2:frame class="com.sun.xml.ws.server.WSEndpointImpl$2" file="WSEndpointImpl.java" line="243" method="process" />
+						<ns2:frame class="com.sun.xml.ws.transport.http.HttpAdapter$HttpToolkit" file="HttpAdapter.java" line="470" method="handle" />
+						<ns2:frame class="com.sun.xml.ws.transport.http.HttpAdapter" file="HttpAdapter.java" line="244" method="handle" />
+						<ns2:frame class="com.sun.xml.ws.transport.http.servlet.ServletAdapter" file="ServletAdapter.java" line="135" method="handle" />
+						<ns2:frame class="com.sun.enterprise.webservice.JAXWSServlet" file="JAXWSServlet.java" line="176" method="doPost" />
+						<ns2:frame class="javax.servlet.http.HttpServlet" file="HttpServlet.java" line="738" method="service" />
+						<ns2:frame class="javax.servlet.http.HttpServlet" file="HttpServlet.java" line="831" method="service" />
+						<ns2:frame class="org.apache.catalina.core.ApplicationFilterChain" file="ApplicationFilterChain.java" line="411" method="servletService" />
+						<ns2:frame class="org.apache.catalina.core.StandardWrapperValve" file="StandardWrapperValve.java" line="290" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardContextValve" file="StandardContextValve.java" line="271" method="invokeInternal" />
+						<ns2:frame class="org.apache.catalina.core.StandardContextValve" file="StandardContextValve.java" line="202" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="632" method="doInvoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="577" method="doInvoke" />
+						<ns2:frame class="com.sun.enterprise.web.WebPipeline" file="WebPipeline.java" line="94" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardHostValve" file="StandardHostValve.java" line="206" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="632" method="doInvoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="577" method="doInvoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="571" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.ContainerBase" file="ContainerBase.java" line="1080" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardEngineValve" file="StandardEngineValve.java" line="150" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="632" method="doInvoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="577" method="doInvoke" />
+						<ns2:frame class="org.apache.catalina.core.StandardPipeline" file="StandardPipeline.java" line="571" method="invoke" />
+						<ns2:frame class="org.apache.catalina.core.ContainerBase" file="ContainerBase.java" line="1080" method="invoke" />
+						<ns2:frame class="org.apache.coyote.tomcat5.CoyoteAdapter" file="CoyoteAdapter.java" line="272" method="service" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.DefaultProcessorTask" file="DefaultProcessorTask.java" line="637"
+							method="invokeAdapter" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.DefaultProcessorTask" file="DefaultProcessorTask.java" line="568"
+							method="doProcess" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.DefaultProcessorTask" file="DefaultProcessorTask.java" line="813"
+							method="process" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.DefaultReadTask" file="DefaultReadTask.java" line="341"
+							method="executeProcessorTask" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.DefaultReadTask" file="DefaultReadTask.java" line="263" method="doTask" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.DefaultReadTask" file="DefaultReadTask.java" line="214" method="doTask" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.TaskBase" file="TaskBase.java" line="265" method="run" />
+						<ns2:frame class="com.sun.enterprise.web.connector.grizzly.ssl.SSLWorkerThread" file="SSLWorkerThread.java" line="106"
+							method="run" />
+					</ns2:stackTrace>
+				</ns2:exception>
+			</detail>
+		</S:Fault>
+	</S:Body>
+</S:Envelope>

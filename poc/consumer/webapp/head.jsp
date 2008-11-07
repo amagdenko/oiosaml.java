@@ -17,14 +17,14 @@
   </head>
 <body>
 <h1>POC-CONSUMER</h1>
-<%@page import="dk.itst.oiosaml.configuration.BRSConfiguration"%>
+<%@page import="dk.itst.oiosaml.configuration.SAMLConfiguration"%>
 <%@page import="org.apache.commons.configuration.Configuration"%>
 <%@page import="dk.itst.oiosaml.sp.service.util.Constants"%>
 <%@page import="dk.itst.oiosaml.sp.UserAssertion"%>
 
 <a href="<%= request.getContextPath() %>">Home</a>
 <% try {
-	BRSConfiguration.getSystemConfiguration(); 
+	SAMLConfiguration.getSystemConfiguration(); 
 	UserAssertion ua = (UserAssertion)session.getAttribute(Constants.SESSION_USER_ASSERTION);
 	%>
 <%=ua != null && ua.isAuthenticated() ? "<a href=\"" + request.getContextPath() + "/saml/Logout\">Log out</a>" : "<a href=\"" + request.getContextPath() + "/saml/login\">Login</a>"%>

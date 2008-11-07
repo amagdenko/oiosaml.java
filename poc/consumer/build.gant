@@ -20,7 +20,7 @@ ant.property(name: 'trifork-common', value: new File('../trifork-common').absolu
 ant.property(name: 'ivy.default.conf.dir', value: '${trifork-common}/etc/ivy')
 ant.property(name: 'ivy.settings.file', value: '${trifork-common}/ivyconf.xml')
 ant.property(name: "glassfish.home",  value:"/pack/glassfish-v2ur1/")
-ant.property(name: "wsdl.uri", value: "http://recht-laptop:8880/poc-provider/ProviderService?wsdl")
+ant.property(name: "wsdl.uri", value: "http://jre-mac.trifork.com:8880/poc-provider/ProviderService?wsdl")
 ant.property(name: "wsdl.uri", value: "https://oiosaml.trifork.com:8082/poc-provider/ProviderService?wsdl")
 
 
@@ -46,7 +46,7 @@ doResolve = { conf ->
 }
 
 target (init : 'Initialize build') {
-	[buildDirectory, testBuildDir, distDir, javadocsDir, testReports, "${testReports}/html"].each { dir -> 
+	[buildDirectory, testBuildDir, distDir, javadocsDir, testReports, "${testReports}/html", "target/genclasses", "target/gensrc"].each { dir -> 
 		ant.mkdir (dir: dir)
 	}
 	execute.shell ( 'svn info', outProcessing: { l -> 
