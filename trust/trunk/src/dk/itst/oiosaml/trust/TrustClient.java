@@ -43,6 +43,8 @@ import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.Signature;
@@ -304,6 +306,16 @@ public class TrustClient {
 		}
 	}
 
+	public XMLObject sendRequest(Element body, String location, String action, PublicKey verificationKey) {
+		try {
+			XMLObject any = new XSAnyUnmarshaller().unmarshall(body);
+			
+			return sendRequest(any, location, action, verificationKey);
+		} catch (UnmarshallingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	/**
 	 * Set the client to use when executing the request.
 	 */

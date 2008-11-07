@@ -277,6 +277,21 @@ public class TokenClientTest extends TrustTests {
 		client.sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey());
 	}
 	
+	@Test
+	public void testBodyAsDOMElement() throws Exception {
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					return buildResponse(holder.getValue(), true);
+				}
+			});
+		}});
+		String xml = "<test:blah xmlns:test='urn:testing'><test:more>blah</test:more></test:blah>";
+		
+		client.sendRequest(SAMLUtil.loadElementFromString(xml), ADDRESS, "urn:action", stsCredential.getPublicKey());
+	}
 	
 	@Test
 	@Ignore
