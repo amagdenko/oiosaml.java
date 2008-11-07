@@ -24,6 +24,7 @@
 package dk.itst.oiosaml.trust;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -287,9 +288,10 @@ public class TrustClient {
 	 * @param action SOAP Action to invoke.
 	 * @param verificationKey Key to use for signature verification on the response. If <code>null</code>, the signature is not checked. If the signature is not valid, a {@link TrustException} is thrown.
 	 * @param resultHandler When the request has been completed, the response will be sent to this callback. The handler can be <code>null</code>, in which case the response is ignored.
+	 * @throws InvocationTargetException Thrown when an exception is thrown in a handler.
 	 * @throws TrustException If an unhandled SOAP Fault occurs, or if a transport error occurs.
 	 */
-	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) {
+	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) throws InvocationTargetException {
 		log.debug("Invoking action " + action + " at service " + location);
 		
 		body.detach();
@@ -324,7 +326,11 @@ public class TrustClient {
 			}
 			
 			if (resultHandler != null) {
-				resultHandler.handleResult(res.getBody());
+				try {
+					resultHandler.handleResult(res.getBody());
+				} catch (Exception e) {
+					throw new InvocationTargetException(e);
+				}
 			}
 		} catch (SOAPException e) {
 			Fault fault = e.getFault();
@@ -342,7 +348,11 @@ public class TrustClient {
 					FaultHandler handler = faultHandlers.get(el.getElementQName());
 					if (handler != null) {
 						log.debug("Found fault handler for " + el.getElementQName() + ": " + handler);
-						handler.handleFault(code, message, el);
+						try {
+							handler.handleFault(code, message, el);
+						} catch (Exception ex) {
+							throw new InvocationTargetException(ex);
+						}
 						return;
 					}
 				}
@@ -351,12 +361,20 @@ public class TrustClient {
 				if (log.isDebugEnabled()) log.debug("No handler for fault " + e);
 				throw new TrustException(e);
 			}
-		} catch (Exception e) {
+		} catch (NoSuchAlgorithmException e) {
+			throw new TrustException(e);
+		} catch (InvalidAlgorithmParameterException e) {
+			throw new TrustException(e);
+		} catch (MarshalException e) {
+			throw new TrustException(e);
+		} catch (XMLSignatureException e) {
+			throw new TrustException(e);
+		} catch (IOException e) {
 			throw new TrustException(e);
 		}
 	}
 
-	public void sendRequest(Element body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) {
+	public void sendRequest(Element body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) throws InvocationTargetException {
 		try {
 			XMLObject any = new XSAnyUnmarshaller().unmarshall(body);
 			
