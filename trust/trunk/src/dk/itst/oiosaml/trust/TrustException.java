@@ -33,4 +33,8 @@ public class TrustException extends RuntimeException {
 	public TrustException(Throwable e) {
 		super(e);
 	}
+	
+	public TrustException(String msg, Throwable e) {
+		super(msg, e);
+	}
 }

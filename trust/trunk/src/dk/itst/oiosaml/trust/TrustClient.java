@@ -28,14 +28,18 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.wsaddressing.EndpointReference;
@@ -53,6 +57,7 @@ import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.liberty.SecurityContext;
@@ -89,6 +94,8 @@ public class TrustClient {
 	private UserInteraction interact;
 
 	private boolean redirect;
+	
+	private Map<QName, FaultHandler> faultHandlers = new HashMap<QName, FaultHandler>();
 
 	/**
 	 * Create a new client using default settings.
@@ -270,14 +277,19 @@ public class TrustClient {
 	/**
 	 * Execute a SOAP request.
 	 * 
-	 * A SOAP header is added automatically to the request containing the client's security token.
+	 * <p>A SOAP header is added automatically to the request containing the client's security token.</p>
 	 * 
+	 * <p>SOAP Faults can be handled by adding {@link FaultHandler}s to the client.</p>
+	 * 
+	 * @see FaultHandler Handle SOAP Faults.
 	 * @param body The body of the request.
 	 * @param location Location to send request to.
 	 * @param action SOAP Action to invoke.
 	 * @param verificationKey Key to use for signature verification on the response. If <code>null</code>, the signature is not checked. If the signature is not valid, a {@link TrustException} is thrown.
+	 * @param resultHandler When the request has been completed, the response will be sent to this callback. The handler can be <code>null</code>, in which case the response is ignored.
+	 * @throws TrustException If an unhandled SOAP Fault occurs, or if a transport error occurs.
 	 */
-	public XMLObject sendRequest(XMLObject body, String location, String action, PublicKey verificationKey) {
+	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) {
 		log.debug("Invoking action " + action + " at service " + location);
 		
 		body.detach();
@@ -311,17 +323,44 @@ public class TrustClient {
 				}
 			}
 			
-			return res.getBody();
+			if (resultHandler != null) {
+				resultHandler.handleResult(res.getBody());
+			}
+		} catch (SOAPException e) {
+			Fault fault = e.getFault();
+			if (fault != null && fault.getDetail() != null) {
+				Detail detail = fault.getDetail();
+				
+				QName code = null;
+				if (fault.getCode() != null) code = fault.getCode().getValue();
+				
+				String message = null;
+				if (fault.getMessage() != null) message = fault.getMessage().getValue();
+				
+				if (log.isDebugEnabled()) log.debug("Finding fault handler for " + detail.getUnknownXMLObjects());
+				for (XMLObject el : detail.getUnknownXMLObjects()) {
+					FaultHandler handler = faultHandlers.get(el.getElementQName());
+					if (handler != null) {
+						log.debug("Found fault handler for " + el.getElementQName() + ": " + handler);
+						handler.handleFault(code, message, el);
+						return;
+					}
+				}
+				throw new TrustException("Unhandled SOAP Fault", e);
+			} else {
+				if (log.isDebugEnabled()) log.debug("No handler for fault " + e);
+				throw new TrustException(e);
+			}
 		} catch (Exception e) {
 			throw new TrustException(e);
 		}
 	}
 
-	public XMLObject sendRequest(Element body, String location, String action, PublicKey verificationKey) {
+	public void sendRequest(Element body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) {
 		try {
 			XMLObject any = new XSAnyUnmarshaller().unmarshall(body);
 			
-			return sendRequest(any, location, action, verificationKey);
+			sendRequest(any, location, action, verificationKey, resultHandler);
 		} catch (UnmarshallingException e) {
 			throw new RuntimeException(e);
 		}
@@ -340,5 +379,28 @@ public class TrustClient {
 	public void setUserInteraction(UserInteraction interact, boolean redirect) {
 		this.interact = interact;
 		this.redirect = redirect;
+	}
+	
+	/**
+	 * Add a new fault handler.
+	 * @see #addFaultHandler(QName, FaultHandler)
+	 * @param namespace
+	 * @param localName
+	 * @param handler
+	 */
+	public void addFaultHander(String namespace, String localName, FaultHandler handler) {
+		addFaultHandler(new QName(namespace, localName), handler);
+	}
+	
+	/**
+	 * Add a fault handler for a specific soap fault type.
+	 * 
+	 * The registered type is matched against the types in Fault/Detail. If a matching QName element is found, the fault handler is invoked.
+	 * Only one handler is invoked for a Fault - the first matching element.
+	 * 
+	 * @param element Detail element to match.
+	 */
+	public void addFaultHandler(QName element, FaultHandler handler) {
+		faultHandlers.put(element, handler);
 	}
 }
