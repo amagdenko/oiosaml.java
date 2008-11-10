@@ -10,7 +10,7 @@
  * rights and limitations under the License.
  *
  *
- * The Original Code is OIOSAML Java Service Provider.
+ * The Original Code is OIOSAML Trust Client.
  * 
  * The Initial Developer of the Original Code is Trifork A/S. Portions 
  * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
@@ -18,7 +18,6 @@
  * 
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
- *   Rolf Njor Jensen <rolf@trifork.com>
  *
  */
 package dk.itst.oiosaml.trust;

@@ -1,3 +1,25 @@
+/*
+ * The contents of this file are subject to the Mozilla Public 
+ * License Version 1.1 (the "License"); you may not use this 
+ * file except in compliance with the License. You may obtain 
+ * a copy of the License at http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an 
+ * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express 
+ * or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ *
+ * The Original Code is OIOSAML Trust Client.
+ * 
+ * The Initial Developer of the Original Code is Trifork A/S. Portions 
+ * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
+ * and Telecom Agency (http://www.itst.dk). All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   Joakim Recht <jre@trifork.com>
+ *
+ */
 package dk.itst.oiosaml.trust;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -71,6 +93,14 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.trust.internal.DOMSTRTransform;
 import dk.itst.oiosaml.trust.internal.STRTransform;
 
+/**
+ * Wrap a generic SOAP envelope.
+ *  
+ *  This class adds some behavior to generic soap envelopes. Use this class to handle signatures, header elements, and other common operations.
+ *  
+ * @author recht
+ *
+ */
 public class OIOSoapEnvelope {
 	private static final Logger log = Logger.getLogger(OIOSoapEnvelope.class);
 	
@@ -85,21 +115,23 @@ public class OIOSoapEnvelope {
 	}
 	
     private Map<XMLObject, String> references = new HashMap<XMLObject, String>();
-
 	private final Envelope envelope;
-
 	private Security security;
 	private Body body;
 	private XMLSignatureFactory xsf;
-	
 	private Assertion securityToken;
-
 	private SecurityTokenReference securityTokenReference;
 
 	public OIOSoapEnvelope(Envelope envelope) {
 		this(envelope, false);
 	}
-	
+
+	/**
+	 * Wrap an existing envelope.
+	 * 
+	 * @param envelope
+	 * @param signHeaderElements If <code>true</code>, all the header elements in the envelope are marked for signature.
+	 */
 	public OIOSoapEnvelope(Envelope envelope, boolean signHeaderElements) {
 		if (envelope == null) throw new IllegalArgumentException("Envelope cannot be null");
 		
@@ -128,6 +160,11 @@ public class OIOSoapEnvelope {
 		addSignatureElement(framework);
 	}
 	
+	/**
+	 * Build a new soap envelope with standard OIO headers.
+	 * 
+	 *  Standard headers include sbf:Framework, wsa:MessageID, and an empty Security header.
+	 */
 	public static OIOSoapEnvelope buildEnvelope() {
 		Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
 
@@ -170,6 +207,9 @@ public class OIOSoapEnvelope {
 		security.getUnknownXMLObjects().add(token);
 	}
 	
+	/**
+	 * Insert a token and a SecurityTokenReference pointing to the token.
+	 */
 	public void addSecurityTokenReference(Assertion token) {
 		if (token == null) return;
 		
@@ -193,7 +233,10 @@ public class OIOSoapEnvelope {
 		
 		return str;
 	}
-	
+
+	/**
+	 * Check if this envelope relates to a specific message id.
+	 */
 	public boolean relatesTo(String messageId) {
 		if (envelope.getHeader() == null) return false;
 		List<XMLObject> objects = envelope.getHeader().getUnknownXMLObjects(TrustConstants.WSA_RELATES_TO);
@@ -209,7 +252,11 @@ public class OIOSoapEnvelope {
 		}
 		return messageId.equals(relatesTo);
 	}
-	
+
+	/**
+	 * Add a timestamp to the Security header.
+	 * @param timestampSkew How many minutes before the message should expire.
+	 */
 	public void setTimestamp(int timestampSkew) {
 		DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
 		
@@ -341,6 +388,9 @@ public class OIOSoapEnvelope {
 		return envelope;
 	}
 	
+	/**
+	 * Check if the envelope is signed. This does not validate the signature, it only checks for presence.
+	 */
 	public boolean isSigned() {
 		boolean signed = SAMLUtil.getFirstElement(security, Signature.class) != null;
 		log.debug("Envelope signed: " + signed);
@@ -371,15 +421,22 @@ public class OIOSoapEnvelope {
 		return XMLHelper.nodeToString(e);
 	}
 	
+	/**
+	 * Get a header element of a specific type.
+	 * @param type The header type.
+	 * @return The header element, or <code>null</code> if no header of the given type was found.
+	 */
 	public <T extends XMLObject> T getHeaderElement(Class<T> type) {
 		return SAMLUtil.getFirstElement(envelope.getHeader(), type);
 	}
 	
+	/**
+	 * Verify the envelope signature.
+	 */
 	public boolean verifySignature(PublicKey key) {
 		if (!isSigned()) return false; 
 		return new OIOSamlObject(security).verifySignature(key);
 	}
-
 
 	
 	public boolean isHolderOfKey() {
