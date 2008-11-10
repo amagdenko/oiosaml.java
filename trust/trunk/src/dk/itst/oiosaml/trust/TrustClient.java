@@ -41,26 +41,20 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Detail;
-import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.wsaddressing.EndpointReference;
-import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
-import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
-import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
@@ -110,8 +104,8 @@ public class TrustClient {
 	 * <li>oiosaml-trust.certificate.alias: Certificate alias for the sts certificate</li>
 	 * </ul>
 	 * 
-	 * Furthermore, this constructor assumes that a valid SAML assertion has been placed in {@link UserAssertionHolder},
-	 * and that the assertion contains an DiscoveryEPR attribute.
+	 * <p>Furthermore, this constructor assumes that a valid SAML assertion has been placed in {@link UserAssertionHolder} (which should be the case if the OIOSAML SPFilter is configured correctly),
+	 * and that the assertion contains an DiscoveryEPR attribute.</p>
 	 */
 	public TrustClient() {
 		this((EndpointReference) SAMLUtil.unmarshallElementFromString(UserAssertionHolder.get().getAttribute("DiscoveryEPR").getValue()), 
@@ -162,8 +156,8 @@ public class TrustClient {
 			OIOSoapEnvelope env = new OIOSoapEnvelope(soapClient.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"));
 	
 			//TODO: finish validation when STS supports signatures in security header
-//			validateSignature(env);
-
+//			env.verifySignature(stsKey);
+			
 			//TODO: Support tokens in security header
 			
 			log.debug("STS Response: " + env.toXML());
@@ -200,20 +194,6 @@ public class TrustClient {
 		}
 	}
 
-	private void validateSignature(Envelope env) {
-		Security sec = (Security) env.getHeader().getUnknownXMLObjects(Security.ELEMENT_NAME).get(0);
-		
-		Signature signature = (Signature) sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).get(0);
-		BasicX509Credential credential = new BasicX509Credential();
-		credential.setPublicKey(stsKey);
-		SignatureValidator validator = new SignatureValidator(credential);
-		try {
-			validator.validate(signature);
-		} catch (org.opensaml.xml.validation.ValidationException e) {
-			throw new ValidationException("STS signature is not valid: " + e.getMessage());
-		}
-	}
-	
 	
 	public String toXMLRequest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
@@ -279,6 +259,7 @@ public class TrustClient {
 	 * Execute a SOAP request.
 	 * 
 	 * <p>A SOAP header is added automatically to the request containing the client's security token.</p>
+	 * <p>If {@link #getToken()} has been called, the retrieved token is added to the request automatically.</p>
 	 * 
 	 * <p>SOAP Faults can be handled by adding {@link FaultHandler}s to the client.</p>
 	 * 
