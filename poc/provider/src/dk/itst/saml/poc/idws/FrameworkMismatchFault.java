@@ -30,7 +30,7 @@ public class FrameworkMismatchFault extends SOAPFaultException {
 			setError(messageContext);
 			throw createFault(fw);
 		}
-		if (!"egovsimple".equals(fw.getProfile())) {
+		if (!"urn:liberty:sb:profile:basicegovsimple".equals(fw.getProfile())) {
 			setError(messageContext);
 			throw createFault(fw);
 		}

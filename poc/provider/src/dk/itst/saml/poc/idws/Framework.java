@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Framework {
 
-	@XmlAttribute(name="profile", namespace="urn:liberty:sb:eGov", required=true)
+	@XmlAttribute(name="profile", namespace="urn:liberty:sb:eGovprofile", required=true)
 	private String profile;
 	
 	@XmlAttribute(name="version", required=true)

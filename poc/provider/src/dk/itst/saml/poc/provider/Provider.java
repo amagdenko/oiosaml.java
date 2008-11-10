@@ -25,7 +25,6 @@ import dk.itst.saml.poc.idws.UserInteraction;
 
 @WebService
 @SOAPBinding(style=SOAPBinding.Style.DOCUMENT)
-//@HandlerChain(file="handlers.xml")
 public class Provider {
 	private static final Logger log = Logger.getLogger(Provider.class);
 	
