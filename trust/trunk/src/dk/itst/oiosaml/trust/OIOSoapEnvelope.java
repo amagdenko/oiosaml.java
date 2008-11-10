@@ -140,7 +140,7 @@ public class OIOSoapEnvelope {
 		
 		XSAny framework = new XSAnyBuilder().buildObject("urn:liberty:sb:2006-08", "Framework", "sbf");
 		framework.getUnknownAttributes().put(new QName("version"), "2.0");
-		framework.getUnknownAttributes().put(new QName("urn:liberty:sb:eGov", "profile"), "egovsimple");
+		framework.getUnknownAttributes().put(new QName("urn:liberty:sb:eGovprofile", "profile"), "urn:liberty:sb:profile:basicegovsimple");
 		header.getUnknownXMLObjects().add(framework);
 		
 		Security security = SAMLUtil.buildXMLObject(Security.class);
