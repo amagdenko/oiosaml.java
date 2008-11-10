@@ -102,10 +102,6 @@ import dk.itst.oiosaml.trust.internal.SignatureFactory;
 public class OIOSoapEnvelope {
 	private static final Logger log = Logger.getLogger(OIOSoapEnvelope.class);
 	
-	static {
-		SignatureFactory.registerTransform();
-	}
-
     private Map<XMLObject, String> references = new HashMap<XMLObject, String>();
 	private final Envelope envelope;
 	private Security security;
@@ -128,7 +124,7 @@ public class OIOSoapEnvelope {
 		if (envelope == null) throw new IllegalArgumentException("Envelope cannot be null");
 		
 		this.envelope = envelope;
-		xsf = getXMLSignature();
+		xsf = SignatureFactory.getInstance();
 
 		security = SAMLUtil.getFirstElement(envelope.getHeader(), Security.class);
 		if (signHeaderElements) {
@@ -463,18 +459,18 @@ public class OIOSoapEnvelope {
 		addSignatureElement(ui);
 	}
 	
-	private XMLSignatureFactory getXMLSignature() {
-        // First, create a DOM XMLSignatureFactory that will be used to
-        // generate the XMLSignature and marshal it to DOM.
-        String providerName = System.getProperty("jsr105Provider", "org.jcp.xml.dsig.internal.dom.XMLDSigRI");
-        try {
-			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM", (Provider) Class.forName(providerName).newInstance());
-			return xmlSignatureFactory;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-	}
+//	private XMLSignatureFactory getXMLSignature() {
+//        // First, create a DOM XMLSignatureFactory that will be used to
+//        // generate the XMLSignature and marshal it to DOM.
+//        String providerName = System.getProperty("jsr105Provider", "org.jcp.xml.dsig.internal.dom.XMLDSigRI");
+//        try {
+//			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM", (Provider) Class.forName(providerName).newInstance());
+//			return xmlSignatureFactory;
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+//
+//	}
 
 	private String addSignatureElement(AttributeExtensibleXMLObject obj) {
 		if (obj == null) return null;

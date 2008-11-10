@@ -33,12 +33,13 @@ import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
 import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 
 import org.apache.log4j.Logger;
-import org.jcp.xml.dsig.internal.dom.ApacheTransform;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import dk.itst.oiosaml.trust.internal.apache.dom.ApacheTransform;
 
 public class DOMSTRTransform  extends ApacheTransform {
 	private static final Logger log = Logger.getLogger(DOMSTRTransform.class);

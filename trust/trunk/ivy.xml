@@ -5,10 +5,6 @@
       <conf name="build" extends="dist"/>
       <conf name="test" extends="build"/>
     </configurations>
-    <publications>
-    	<artifact />
-    	<artifact name="sunstr" type="jar" conf="*" />
-    </publications>
     <dependencies>
         <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="[3876,)" conf="*->@" />
     </dependencies>

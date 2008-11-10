@@ -49,8 +49,10 @@ target (init : 'Initialize build') {
 	println "Building ${system} version ${version}"
 }
 
-target (compile: 'Compile') {
+target (compile: 'Compile - generate must have been run at some point') {
 	depends(init, resolve)
+	
+	doCompile('target/gensrc', buildDirectory)
 	doCompile(sourceDirectory, buildDirectory)
 }
 
@@ -178,7 +180,31 @@ target (dist: 'Generate distribution zip file') {
 }
 
 target (build_everything: 'Build project') {
-	depends(clean, compile, javadoc, test, jar, dist)
+	depends(clean, generate, compile, javadoc, test, jar, dist)
+}
+
+target (generate: 'Generate xmlsec classes') {
+	// all this is necessary because str-transform is not included in xmlsec, and because jdk6 includes XMLDSigRI in rt.jar
+	depends(init)
+
+	def dir = 'target/gensrc/dk/itst/oiosaml/trust/internal'
+	ant.mkdir(dir: dir)
+	ant.delete(dir: 'target/svn')	
+	ant.exec(executable: 'svn', failonerror: true) {
+		arg(value: 'export')
+		arg(value: '--force')
+		arg(value: 'https://svn.apache.org/repos/asf/xml/security/tags/J_1_4_1/src/org/jcp/xml/dsig/internal/')
+		arg(value: "${dir}/apache")
+	}
+	
+	ant.replace(token: 'org.jcp.xml.dsig.internal', dir: dir, value: 'dk.itst.oiosaml.trust.internal.apache')
+	ant.replace(token: 'public final class', value: 'public class', dir: dir)
+	ant.replace(token: 'algorithm, "DOM");', value: 'algorithm, "DOM", getProvider());', dir: dir, excludes: '**/DOMTransform.java')
+	ant.replace(token: 'algorithm, "DOM");', value: 'algorithm, "DOM", provider);', dir: dir, includes: '**/DOMTransform.java')
+	ant.replace(token: 'INCLUSIVE, "DOM");', value: 'INCLUSIVE, "DOM", provider);', dir: dir) {
+		include(name: '**/DOMReference.java')
+		include(name: '**/DOMTransform.java')
+	}
 }
 
 setDefaultTarget ( jar )
