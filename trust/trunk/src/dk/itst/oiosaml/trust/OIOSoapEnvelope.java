@@ -54,7 +54,6 @@ import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
-import org.apache.xml.security.exceptions.AlgorithmAlreadyRegisteredException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.xml.SAMLConstants;
@@ -90,8 +89,7 @@ import org.w3c.dom.NodeList;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.trust.internal.DOMSTRTransform;
-import dk.itst.oiosaml.trust.internal.STRTransform;
+import dk.itst.oiosaml.trust.internal.SignatureFactory;
 
 /**
  * Wrap a generic SOAP envelope.
@@ -105,15 +103,9 @@ public class OIOSoapEnvelope {
 	private static final Logger log = Logger.getLogger(OIOSoapEnvelope.class);
 	
 	static {
-		try {
-			org.apache.xml.security.transforms.Transform.register(STRTransform.implementedTransformURI, STRTransform.class.getName());
-			log.debug("STR-Transform registered");
-		} catch (AlgorithmAlreadyRegisteredException e) {
-			log.info("STR-Transform already registered", e);
-		}
-
+		SignatureFactory.registerTransform();
 	}
-	
+
     private Map<XMLObject, String> references = new HashMap<XMLObject, String>();
 	private final Envelope envelope;
 	private Security security;
@@ -217,8 +209,8 @@ public class OIOSoapEnvelope {
 		securityToken = token;
 		addSecurityToken(token);
 		
-		SecurityTokenReference str = createSecurityTokenReference(token);
-		security.getUnknownXMLObjects().add(str);
+		securityTokenReference = createSecurityTokenReference(token);
+		security.getUnknownXMLObjects().add(securityTokenReference);
 	}
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
@@ -317,7 +309,7 @@ public class OIOSoapEnvelope {
 			cm.setAttribute("Algorithm", "http://www.w3.org/2001/10/xml-exc-c14n#");
 			
 			
-			transforms.add(getSpecial().newTransform("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#STR-Transform",  new DOMStructure(tp)));
+			transforms.add(SignatureFactory.getInstance().newTransform("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#STR-Transform",  new DOMStructure(tp)));
 			Reference r = xsf.newReference("#"+securityTokenReference.getId(), digestMethod, transforms, null, null);
 			refs.add(r);
 		}
@@ -495,29 +487,6 @@ public class OIOSoapEnvelope {
 		return id;
 	}
 
-	@SuppressWarnings("unchecked")
-	private XMLSignatureFactory getSpecial() {
-		Provider p = new Provider("XMLStr", 1.0, "INFO") {
-			{
-			final Map map = new HashMap();
-			
-			map.put("XMLSignatureFactory.DOM", "org.jcp.xml.dsig.internal.dom.DOMXMLSignatureFactory");
-			
-			map.put("TransformService." + STRTransform.implementedTransformURI, DOMSTRTransform.class.getName());
-			map.put("Alg.Alias.TransformService.STRTRANSFORM", STRTransform.implementedTransformURI);
-			map.put("TransformService." + STRTransform.implementedTransformURI + " MechanismType", "DOM");
-			
-			putAll(map);
-			}
-		};
-        try {
-			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM", p);
-			return xmlSignatureFactory;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}	
-	
     public static class STRTransformParameterSpec implements TransformParameterSpec {
         private CanonicalizationMethod c14nMethod;
         public STRTransformParameterSpec(CanonicalizationMethod c14nMethod) {

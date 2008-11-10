@@ -24,11 +24,6 @@ import javax.xml.crypto.dsig.XMLSignature;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.signature.XMLSignatureInput;
-import org.apache.xml.security.transforms.TransformSpi;
 import org.apache.xml.security.utils.XMLUtils;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
@@ -38,20 +33,26 @@ import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
+import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
+import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
+import com.sun.org.apache.xml.internal.security.signature.XMLSignatureInput;
+import com.sun.org.apache.xml.internal.security.transforms.TransformSpi;
+
 /**
  * Class STRTransform
  * 
  * @author Werner Dittmann (Werner.Dittmann@siemens.com)
  * @version 1.0
  */
-public class STRTransform extends TransformSpi {
+public class SunSTRTransform extends TransformSpi {
 
     /**
      * Field implementedTransformURI
      */
     public static final String implementedTransformURI = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#STR-Transform";
 
-    private static Log log = LogFactory.getLog(STRTransform.class.getName());
+    private static Log log = LogFactory.getLog(SunSTRTransform.class.getName());
 
     private static boolean doDebug = false;
 
@@ -77,7 +78,7 @@ public class STRTransform extends TransformSpi {
      * Method engineGetURI
      */
     protected String engineGetURI() {
-        return STRTransform.implementedTransformURI;
+        return SunSTRTransform.implementedTransformURI;
     }
 
     /**
@@ -87,8 +88,7 @@ public class STRTransform extends TransformSpi {
      * @throws CanonicalizationException
      * @throws InvalidCanonicalizerException
      */
-    @SuppressWarnings("deprecation")
-	protected XMLSignatureInput enginePerformTransform(XMLSignatureInput input)
+    protected XMLSignatureInput enginePerformTransform(XMLSignatureInput input)
             throws IOException, CanonicalizationException,
             InvalidCanonicalizerException {
 

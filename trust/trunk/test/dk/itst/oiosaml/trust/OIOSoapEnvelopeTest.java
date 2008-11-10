@@ -9,6 +9,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 
+import org.apache.xml.security.signature.SignedInfo;
+import org.apache.xml.security.signature.XMLSignature;
+import org.apache.xml.security.signature.XMLSignatureInput;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
@@ -18,10 +21,12 @@ import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.WSAddressingConstants;
 import org.opensaml.ws.wssecurity.Security;
+import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.BasicX509Credential;
+import org.opensaml.xml.signature.ContentReference;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.signature.X509Certificate;
@@ -226,5 +231,36 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		assertEquals("InteractIfNeeded", ui.getInteract());
 		
 		System.out.println(env.toXML());
+	}
+	
+	
+	@Test
+	public void testSecurityReferenceIsSignedWithSTRTransform() throws Exception {
+		Assertion assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
+		env.addSecurityTokenReference(assertion);
+
+		Security sec = env.getHeaderElement(Security.class);
+		assertNotNull(SAMLUtil.getFirstElement(sec, Assertion.class));
+		
+		Element signed = env.sign(TestHelper.getCredential());
+		env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(signed)));
+		
+		sec = env.getHeaderElement(Security.class);
+		SecurityTokenReference str = SAMLUtil.getFirstElement(sec, SecurityTokenReference.class);
+		assertNotNull(str);
+		assertEquals(assertion.getID(), str.getKeyIdentifier().getValue());
+		
+		Signature sig = SAMLUtil.getFirstElement(sec, Signature.class);
+		
+		SignedInfo si = new XMLSignature(sig.getDOM(), null).getSignedInfo();
+		boolean found = false;
+		for (int i = 0; i < si.getLength(); i++) {
+			XMLSignatureInput ref = si.getReferencedContentBeforeTransformsItem(i);
+			System.out.println(ref.getSourceURI());
+			if (("#" + str.getId()).equals(ref.getSourceURI())) {
+				found = true;
+			}
+		}
+		assertTrue(found);
 	}
 }
