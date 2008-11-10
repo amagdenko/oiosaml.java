@@ -111,7 +111,7 @@ public class TrustClient {
 	 * and that the assertion contains an DiscoveryEPR attribute.</p>
 	 */
 	public TrustClient() {
-		this((EndpointReference) SAMLUtil.unmarshallElementFromString(UserAssertionHolder.get().getAttribute("DiscoveryEPR").getValue()), 
+		this((EndpointReference) SAMLUtil.unmarshallElementFromString(UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE).getValue()), 
 				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
 				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
 				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)), null);

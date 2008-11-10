@@ -52,4 +52,6 @@ public class TrustConstants {
 	public static final String PROP_CERTIFICATE_ALIAS = "oiosaml-trust.certificate.alias";
 	
 	public static final String CONFIRMATION_METHOD_HOK = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
+	
+	public static final String DISCOVERY_EPR_ATTRIBUTE = "urn:liberty:disco:2006-08:DiscoveryEPR";
 }
