@@ -26,7 +26,6 @@ import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.BasicX509Credential;
-import org.opensaml.xml.signature.ContentReference;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.signature.X509Certificate;
