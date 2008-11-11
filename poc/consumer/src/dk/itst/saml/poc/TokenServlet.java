@@ -18,6 +18,7 @@ import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.trust.TrustBootstrap;
 import dk.itst.oiosaml.trust.TrustClient;
+import dk.itst.oiosaml.trust.TrustConstants;
 import dk.itst.oiosaml.trust.TrustException;
 import dk.itst.saml.poc.provider.Echo;
 import dk.itst.saml.poc.provider.EchoResponse;
@@ -35,7 +36,7 @@ public class TokenServlet extends HttpServlet {
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		TrustClient tokenClient = new TrustClient();
 		
-		UserAttribute bootstrap = UserAssertionHolder.get().getAttribute("DiscoveryEPR");
+		UserAttribute bootstrap = UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE);
 		log.debug("Bootstrap data: " + bootstrap);
 		String xml = bootstrap.getValue();
 		log.debug("XML: " + xml);
@@ -60,6 +61,7 @@ public class TokenServlet extends HttpServlet {
 				req.getRequestDispatcher("/sp/ticket.jsp").forward(req, resp);
 
 			} catch (TrustException e) {
+				log.error("Unable to complete request", e);
 				req.setAttribute("detail", e.getMessage());
 				req.getRequestDispatcher("/sp/ticketfault.jsp").forward(req, resp);
 			}

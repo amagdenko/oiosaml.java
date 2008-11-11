@@ -74,6 +74,7 @@ public class Utils {
 						}
 			});
 		} catch (InvocationTargetException e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 
