@@ -7,7 +7,7 @@ sourceDirectory = 'src'
 testSrcDir = 'test'
 javadocsDir = 'target/docs'
 testReports = 'target/reports'
-webDir = 'demo'
+webDir = 'webapp'
 version = 'unknown'
 
 includeTargets << gant.targets.Clean
@@ -70,6 +70,7 @@ target (generate: 'Generate source files') {
 
 target (compile: 'Compile') {
 	depends(init, resolve)
+	doCompile('target/gensrc', buildDirectory)
 	doCompile(sourceDirectory, buildDirectory)
 }
 
@@ -95,4 +96,16 @@ target (publish: 'Publish build') {
 	}
 	
 	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
+}
+
+target (build_everything: 'Generate code and build war') {
+	depends(init, resolve, generate, compile, resolve_dist)
+	
+	war (destfile: "${distDir}/${system}.war", webxml: "${webDir}/WEB-INF/web.xml") {
+		classes(dir: buildDirectory)
+		fileset (dir: webDir)
+		lib (dir: 'lib/dist', includes: '*.jar')
+		lib (dir: distDir, includes: "${system}-${version}.jar")
+	}
+	
 }
