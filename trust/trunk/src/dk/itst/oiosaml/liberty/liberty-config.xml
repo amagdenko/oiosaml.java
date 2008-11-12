@@ -4,9 +4,22 @@
  xmlns:disco="urn:liberty:disco:2006-08"
  xmlns:sec="urn:liberty:security:2006-08"
  xmlns:sb="urn:liberty:sb:2006-08"
+ xmlns:wst="http://schemas.xmlsoap.org/ws/2005/02/trust"
  xmlns="http://www.opensaml.org/xmltooling-config">
     
     <ObjectProviders>
+    
+    	<ObjectProvider qualifiedName="wst:RequestedSecurityToken">
+    		<BuilderClass className="org.opensaml.ws.wstrust.impl.RequestedSecurityTokenBuilder" />
+    		<MarshallingClass className="org.opensaml.ws.wstrust.impl.RequestedSecurityTokenMarshaller" />
+    		<UnmarshallingClass className="org.opensaml.ws.wstrust.impl.RequestedSecurityTokenUnmarshaller" />
+    	</ObjectProvider>
+    	
+    	<ObjectProvider qualifiedName="wst:RequestSecurityTokenResponse">
+    		<BuilderClass className="org.opensaml.ws.wstrust.impl.RequestSecurityTokenResponseBuilder" />
+    		<MarshallingClass className="org.opensaml.ws.wstrust.impl.RequestSecurityTokenResponseMarshaller" />
+    		<UnmarshallingClass className="org.opensaml.ws.wstrust.impl.RequestSecurityTokenResponseUnmarshaller" />
+    	</ObjectProvider>
 
         <ObjectProvider qualifiedName="disco:SecurityMechID">
             <BuilderClass className="dk.itst.oiosaml.liberty.SecurityMechIDBuilder" />

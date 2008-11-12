@@ -57,6 +57,7 @@ import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
@@ -145,12 +146,13 @@ public class TrustClient {
 	 * 
 	 * The retrieved token is saved in the client for use if {@link #sendRequest(XMLObject, String, String, PublicKey)} is called.
 	 * 
+	 * @param dialect The Claims dialect to add to the request. If <code>null</code>, no Claims are added.
 	 * @return A DOM element with the returned token.
 	 * @throws TrustException If any error occurred.
 	 */
-	public Element getToken() throws TrustException {
+	public Element getToken(String dialect) throws TrustException {
 		try {
-			String xml = toXMLRequest();
+			String xml = toXMLRequest(dialect);
 			
 			log.debug(xml);
 			
@@ -169,15 +171,11 @@ public class TrustClient {
 			} else if (res instanceof RequestSecurityTokenResponse) {
 				RequestSecurityTokenResponse tokenResponse = (RequestSecurityTokenResponse) res;
 				
-				Assertion dom = SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class);
-				setToken(dom);
-				return dom.getDOM();
+				return validateToken(SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class));
 			} else {
 				for (XMLObject object : res.getOrderedChildren()) {
 					if (object.getElementQName().equals(RequestedSecurityToken.ELEMENT_NAME)) {
-						Assertion dom = SAMLUtil.getFirstElement((RequestedSecurityToken)object, Assertion.class);
-						setToken(dom);
-						return dom.getDOM();
+						return validateToken(SAMLUtil.getFirstElement((RequestedSecurityToken)object, Assertion.class));
 					}
 				}
 				throw new TrustException("Got a " + res.getElementQName() + ", expected " + RequestSecurityTokenResponse.ELEMENT_NAME);
@@ -195,14 +193,27 @@ public class TrustClient {
 		}
 	}
 
+	private Element validateToken(Assertion token) {
+		OIOAssertion a = new OIOAssertion(token);
+		if (!a.verifySignature(stsKey)) {
+			log.error("Token is not signed correctly by the STS");
+			throw new TrustException("Token assertion does not contain a valid signature");
+		}
+		setToken(token);
+		return token.getDOM();
+	}
+
 	
-	public String toXMLRequest() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+	private String toXMLRequest(String dialect) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
 		
         OIOIssueRequest req = OIOIssueRequest.buildRequest();
         
         if (issuer != null) {
         	req.setIssuer(issuer);
+        }
+        if (dialect != null) {
+        	req.setClaims(dialect);
         }
         
 		token.getAssertion().detach();

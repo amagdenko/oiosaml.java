@@ -27,6 +27,7 @@ import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
+import org.opensaml.ws.wstrust.Claims;
 import org.opensaml.ws.wstrust.Issuer;
 import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
@@ -101,6 +102,22 @@ public class OIOIssueRequest {
 
 		onBehalfOf.setSecurityTokenReference(oref);
 		request.setOnBehalfOf(onBehalfOf);
+	}
+
+	/**
+	 * Add claims to the request.
+	 * 
+	 * @param dialect Claims dialect.
+	 * @param claimObjects The contents of the Claims element. Any objects will do.
+	 */
+	public void setClaims(String dialect, XMLObject ... claimObjects) {
+		Claims claims = SAMLUtil.buildXMLObject(Claims.class);
+		claims.setDialect(dialect);
+		
+		for (XMLObject co : claimObjects) {
+			claims.getUnknownXMLObjects().add(co);
+		}
+		request.setClaims(claims);
 	}
 	
 	public XMLObject getXMLObject() {
