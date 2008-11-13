@@ -96,6 +96,8 @@ public class TrustClient {
 	
 	private Map<QName, FaultHandler> faultHandlers = new HashMap<QName, FaultHandler>();
 
+	private boolean signRequests = true;
+
 	/**
 	 * Create a new client using default settings.
 	 * 
@@ -302,16 +304,21 @@ public class TrustClient {
 		}
 		
 		try {
-			Element signed = env.sign(credential);
+			Element request;
+			if (signRequests) {
+				request = env.sign(credential);
+			} else {
+				request = SAMLUtil.marshallObject(env.getXMLObject());
+			}
 			
-			log.debug("Signed request: " + XMLHelper.nodeToString(signed));
+			log.debug("Signed request: " + XMLHelper.nodeToString(request));
 			
-			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, XMLHelper.nodeToString(signed), action));
+			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, XMLHelper.nodeToString(request), action));
 			if (!res.relatesTo(env.getMessageID())) {
 				log.error("Respose is not reply to " + env.getMessageID());
 				throw new TrustException("Respose is not reply to " + env.getMessageID());
 			}
-			if (verificationKey != null) {
+			if (verificationKey != null && signRequests) {
 				log.debug("Verifying signature on response");
 				if (!res.verifySignature(verificationKey)) {
 					throw new TrustException("Signature on response is not valid. Response contains signature: " + res.isSigned());
@@ -413,5 +420,15 @@ public class TrustClient {
 	 */
 	public void addFaultHandler(QName element, FaultHandler handler) {
 		faultHandlers.put(element, handler);
+	}
+	
+	/**
+	 * Configure  whether ws requests should be signed or not. Token requests are always signed.
+	 * 
+	 * Default is <code>true</code>.
+	 */
+	public void signRequests(boolean sign) {
+		this.signRequests = sign;
+		
 	}
 }
