@@ -42,10 +42,12 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
@@ -308,6 +310,7 @@ public class TrustClient {
 			if (signRequests) {
 				request = env.sign(credential);
 			} else {
+				env.getHeaderElement(Security.class).setMustUnderstand(new XSBooleanValue(false, true));
 				request = SAMLUtil.marshallObject(env.getXMLObject());
 			}
 			
