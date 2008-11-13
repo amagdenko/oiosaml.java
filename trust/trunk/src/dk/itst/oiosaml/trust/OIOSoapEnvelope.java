@@ -24,7 +24,6 @@ package dk.itst.oiosaml.trust;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
