@@ -33,7 +33,7 @@
 		<wsp:PolicyReference URI="#PortBindingPolicySymm"/>
 		<soap:binding transport="http://www.w3.org/2003/05/soap/bindings/HTTP/" style="document" />
 		<operation name="echo">
-			<soap:operation soapAction="" />
+			<soap:operation soapAction="http://provider.poc.saml.itst.dk/Provider/echoRequest" />
 			<input>
 				<wsp:PolicyReference URI="#Input_Policy"/>
 				<soap:body use="literal"></soap:body>

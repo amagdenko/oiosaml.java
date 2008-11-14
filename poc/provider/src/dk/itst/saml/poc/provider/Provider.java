@@ -3,6 +3,7 @@ package dk.itst.saml.poc.provider;
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.security.auth.Subject;
@@ -31,9 +32,10 @@ public class Provider {
 	@Resource
 	private WebServiceContext context;
 
-	@WebMethod
-	public String echo(
-			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework) {
+	@WebMethod(action="http://provider.poc.saml.itst.dk/Provider/echoRequest")
+	public @WebResult(name="output", targetNamespace="http://provider.poc.saml.itst.dk/") String echo(
+			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework, 
+			@WebParam(name="input", targetNamespace="http://provider.poc.saml.itst.dk/") String input) {
 		try {
 			FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
 			
@@ -55,7 +57,7 @@ public class Provider {
 			sb.append("Subject: " ).append(subject);
 //			sb.append("Subject: ").append(YAML.dump(subject));
 			
-			return sb.toString();
+			return input;
 		} catch (FrameworkMismatchFault e) {
 			throw e;
 		} catch (Exception e) {
