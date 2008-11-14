@@ -100,6 +100,8 @@ public class TrustClient {
 
 	private boolean signRequests = true;
 
+	private String requestXML;
+
 	/**
 	 * Create a new client using default settings.
 	 * 
@@ -314,9 +316,10 @@ public class TrustClient {
 				request = SAMLUtil.marshallObject(env.getXMLObject());
 			}
 			
-			log.debug("Signed request: " + XMLHelper.nodeToString(request));
+			requestXML = XMLHelper.nodeToString(request);
+			log.debug("Signed request: " + requestXML);
 			
-			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, XMLHelper.nodeToString(request), action));
+			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, requestXML, action));
 			if (!res.relatesTo(env.getMessageID())) {
 				log.error("Respose is not reply to " + env.getMessageID());
 				throw new TrustException("Respose is not reply to " + env.getMessageID());
@@ -433,5 +436,12 @@ public class TrustClient {
 	public void signRequests(boolean sign) {
 		this.signRequests = sign;
 		
+	}
+	
+	/**
+	 * Get the xml sent in the last {@link #sendRequest(XMLObject, String, String, PublicKey, ResultHandler)} call.
+	 */
+	public String getLastRequestXML() {
+		return requestXML;
 	}
 }
