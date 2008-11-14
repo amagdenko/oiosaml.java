@@ -23,6 +23,7 @@ import dk.itst.oiosaml.trust.FaultHandler;
 import dk.itst.oiosaml.trust.ResultHandler;
 import dk.itst.oiosaml.trust.TrustBootstrap;
 import dk.itst.oiosaml.trust.TrustClient;
+import dk.itst.oiosaml.trust.TrustConstants;
 import dk.itst.saml.poc.provider.Provider;
 import dk.itst.saml.poc.provider.ProviderService;
 import dk.itst.saml.poc.provider.RequestInteract;
@@ -48,7 +49,7 @@ public class InteractServlet extends HttpServlet {
 		String location = (String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 		tokenClient.setAppliesTo(location);
 		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
-		tokenClient.getToken();
+		tokenClient.getToken(TrustConstants.DIALECT_OCES_PROFILE);
 
 		try {
 			RequestInteract requestInteract = new RequestInteract();

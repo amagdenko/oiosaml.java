@@ -20,6 +20,11 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>RequestServlet</servlet-name>
+		<servlet-class>dk.itst.saml.poc.RequestServlet</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>InteractServlet</servlet-name>
 		<servlet-class>dk.itst.saml.poc.InteractServlet</servlet-class>
 	</servlet>
@@ -32,6 +37,10 @@
 	<servlet-mapping>
 		<servlet-name>TokenServlet</servlet-name>
 		<url-pattern>/token</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RequestServlet</servlet-name>
+		<url-pattern>/request</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>
@@ -50,6 +59,10 @@
 	<filter-mapping>
 		<filter-name>LoginFilter</filter-name>
 		<url-pattern>/token</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>LoginFilter</filter-name>
+		<url-pattern>/request</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>LoginFilter</filter-name>

@@ -9,18 +9,15 @@
 
 <h1>STS Ticket request</h1>
 
-<h2>EPR</h2>
+<h2>SP Request</h2>
 <pre>
-<%= Utils.beautifyAndHtmlXML((String)request.getAttribute("epr"), "&nbsp;&nbsp;&nbsp;&nbsp;") %>
+<%= Utils.beautifyAndHtmlXML((String)request.getAttribute("spRequest"), "&nbsp;&nbsp;&nbsp;&nbsp;") %>
 </pre>
 
-<h2>Token</h2>
+<h2>SP response</h2>
 <pre>
-<%= Utils.beautifyAndHtmlXML((String)request.getAttribute("message"), "&nbsp;&nbsp;&nbsp;&nbsp;") %>
-</pre>
-
-
-<a href="request">Perform token WS request</a>
-
+  <%= request.getAttribute("spResponse") %>
+  </pre>
+  
   </body>
 </html>

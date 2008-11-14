@@ -20,17 +20,19 @@ import dk.itst.oiosaml.trust.TrustBootstrap;
 import dk.itst.oiosaml.trust.TrustClient;
 import dk.itst.oiosaml.trust.TrustConstants;
 import dk.itst.oiosaml.trust.TrustException;
-import dk.itst.saml.poc.provider.Echo;
-import dk.itst.saml.poc.provider.EchoResponse;
 import dk.itst.saml.poc.provider.Provider;
 import dk.itst.saml.poc.provider.ProviderService;
 
 public class TokenServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(TokenServlet.class);
+	private Provider port;
+	private BindingProvider bp;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		TrustBootstrap.bootstrap();
+		port = new ProviderService().getProviderPort();
+		bp = (BindingProvider) port;
 	}
 	
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -44,22 +46,18 @@ public class TokenServlet extends HttpServlet {
 		
 		try {
 			try {
-				Provider port = new ProviderService().getProviderPort();
-				BindingProvider bp = (BindingProvider) port;
-				
-				tokenClient.setAppliesTo((String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
+				String endpoint = (String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+				tokenClient.setAppliesTo(endpoint);
 				tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
-				Element stsToken = tokenClient.getToken();
-	
-				req.setAttribute("message", XMLHelper.nodeToString(stsToken));
-				log.debug("SAML Token: " + req.getAttribute("token"));
+				Element stsToken = tokenClient.getToken(TrustConstants.DIALECT_OCES_PROFILE);
 				
-
-				EchoResponse response = (EchoResponse) Utils.request(new Echo(), tokenClient, bp, "http://provider.poc.saml.itst.dk/Provider/echoRequest");
-				req.setAttribute("spResponse", response.getReturn());
+				String stsXml = XMLHelper.nodeToString(stsToken);
+				req.getSession().setAttribute("token", stsXml);
+	
+				req.setAttribute("message", stsXml);
+				log.debug("SAML token: " + stsXml);
 				
 				req.getRequestDispatcher("/sp/ticket.jsp").forward(req, resp);
-
 			} catch (TrustException e) {
 				log.error("Unable to complete request", e);
 				req.setAttribute("detail", e.getMessage());
@@ -72,4 +70,5 @@ public class TokenServlet extends HttpServlet {
 			e.printStackTrace(resp.getWriter());
 		}
 	}
+
 }
