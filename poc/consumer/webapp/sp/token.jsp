@@ -11,7 +11,7 @@
 
 <h2>SP Request</h2>
 <pre>
-<%= Utils.beautifyAndHtmlXML((String)request.getAttribute("spRequest"), "&nbsp;&nbsp;&nbsp;&nbsp;") %>
+<%= request.getAttribute("spRequest") %>
 </pre>
 
 <h2>SP response</h2>
