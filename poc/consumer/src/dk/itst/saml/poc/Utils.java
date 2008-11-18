@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,10 +24,17 @@ import dk.itst.oiosaml.trust.TrustClient;
 
 public class Utils {
 	private static final Logger log = Logger.getLogger(Utils.class);
+	private static JAXBContext jc;
+	static {
+		try {
+			jc = JAXBContext.newInstance("dk.itst.saml.poc.provider:liberty.sb._2006_08");
+		} catch (JAXBException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static Element marshall(Object o) { 
 		try {
-			JAXBContext jc = JAXBContext.newInstance("dk.itst.saml.poc.provider:liberty.sb._2006_08");
 			Marshaller marshaller = jc.createMarshaller();
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -50,7 +58,6 @@ public class Utils {
 		Element element = SAMLUtil.marshallObject(xml);
 
 		try {
-			JAXBContext jc = JAXBContext.newInstance("dk.itst.saml.poc.provider:liberty.sb._2006_08");
 			Unmarshaller unmarshaller = jc.createUnmarshaller();
 			
 			JAXBElement<?> object = (JAXBElement<?>) unmarshaller.unmarshal(element);
