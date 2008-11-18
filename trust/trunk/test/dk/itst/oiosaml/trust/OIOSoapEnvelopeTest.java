@@ -20,6 +20,7 @@ import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.WSAddressingConstants;
+import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.Timestamp;
@@ -28,8 +29,6 @@ import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
-import org.opensaml.xml.signature.X509Certificate;
-import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.signature.impl.SignatureImpl;
 import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
@@ -118,7 +117,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		assertFalse(sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).isEmpty());
 		
 		SignatureImpl signature = (SignatureImpl) sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).get(0);
-		assertEquals(3, signature.getXMLSignature().getSignedInfo().getLength());
+		assertEquals(4, signature.getXMLSignature().getSignedInfo().getLength());
 		
 		Action action = (Action) envelope.getHeader().getUnknownXMLObjects(Action.ELEMENT_NAME).get(0);
 		
@@ -147,13 +146,23 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		
 		SignatureImpl signature = (SignatureImpl) sec.getUnknownXMLObjects(Signature.DEFAULT_ELEMENT_NAME).get(0);
 		assertNotNull(signature.getKeyInfo());
-		assertFalse(signature.getKeyInfo().getX509Datas().isEmpty());
-		X509Data x509 = signature.getKeyInfo().getX509Datas().get(0);
-		assertEquals(1, x509.getX509Certificates().size());
-		X509Certificate cert = x509.getX509Certificates().get(0);
+		assertTrue(signature.getKeyInfo().getX509Datas().isEmpty());
+		
+		assertEquals(1, signature.getKeyInfo().getXMLObjects().size());
+		assertTrue(signature.getKeyInfo().getXMLObjects().get(0) instanceof SecurityTokenReference);
+		
+		SecurityTokenReference ref = (SecurityTokenReference) signature.getKeyInfo().getXMLObjects().get(0);
+		assertNotNull(ref.getReference());
+		assertNotNull(ref.getReference().getURI());
+		
+		Element bstElement = e.getOwnerDocument().getElementById(ref.getReference().getURI().substring(1));
+		assertNotNull(bstElement);
+		
+		BinarySecurityToken bst = (BinarySecurityToken) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(bstElement));
+		
 		BasicX509Credential cred = new BasicX509Credential();
 
-		String base64 = "-----BEGIN CERTIFICATE-----\n" + cert.getValue() + "\n-----END CERTIFICATE-----";
+		String base64 = "-----BEGIN CERTIFICATE-----\n" + bst.getValue() + "\n-----END CERTIFICATE-----";
 		cred.setEntityCertificate((java.security.cert.X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(base64.getBytes())));
 		SignatureValidator validator = new SignatureValidator(cred);
 		validator.validate(signature);

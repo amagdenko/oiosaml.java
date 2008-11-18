@@ -25,6 +25,7 @@ package dk.itst.oiosaml.trust;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +47,6 @@ import javax.xml.crypto.dsig.XMLSignatureFactory;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
-import javax.xml.crypto.dsig.keyinfo.X509Data;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
 import javax.xml.crypto.dsig.spec.TransformParameterSpec;
@@ -65,6 +65,7 @@ import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wsaddressing.To;
+import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.Created;
 import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
@@ -79,6 +80,7 @@ import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -221,6 +223,16 @@ public class OIOSoapEnvelope {
 		return str;
 	}
 
+	private SecurityTokenReference createSecurityTokenReference(BinarySecurityToken bst) {
+		SecurityTokenReference str = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
+		org.opensaml.ws.wssecurity.Reference ref = SAMLUtil.buildXMLObject(org.opensaml.ws.wssecurity.Reference.class);
+		ref.setValueType(bst.getValueType());
+		ref.setURI("#" + bst.getId());
+		str.setReference(ref);
+		return str;
+	}
+
+
 	/**
 	 * Check if this envelope relates to a specific message id.
 	 */
@@ -281,7 +293,10 @@ public class OIOSoapEnvelope {
 		CanonicalizationMethod canonicalizationMethod = xsf.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null);
 		SignatureMethod signatureMethod = xsf.newSignatureMethod(SignatureMethod.RSA_SHA1, null);
 
-		List<Reference> refs = new ArrayList<Reference>();
+		KeyInfoFactory keyInfoFactory = xsf.getKeyInfoFactory();
+		KeyInfo ki = generateKeyInfo(credential, keyInfoFactory);
+    	
+    	List<Reference> refs = new ArrayList<Reference>();
 		
 		DigestMethod digestMethod = xsf.newDigestMethod(DigestMethod.SHA1, null);
 		List<Transform> transforms = new ArrayList<Transform>(2);
@@ -291,6 +306,7 @@ public class OIOSoapEnvelope {
 			Reference r = xsf.newReference("#"+ref.getValue(), digestMethod, transforms, null, null);
 			refs.add(r);
 		}
+
 		
 		SAMLUtil.marshallObject(envelope);
 		
@@ -312,15 +328,6 @@ public class OIOSoapEnvelope {
 		// Create the SignedInfo
 		SignedInfo signedInfo = xsf.newSignedInfo(canonicalizationMethod, signatureMethod, refs);
 		
-        KeyInfoFactory keyInfoFactory = xsf.getKeyInfoFactory();
-        KeyInfo ki;
-        if (isHolderOfKey()) {
-        	DOMStructure info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(securityToken)));
-        	ki = keyInfoFactory.newKeyInfo(Collections.singletonList(info));
-        } else {
-        	X509Data x509Data = keyInfoFactory.newX509Data(Collections.singletonList(credential.getEntityCertificate()));
-        	ki = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data));
-        }
         
         
         XMLSignature signature = xsf.newXMLSignature(signedInfo, ki);
@@ -369,6 +376,31 @@ public class OIOSoapEnvelope {
         // HIERARCHY_REQUEST_ERR: Raised if this node is of a type that does not allow children of the type of the newChild  node, or if the node to insert is one of this node's ancestors.
         signature.sign(signContext);
         return element;
+	}
+
+	private KeyInfo generateKeyInfo(X509Credential credential,
+			KeyInfoFactory keyInfoFactory) throws XMLSignatureException {
+		DOMStructure info;
+        if (isHolderOfKey()) {
+        	info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(securityToken)));
+        } else {
+        	BinarySecurityToken bst = SAMLUtil.buildXMLObject(BinarySecurityToken.class);
+        	bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
+        	bst.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
+        	bst.setId(Utils.generateUUID());
+        	references.put(bst, bst.getId());
+        	try {
+				bst.setValue(Base64.encodeBytes(credential.getEntityCertificate().getEncoded(), Base64.DONT_BREAK_LINES));
+			} catch (CertificateEncodingException e) {
+				throw new XMLSignatureException(e);
+			}
+			info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(bst)));
+			
+			// assume that the first element is Timestamp (or the list is empty)
+        	security.getUnknownXMLObjects().add(Math.min(1, security.getUnknownXMLObjects().size()), bst);
+        }
+    	KeyInfo ki = keyInfoFactory.newKeyInfo(Collections.singletonList(info));
+		return ki;
 	}
 	
 	public XMLObject getXMLObject() {
