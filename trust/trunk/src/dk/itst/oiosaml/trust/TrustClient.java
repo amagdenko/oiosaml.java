@@ -209,6 +209,13 @@ public class TrustClient {
 		return token.getDOM();
 	}
 
+	/**
+	 * Get the bootstrap token from the DiscoveryEPR.
+	 */
+	public OIOAssertion getBootstrap() {
+		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
+		return new OIOAssertion((Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(SAMLUtil.marshallObject(token.getAssertion()))));
+	}
 	
 	private String toXMLRequest(String dialect) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
