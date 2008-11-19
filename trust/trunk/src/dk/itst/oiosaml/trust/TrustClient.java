@@ -22,6 +22,7 @@
  */
 package dk.itst.oiosaml.trust;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidAlgorithmParameterException;
@@ -59,6 +60,7 @@ import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
+import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
@@ -118,7 +120,7 @@ public class TrustClient {
 	 * and that the assertion contains an DiscoveryEPR attribute.</p>
 	 */
 	public TrustClient() {
-		this((EndpointReference) SAMLUtil.unmarshallElementFromString(UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE).getValue()), 
+		this(UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE), 
 				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
 				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
 				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)), null);
@@ -128,6 +130,19 @@ public class TrustClient {
 				SAMLConfiguration.getSystemConfiguration().getString(TrustConstants.PROP_CERTIFICATE_ALIAS));
 		
 		stsKey = certificate.getPublicKey();
+	}
+	
+	public TrustClient(UserAttribute eprAttribute, X509Credential credential, PublicKey stsKey) {
+		if (eprAttribute != null) {
+			this.epr = (EndpointReference)SAMLUtil.unmarshallElement(new ByteArrayInputStream(eprAttribute.getBase64Value()));
+		} else {
+			this.epr = null;
+		}
+		this.credential = credential;
+		this.stsKey = stsKey;
+		if (this.epr != null) {
+			endpoint = this.epr.getAddress().getValue();
+		}
 	}
 
 	/**
