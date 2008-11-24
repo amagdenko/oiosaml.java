@@ -271,4 +271,12 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		}
 		assertTrue(found);
 	}
+	
+	@Test
+	public void TestSOAP12() throws Exception {
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP12_NS);
+		
+		String xml = env.toXML();
+		assertTrue(xml.indexOf(SOAPConstants.SOAP12_NS) > -1);
+	}
 }
