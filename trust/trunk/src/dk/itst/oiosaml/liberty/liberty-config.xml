@@ -50,6 +50,21 @@
         	<MarshallingClass className="org.opensaml.ws.soap.soap11.impl.EnvelopeMarshaller" />
         	<UnmarshallingClass className="org.opensaml.ws.soap.soap11.impl.EnvelopeUnmarshaller" />
 		</ObjectProvider>
+		<ObjectProvider qualifiedName="soap12:Header">
+        	<BuilderClass className="org.opensaml.ws.soap.soap11.impl.HeaderBuilder" />
+        	<MarshallingClass className="org.opensaml.ws.soap.soap11.impl.HeaderMarshaller" />
+        	<UnmarshallingClass className="org.opensaml.ws.soap.soap11.impl.HeaderUnmarshaller" />
+		</ObjectProvider>
+		<ObjectProvider qualifiedName="soap12:Body">
+        	<BuilderClass className="org.opensaml.ws.soap.soap11.impl.BodyBuilder" />
+        	<MarshallingClass className="org.opensaml.ws.soap.soap11.impl.BodyMarshaller" />
+        	<UnmarshallingClass className="org.opensaml.ws.soap.soap11.impl.BodyUnmarshaller" />
+		</ObjectProvider>
+		<ObjectProvider qualifiedName="soap12:Fault">
+        	<BuilderClass className="org.opensaml.ws.soap.soap11.impl.FaultBuilder" />
+        	<MarshallingClass className="org.opensaml.ws.soap.soap11.impl.FaultMarshaller" />
+        	<UnmarshallingClass className="org.opensaml.ws.soap.soap11.impl.FaultUnmarshaller" />
+		</ObjectProvider>
                         
     </ObjectProviders>
 

@@ -278,5 +278,6 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		
 		String xml = env.toXML();
 		assertTrue(xml.indexOf(SOAPConstants.SOAP12_NS) > -1);
+		assertTrue(xml.indexOf(SOAPConstants.SOAP11_NS) == -1);
 	}
 }

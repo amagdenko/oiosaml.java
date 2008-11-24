@@ -60,7 +60,9 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.soap.soap11.impl.BodyBuilder;
 import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder;
+import org.opensaml.ws.soap.soap11.impl.HeaderBuilder;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.MessageID;
@@ -105,6 +107,8 @@ public class OIOSoapEnvelope {
 	private static final Logger log = Logger.getLogger(OIOSoapEnvelope.class);
 	
 	private static final EnvelopeBuilder envelopeBuilder = new EnvelopeBuilder();
+	private static final HeaderBuilder headerBuilder = new HeaderBuilder();
+	private static final BodyBuilder bodyBuilder = new BodyBuilder();
 	
     private Map<XMLObject, String> references = new HashMap<XMLObject, String>();
 	private final Envelope envelope;
@@ -160,7 +164,7 @@ public class OIOSoapEnvelope {
 	public static OIOSoapEnvelope buildEnvelope(String soapVersion) {
 		Envelope env = envelopeBuilder.buildObject(soapVersion, "Envelope", "s");
 
-		Header header = SAMLUtil.buildXMLObject(Header.class);
+		Header header = headerBuilder.buildObject(soapVersion, "Header", "s");
 		env.setHeader(header);
 		
 		MessageID msgId = SAMLUtil.buildXMLObject(MessageID.class);
@@ -181,7 +185,7 @@ public class OIOSoapEnvelope {
 	
 	
 	public void setBody(XMLObject request) {
-		body = SAMLUtil.buildXMLObject(Body.class);
+		body = bodyBuilder.buildObject(envelope.getElementQName().getNamespaceURI(), "Body", "s");
 		body.getUnknownXMLObjects().add(request);
 		addSignatureElement(body);
 		
