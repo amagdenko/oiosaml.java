@@ -60,6 +60,7 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.MessageID;
@@ -102,6 +103,8 @@ import dk.itst.oiosaml.trust.internal.SignatureFactory;
  */
 public class OIOSoapEnvelope {
 	private static final Logger log = Logger.getLogger(OIOSoapEnvelope.class);
+	
+	private static final EnvelopeBuilder envelopeBuilder = new EnvelopeBuilder();
 	
     private Map<XMLObject, String> references = new HashMap<XMLObject, String>();
 	private final Envelope envelope;
@@ -154,8 +157,8 @@ public class OIOSoapEnvelope {
 	 * 
 	 *  Standard headers include sbf:Framework, wsa:MessageID, and an empty Security header.
 	 */
-	public static OIOSoapEnvelope buildEnvelope() {
-		Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
+	public static OIOSoapEnvelope buildEnvelope(String soapVersion) {
+		Envelope env = envelopeBuilder.buildObject(soapVersion, "Envelope", "s");
 
 		Header header = SAMLUtil.buildXMLObject(Header.class);
 		env.setHeader(header);

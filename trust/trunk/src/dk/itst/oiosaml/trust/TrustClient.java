@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Fault;
+import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
@@ -104,6 +105,8 @@ public class TrustClient {
 
 	private String requestXML;
 
+	private String soapVersion = SOAPConstants.SOAP11_NS;
+	
 	/**
 	 * Create a new client using default settings.
 	 * 
@@ -250,7 +253,7 @@ public class TrustClient {
 		
 		req.setAppliesTo(appliesTo);
 
-		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion);
 		env.setBody(req.getXMLObject());
 		env.setAction("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 		env.setTo(endpoint);
@@ -313,10 +316,10 @@ public class TrustClient {
 	 * @throws TrustException If an unhandled SOAP Fault occurs, or if a transport error occurs.
 	 */
 	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) throws InvocationTargetException {
-		log.debug("Invoking action " + action + " at service " + location);
+		if (log.isDebugEnabled()) log.debug("Invoking action " + action + " at service " + location);
 		
 		body.detach();
-		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion);
 		env.setBody(body);
 		env.setAction(action);
 		env.setTo(endpoint);
@@ -325,7 +328,7 @@ public class TrustClient {
 		env.addSecurityTokenReference(token);
 		
 		if (interact != null) {
-			log.debug("UserInteract set: " + interact + ", redirect: " + redirect);
+			if (log.isDebugEnabled()) log.debug("UserInteract set: " + interact + ", redirect: " + redirect);
 			env.setUserInteraction(interact, redirect);
 		}
 		
@@ -339,7 +342,7 @@ public class TrustClient {
 			}
 			
 			requestXML = XMLHelper.nodeToString(request);
-			log.debug("Signed request: " + requestXML);
+			if (log.isDebugEnabled()) log.debug("Signed request: " + requestXML);
 			
 			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, requestXML, action));
 			if (!res.relatesTo(env.getMessageID())) {
@@ -375,7 +378,7 @@ public class TrustClient {
 				for (XMLObject el : detail.getUnknownXMLObjects()) {
 					FaultHandler handler = faultHandlers.get(el.getElementQName());
 					if (handler != null) {
-						log.debug("Found fault handler for " + el.getElementQName() + ": " + handler);
+						if (log.isDebugEnabled()) log.debug("Found fault handler for " + el.getElementQName() + ": " + handler);
 						try {
 							handler.handleFault(code, message, el);
 						} catch (Exception ex) {
@@ -465,5 +468,13 @@ public class TrustClient {
 	 */
 	public String getLastRequestXML() {
 		return requestXML;
+	}
+	
+	/**
+	 * Set the SOAP version to use.
+	 * @param soapVersion Namespace of the soap version to use. The client defaults to soap 1.1.
+	 */
+	public void setSoapVersion(String soapVersion) {
+		this.soapVersion = soapVersion;
 	}
 }

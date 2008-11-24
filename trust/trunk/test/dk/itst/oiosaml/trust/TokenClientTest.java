@@ -58,6 +58,7 @@ import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.soap.soap11.FaultCode;
 import org.opensaml.ws.soap.soap11.FaultString;
 import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
@@ -143,7 +144,7 @@ public class TokenClientTest extends TrustTests {
 	public void testGetToken() throws Exception {
 		client.setAppliesTo("urn:service");
 
-		final OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope();
+		final OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS);
 		RequestSecurityTokenResponse rstr = SAMLUtil.buildXMLObject(RequestSecurityTokenResponse.class);
 		rstr.setRequestedSecurityToken(SAMLUtil.buildXMLObject(RequestedSecurityToken.class));
 		rstr.getRequestedSecurityToken().getUnknownXMLObjects().add(assertion);

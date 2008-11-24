@@ -45,7 +45,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 
 	@Before
 	public void setUp() {
-		env = OIOSoapEnvelope.buildEnvelope();
+		env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS);
 	}
 	
 	@Test
