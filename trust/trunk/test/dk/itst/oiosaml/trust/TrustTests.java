@@ -30,10 +30,13 @@ import org.junit.runner.RunWith;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 
+import dk.itst.oiosaml.security.CredentialRepository;
+
 @RunWith(JMock.class)
 public abstract class TrustTests {
 
 	protected Mockery context = new Mockery();
+	protected CredentialRepository credentialRepository = new CredentialRepository();
 
 	@BeforeClass
 	public final static void configure() throws ConfigurationException {

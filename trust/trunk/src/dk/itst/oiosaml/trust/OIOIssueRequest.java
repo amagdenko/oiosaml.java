@@ -103,6 +103,16 @@ public class OIOIssueRequest {
 		onBehalfOf.setSecurityTokenReference(oref);
 		request.setOnBehalfOf(onBehalfOf);
 	}
+	
+	/**
+	 * Set the onbehalfof value. This adds the input structure directly to OnBehalfOf.
+	 */
+	public void setOnBehalfOf(XMLObject obj) {
+		obj.detach();
+		OnBehalfOf onBehalfOf = SAMLUtil.buildXMLObject(OnBehalfOf.class);
+		onBehalfOf.getUnknownXMLObjects().add(obj);
+		request.setOnBehalfOf(onBehalfOf);
+	}
 
 	/**
 	 * Add claims to the request.

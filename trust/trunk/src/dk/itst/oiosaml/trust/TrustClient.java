@@ -60,13 +60,13 @@ import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
  * Client interface for retrieving STS tokens and sending OIOIDWS-based SOAP requests.
@@ -82,6 +82,7 @@ public class TrustClient {
 	}
 	
 	private static final Logger log = Logger.getLogger(TrustClient.class);
+	private static final CredentialRepository credentialRepository = new CredentialRepository();
 	
 	private SOAPClient soapClient = new HttpSOAPClient();
 	private String endpoint;
@@ -124,11 +125,11 @@ public class TrustClient {
 	 */
 	public TrustClient() {
 		this(UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE), 
-				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
+				credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
 				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
 				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)), null);
 		
-		X509Certificate certificate = Utils.getCertificate(SAMLConfiguration.getStringPrefixedWithBRSHome(SAMLConfiguration.getSystemConfiguration(), TrustConstants.PROP_CERTIFICATE_LOCATION),
+		X509Certificate certificate = credentialRepository.getCertificate(SAMLConfiguration.getStringPrefixedWithBRSHome(SAMLConfiguration.getSystemConfiguration(), TrustConstants.PROP_CERTIFICATE_LOCATION),
 				SAMLConfiguration.getSystemConfiguration().getString(TrustConstants.PROP_CERTIFICATE_PASSWORD),
 				SAMLConfiguration.getSystemConfiguration().getString(TrustConstants.PROP_CERTIFICATE_ALIAS));
 		

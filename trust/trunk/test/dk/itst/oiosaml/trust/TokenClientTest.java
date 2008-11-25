@@ -88,7 +88,6 @@ import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 public class TokenClientTest extends TrustTests {
@@ -344,7 +343,7 @@ public class TokenClientTest extends TrustTests {
 	@Test
 	@Ignore
 	public void testRequest() throws Exception {
-		BasicX509Credential stsCredential = Utils.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
+		BasicX509Credential stsCredential = credentialRepository.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
 		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setAppliesTo("urn:appliesto");
 		
@@ -418,7 +417,7 @@ public class TokenClientTest extends TrustTests {
 		assertNotNull(cert);
 		assertTrue(Arrays.equals(credential.getEntityCertificate().getEncoded(), Base64.decode(cert.getValue())));
 
-		assertTrue(rstr.verifySignature(Utils.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234").getPublicKey()));
+		assertTrue(rstr.verifySignature(credentialRepository.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234").getPublicKey()));
 		
 		
 		client.setToken(rstrAssertion);
