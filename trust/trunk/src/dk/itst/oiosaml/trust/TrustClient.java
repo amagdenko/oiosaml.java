@@ -107,6 +107,8 @@ public class TrustClient {
 	private String requestXML;
 
 	private String soapVersion = SOAPConstants.SOAP11_NS;
+	private SigningPolicy signingPolicy = new SigningPolicy(true);
+	private boolean useReferenceForOnBehalfOf = true;
 	
 	/**
 	 * Create a new client using default settings.
@@ -248,19 +250,24 @@ public class TrustClient {
         	req.setClaims(dialect);
         }
         
-		token.getAssertion().detach();
 		
-		req.setOnBehalfOf(token.getAssertion().getID());
 		
 		req.setAppliesTo(appliesTo);
 
-		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion);
-		env.setBody(req.getXMLObject());
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion, signingPolicy);
 		env.setAction("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 		env.setTo(endpoint);
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
+		env.setBody(req.getXMLObject());
 		env.setTimestamp(5);
-		env.addSecurityToken(token.getAssertion());
+
+		if (useReferenceForOnBehalfOf) {
+			token.getAssertion().detach();
+			req.setOnBehalfOf(token.getAssertion().getID());
+			env.addSecurityToken(token.getAssertion());
+		} else {
+			req.setOnBehalfOf(token.getAssertion());
+		}
 		
 		Element signed = env.sign(credential);
 		return XMLHelper.nodeToString(signed);
@@ -320,7 +327,7 @@ public class TrustClient {
 		if (log.isDebugEnabled()) log.debug("Invoking action " + action + " at service " + location);
 		
 		body.detach();
-		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion);
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion, signingPolicy);
 		env.setBody(body);
 		env.setAction(action);
 		env.setTo(endpoint);
@@ -477,5 +484,16 @@ public class TrustClient {
 	 */
 	public void setSoapVersion(String soapVersion) {
 		this.soapVersion = soapVersion;
+	}
+	
+	/**
+	 * Set the signing policy for ws requests.
+	 */
+	public void setSigningPolicy(SigningPolicy signingPolicy) {
+		this.signingPolicy = signingPolicy;
+	}
+	
+	public void setUseReferenceForOnBehalfOf(boolean useReferenceForOnBehalfOf) {
+		this.useReferenceForOnBehalfOf = useReferenceForOnBehalfOf;
 	}
 }

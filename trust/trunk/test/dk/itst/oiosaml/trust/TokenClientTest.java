@@ -437,7 +437,7 @@ public class TokenClientTest extends TrustTests {
 		response.getBody().getUnknownXMLObjects().add(SAMLUtil.buildXMLObject(Assertion.class));
 		 
 		if (sign) {
-			response = (Envelope) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(new OIOSoapEnvelope(response, true).sign(stsCredential)));
+			response = (Envelope) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(new OIOSoapEnvelope(response, true, new SigningPolicy(true)).sign(stsCredential)));
 		}
 		
 		return response;

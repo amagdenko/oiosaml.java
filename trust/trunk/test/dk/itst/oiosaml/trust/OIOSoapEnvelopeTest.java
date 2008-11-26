@@ -1,5 +1,6 @@
 package dk.itst.oiosaml.trust;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +25,7 @@ import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.Timestamp;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.BasicX509Credential;
@@ -279,5 +281,41 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		String xml = env.toXML();
 		assertTrue(xml.indexOf(SOAPConstants.SOAP12_NS) > -1);
 		assertTrue(xml.indexOf(SOAPConstants.SOAP11_NS) == -1);
+	}
+
+	@Test
+	public void testSigningPolicy() throws Exception {
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS, new SigningPolicy(false));
+		
+		Element signed = env.sign(TestHelper.getCredential());
+		assertEquals(0, signed.getElementsByTagNameNS(javax.xml.crypto.dsig.XMLSignature.XMLNS, "Reference").getLength());
+		
+		SigningPolicy signingPolicy = new SigningPolicy(true);
+		env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS, signingPolicy);
+		
+		signed = env.sign(TestHelper.getCredential());
+		assertEquals(3, signed.getElementsByTagNameNS(javax.xml.crypto.dsig.XMLSignature.XMLNS, "Reference").getLength());
+		
+		signingPolicy.addPolicy(MessageID.ELEMENT_NAME, false);
+		env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS, signingPolicy);
+		
+		signed = env.sign(TestHelper.getCredential());
+		assertEquals(2, signed.getElementsByTagNameNS(javax.xml.crypto.dsig.XMLSignature.XMLNS, "Reference").getLength());
+	}
+	
+	@Test
+	public void testHeaderOrdering() throws Exception {
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS);
+		env.setAction("urn:action");
+
+		Envelope e = (Envelope) env.getXMLObject();
+		
+		assertTrue(indexOf(e, Security.class) > indexOf(e, MessageID.class));
+		assertTrue(indexOf(e, Security.class) > indexOf(e, Action.class));
+	}
+	
+	private <T extends XMLObject> int  indexOf(Envelope e, Class<T> type) {
+		T element = SAMLUtil.getFirstElement(e.getHeader(), type);
+		return e.getHeader().getUnknownXMLObjects().indexOf(element);
 	}
 }

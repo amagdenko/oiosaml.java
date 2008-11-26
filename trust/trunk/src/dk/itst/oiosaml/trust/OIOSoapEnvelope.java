@@ -28,7 +28,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -99,7 +99,8 @@ import dk.itst.oiosaml.trust.internal.SignatureFactory;
  * Wrap a generic SOAP envelope.
  *  
  *  This class adds some behavior to generic soap envelopes. Use this class to handle signatures, header elements, and other common operations.
- *  
+ *
+ *  @see SigningPolicy Use SigningPolicy to control which elements are signed.
  * @author recht
  *
  */
@@ -110,16 +111,17 @@ public class OIOSoapEnvelope {
 	private static final HeaderBuilder headerBuilder = new HeaderBuilder();
 	private static final BodyBuilder bodyBuilder = new BodyBuilder();
 	
-    private Map<XMLObject, String> references = new HashMap<XMLObject, String>();
+    private Map<XMLObject, String> references = new LinkedHashMap<XMLObject, String>();
 	private final Envelope envelope;
 	private Security security;
 	private Body body;
 	private XMLSignatureFactory xsf;
 	private Assertion securityToken;
 	private SecurityTokenReference securityTokenReference;
+	private final SigningPolicy signingPolicy;
 
 	public OIOSoapEnvelope(Envelope envelope) {
-		this(envelope, false);
+		this(envelope, false, new SigningPolicy(true));
 	}
 
 	/**
@@ -128,7 +130,8 @@ public class OIOSoapEnvelope {
 	 * @param envelope
 	 * @param signHeaderElements If <code>true</code>, all the header elements in the envelope are marked for signature.
 	 */
-	public OIOSoapEnvelope(Envelope envelope, boolean signHeaderElements) {
+	public OIOSoapEnvelope(Envelope envelope, boolean signHeaderElements, SigningPolicy signingPolicy) {
+		this.signingPolicy = signingPolicy;
 		if (envelope == null) throw new IllegalArgumentException("Envelope cannot be null");
 		
 		this.envelope = envelope;
@@ -150,10 +153,22 @@ public class OIOSoapEnvelope {
 		}
 	}
 	
-	private OIOSoapEnvelope(Envelope envelope, MessageID msgId, XSAny framework) {
-		this(envelope);
+	private OIOSoapEnvelope(Envelope envelope, MessageID msgId, XSAny framework, SigningPolicy signingPolicy) {
+		this(envelope, false, signingPolicy);
 		addSignatureElement(msgId);
 		addSignatureElement(framework);
+	}
+	
+	/**
+	 * Builds a new soap envelope.
+	 * 
+	 * The signing policy is blank with default <code>true</code>.
+	 *
+	 * @see #buildEnvelope(String, SigningPolicy)
+	 * @return
+	 */
+	public static OIOSoapEnvelope buildEnvelope(String soapVersion) {
+		return buildEnvelope(soapVersion, new SigningPolicy(true));
 	}
 	
 	/**
@@ -161,7 +176,7 @@ public class OIOSoapEnvelope {
 	 * 
 	 *  Standard headers include sbf:Framework, wsa:MessageID, and an empty Security header.
 	 */
-	public static OIOSoapEnvelope buildEnvelope(String soapVersion) {
+	public static OIOSoapEnvelope buildEnvelope(String soapVersion, SigningPolicy signingPolicy) {
 		Envelope env = envelopeBuilder.buildObject(soapVersion, "Envelope", "s");
 
 		Header header = headerBuilder.buildObject(soapVersion, "Header", "s");
@@ -178,9 +193,9 @@ public class OIOSoapEnvelope {
 		
 		Security security = SAMLUtil.buildXMLObject(Security.class);
 		security.setMustUnderstand(new XSBooleanValue(true, true));
-		header.getUnknownXMLObjects().add(security);
+		env.getHeader().getUnknownXMLObjects().add(security);
 		
-		return new OIOSoapEnvelope(env, msgId, framework);
+		return new OIOSoapEnvelope(env, msgId, framework, signingPolicy);
 	}
 	
 	
@@ -195,7 +210,7 @@ public class OIOSoapEnvelope {
 	public void setAction(String action) {
 		Action a = SAMLUtil.buildXMLObject(Action.class);
 		a.setValue(action);
-		envelope.getHeader().getUnknownXMLObjects().add(a);
+		addHeaderElement(a);
 		addSignatureElement(a);
 	}
 	
@@ -297,6 +312,10 @@ public class OIOSoapEnvelope {
 	 * @throws XMLSignatureException
 	 */
 	public Element sign(X509Credential credential) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+		if (references.isEmpty()) {
+			log.debug("No elements to be signed, skipping signing process");
+			return SAMLUtil.marshallObject(envelope);
+		}
 		CanonicalizationMethod canonicalizationMethod = xsf.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null);
 		SignatureMethod signatureMethod = xsf.newSignatureMethod(SignatureMethod.RSA_SHA1, null);
 
@@ -395,7 +414,10 @@ public class OIOSoapEnvelope {
         	bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
         	bst.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
         	bst.setId(Utils.generateUUID());
-        	references.put(bst, bst.getId());
+        	
+        	if (signingPolicy.sign(bst)) {
+        		references.put(bst, bst.getId());
+        	}
         	try {
 				bst.setValue(Base64.encodeBytes(credential.getEntityCertificate().getEncoded(), Base64.DONT_BREAK_LINES));
 			} catch (CertificateEncodingException e) {
@@ -410,6 +432,9 @@ public class OIOSoapEnvelope {
 		return ki;
 	}
 	
+	/**
+	 * Returns the {@link Envelope}. 
+	 */
 	public XMLObject getXMLObject() {
 		return envelope;
 	}
@@ -426,7 +451,7 @@ public class OIOSoapEnvelope {
 	public void setTo(String endpoint) {
 		To to = SAMLUtil.buildXMLObject(To.class);
 		to.setValue(endpoint);
-		envelope.getHeader().getUnknownXMLObjects().add(to);
+		addHeaderElement(to);
 		addSignatureElement(to);
 	}
 
@@ -435,7 +460,7 @@ public class OIOSoapEnvelope {
 		Address addr = SAMLUtil.buildXMLObject(Address.class);
 		addr.setValue(replyTo);
 		reply.setAddress(addr);
-		envelope.getHeader().getUnknownXMLObjects().add(reply);
+		addHeaderElement(reply);
 		addSignatureElement(reply);
 	}
 
@@ -493,25 +518,14 @@ public class OIOSoapEnvelope {
 		ui = SAMLUtil.buildXMLObject(dk.itst.oiosaml.liberty.UserInteraction.class);
 		ui.setInteract(interaction.getValue());
 		ui.setRedirect(redirect);
-		envelope.getHeader().getUnknownXMLObjects().add(ui);
+		addHeaderElement(ui);
 		addSignatureElement(ui);
 	}
 	
-//	private XMLSignatureFactory getXMLSignature() {
-//        // First, create a DOM XMLSignatureFactory that will be used to
-//        // generate the XMLSignature and marshal it to DOM.
-//        String providerName = System.getProperty("jsr105Provider", "org.jcp.xml.dsig.internal.dom.XMLDSigRI");
-//        try {
-//			XMLSignatureFactory xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM", (Provider) Class.forName(providerName).newInstance());
-//			return xmlSignatureFactory;
-//		} catch (Exception e) {
-//			throw new RuntimeException(e);
-//		}
-//
-//	}
-
 	private String addSignatureElement(AttributeExtensibleXMLObject obj) {
 		if (obj == null) return null;
+		
+		if (!signingPolicy.sign(obj)) return null; 
 		
 		String id = Utils.generateUUID();
 		obj.getUnknownAttributes().put(TrustConstants.WSU_ID, id);
@@ -519,6 +533,14 @@ public class OIOSoapEnvelope {
 		references.put(obj, id);
 		
 		return id;
+	}
+	
+	private void addHeaderElement(XMLObject element) {
+		if (security == null) {
+			envelope.getHeader().getUnknownXMLObjects().add(element);
+		} else {
+			envelope.getHeader().getUnknownXMLObjects().add(envelope.getHeader().getUnknownXMLObjects().size() - 1, element);
+		}
 	}
 
     public static class STRTransformParameterSpec implements TransformParameterSpec {
