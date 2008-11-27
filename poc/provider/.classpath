@@ -5,5 +5,42 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/com.sun.enterprise.jst.server.runtimeTarget/GlassFish V2 Java EE 5"/>
+	<classpathentry kind="lib" path="lib/build/avalon-framework-avalon-framework.jar"/>
+	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/build/com.sun.tools.ws-webservices-tools.jar"/>
+	<classpathentry kind="lib" path="lib/build/com.sun.xml.bind-jaxb.jar"/>
+	<classpathentry kind="lib" path="lib/build/com.sun.xml.ws-webservices-rt.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-beanutils-commons-beanutils-core.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-beanutils-commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-codec-commons-codec.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-collections-commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-configuration-commons-configuration.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-digester-commons-digester.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-fileupload-commons-fileupload.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-httpclient-commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-io-commons-io.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-lang-commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-logging-commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-not-yet-commons-ssl-0.3.9.jar"/>
+	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-oiosaml.java.jar"/>
+	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-opensaml-2.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-openws-wstrust.jar"/>
+	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-xmlsec-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-xmltooling-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/build/javax.servlet-servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/build/javax.xml-webservices-api.jar"/>
+	<classpathentry kind="lib" path="lib/build/joda-time-joda-time.jar"/>
+	<classpathentry kind="lib" path="lib/build/log4j-log4j.jar"/>
+	<classpathentry kind="lib" path="lib/build/logkit-logkit.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.velocity-velocity.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.ws.commons.axiom-axiom-api.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.ws.commons.axiom-axiom-dom.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.ws.commons.axiom-axiom-impl.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.slf4j-slf4j-api.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.slf4j-slf4j-log4j12.jar"/>
+	<classpathentry kind="lib" path="lib/build/oro-oro.jar"/>
+	<classpathentry kind="lib" path="lib/build/xalan-xalan.jar"/>
+	<classpathentry kind="lib" path="lib/build/xerces-xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/build/xml-resolver-xml-resolver.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

@@ -6,6 +6,10 @@
     <servlet-class>dk.itst.saml.poc.provider.Provider</servlet-class>
   </servlet>
   <servlet>
+    <servlet-name>ProviderSimpleService</servlet-name>
+    <servlet-class>dk.itst.saml.poc.provider.ProviderSimple</servlet-class>
+  </servlet>
+  <servlet>
     <servlet-name>SAMLDispatcherServlet</servlet-name>
     <servlet-class>
 			dk.itst.oiosaml.sp.service.DispatcherServlet
@@ -15,6 +19,10 @@
   <servlet-mapping>
     <servlet-name>ProviderService</servlet-name>
     <url-pattern>/ProviderService</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ProviderService</servlet-name>
+    <url-pattern>/ProviderSimpleService</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>SAMLDispatcherServlet</servlet-name>

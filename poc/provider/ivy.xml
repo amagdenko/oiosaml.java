@@ -11,5 +11,8 @@
         <dependency org="org.apache.ws.commons.axiom" name="axiom-dom" rev="1.2.7" transitive="false"/>
         <dependency org="org.apache.ws.commons.axiom" name="axiom-impl" rev="1.2.7" transitive="false"/>
 
+		<dependency org="com.sun.tools.ws" name="webservices-tools" rev="1.4-SNAPSHOT" conf="build->default">
+			<artifact name="webservices-tools" type="jar" />
+		</dependency>
     </dependencies>
 </ivy-module>

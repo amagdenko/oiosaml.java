@@ -1,4 +1,4 @@
-system = 'poc-consumer'
+system = 'poc-provider'
 buildDirectory = 'target/build'
 testBuildDir = 'target/test'
 instrumentDir = 'target/instrumented'
@@ -7,7 +7,7 @@ sourceDirectory = 'src'
 testSrcDir = 'test'
 javadocsDir = 'target/docs'
 testReports = 'target/reports'
-webDir = 'demo'
+webDir = 'WebContent'
 version = 'unknown'
 
 includeTargets << gant.targets.Clean
@@ -19,9 +19,6 @@ ant.property(file: 'build.properties')
 ant.property(name: 'trifork-common', value: new File('../trifork-common').absolutePath)
 ant.property(name: 'ivy.default.conf.dir', value: '${trifork-common}/etc/ivy')
 ant.property(name: 'ivy.settings.file', value: '${trifork-common}/ivyconf.xml')
-ant.property(name: "glassfish.home",  value:"/pack/glassfish-v2ur1/")
-ant.property(name: "wsdl.uri", value: "http://recht-laptop:8880/poc-provider/ProviderService?wsdl")
-ant.property(name: "wsdl.uri", value: "https://oiosaml.trifork.com:8082/poc-provider/ProviderService?wsdl")
 
 
 includeTool << gant.tools.Ivy
@@ -41,8 +38,8 @@ doCompile = { srcdir, destdir ->
 	}
 }
 
-doResolve = { 
-	ivy.retrieve(pattern: "WebContent/WEB-INF/lib/[organisation]-[artifact].[ext]")
+doResolve = { conf -> 
+	ivy.retrieve(pattern: "lib/${conf}/[organisation]-[artifact].[ext]", conf: conf)
 }
 
 target (init : 'Initialize build') {
@@ -57,17 +54,6 @@ target (init : 'Initialize build') {
 	println "Building ${system} version ${version}"
 }
 
-target (generate: 'Generate source files') {
-	depends(init)
-	depends(resolve)
-	ant.taskdef(name: "wsimport", classname: "com.sun.tools.ws.ant.WsImport") {
-            classpath(refid: "classpath")
-	}
-	wsimport(xendorsed: "true", verbose: true, keep: true, destdir: "target/genclasses", sourcedestdir: "target/gensrc", wsdl: '${wsdl.uri}', fork: true, extension: true) {
-		jvmarg(value: "-Djavax.net.ssl.trustStore=/home/recht/.keystore")
-	}
-}
-
 target (compile: 'Compile') {
 	depends(init, resolve)
 	doCompile(sourceDirectory, buildDirectory)
@@ -75,7 +61,12 @@ target (compile: 'Compile') {
 
 target (resolve : 'Resolve dependencies') {
 	depends(init)
-	doResolve()
+	doResolve('build')
+}
+
+target (resolve_dist : 'Resolve dependencies') {
+	depends(init)
+	doResolve('dist')
 }
 
 
@@ -90,4 +81,15 @@ target (publish: 'Publish build') {
 	}
 	
 	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
+}
+
+target(war: 'Build war') {
+	depends(resolve_dist, compile)
+	
+	war (destfile: "${distDir}/${system}.war", webxml: "${webDir}/WEB-INF/web.xml") {
+		classes(dir: buildDirectory)
+		fileset (dir: webDir)
+		lib (dir: 'lib/dist')
+	}
+
 }

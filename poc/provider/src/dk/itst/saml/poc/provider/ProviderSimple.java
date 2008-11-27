@@ -15,9 +15,9 @@ import dk.itst.saml.poc.idws.Framework;
 public class ProviderSimple {
 
 	@WebMethod(action="http://provider.poc.saml.itst.dk/ProviderSimple/echoRequest")
-	public @WebResult(name="output", targetNamespace="http://provider.poc.saml.itst.dk/") String echo(
+	public @WebResult(name="output", targetNamespace="http://provider.poc.saml.itst.dk/") Structure echo(
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework, 
-			@WebParam(name="input", targetNamespace="http://provider.poc.saml.itst.dk/") String input) {
+			@WebParam(name="input", targetNamespace="http://provider.poc.saml.itst.dk/") Structure input) {
 		return input;
 	}
 } 
