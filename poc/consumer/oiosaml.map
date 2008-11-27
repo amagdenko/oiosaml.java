@@ -3,6 +3,8 @@
 <jar name="oiosaml.war">
     <dir path="" from="webapp"/>
     <dir path="WEB-INF/classes" from="bin"/>
+    <dir path="WEB-INF/classes/dk/itst/oiosaml/liberty" from="../oiosaml-trust/bin/dk/itst/oiosaml/liberty" />
+    <dir path="WEB-INF/classes/dk/itst/oiosaml/trust" from="../oiosaml-trust/bin/dk/itst/oiosaml/trust" />
     <dir path="WEB-INF/lib" from="lib/build"/>
     <dir path="META-INF" from="src/META-INF"/>
 </jar>

@@ -19,6 +19,7 @@ import dk.itst.saml.poc.provider.Echo;
 import dk.itst.saml.poc.provider.EchoResponse;
 import dk.itst.saml.poc.provider.Provider;
 import dk.itst.saml.poc.provider.ProviderService;
+import dk.itst.saml.poc.provider.Structure;
 
 public class RequestServlet extends HttpServlet {
 
@@ -53,7 +54,6 @@ public class RequestServlet extends HttpServlet {
 		}
 
 		Echo request = new Echo();
-		request.setInput("");
 		generateRequest(req, request);
 		
 		EchoResponse response = (EchoResponse) Utils.request(request, tokenClient, bp, "http://provider.poc.saml.itst.dk/Provider" + (simple ? "Simple" : "") + "/echoRequest");
@@ -69,11 +69,21 @@ public class RequestServlet extends HttpServlet {
 		
 		int length = Integer.parseInt(req.getParameter("length"));
 		
-		byte[] r = new byte[length];
-		for (int i = 0; i < r.length; i++) {
-			r[i] = (byte) (48 + (i % 70));
-		}
+		Structure s = new Structure();
+		generate(s, length, 0);
 		
-		request.setInput(new String(r));
+		request.setInput(s);
+	}
+	
+	private void generate(Structure root, int length, int depth) {
+		if (length < depth) return;
+		
+		for (int i = 0; i < length; i++) {
+			Structure structure = new Structure();
+			structure.setValue(i + ":" + depth);
+			root.getStructure().add(structure);
+			
+			generate(structure, length, depth + 1);
+		}
 	}
 }

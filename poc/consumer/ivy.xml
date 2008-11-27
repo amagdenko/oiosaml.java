@@ -8,14 +8,14 @@
     <dependencies>
         <dependency org="dk.itst.oiosaml" name="oiosaml-trust" rev="latest.integration" conf="*->@" />
         <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="latest.integration" conf="*->@" />
-	<dependency org="com.sun.xml.ws" name="webservices-rt" rev="1.4-SNAPSHOT" transitive="false">
+	<dependency org="com.sun.xml.ws" name="webservices-rt" rev="1.4-SNAPSHOT" transitive="false" conf="build->default">
 		<artifact name="webservices-rt" type="jar" />
 		<exclude org="javax.xml" />
 	</dependency>
-	<dependency org="javax.xml" name="webservices-api" rev="1.4-SNAPSHOT" transitive="false">
+	<dependency org="javax.xml" name="webservices-api" rev="1.4-SNAPSHOT" transitive="false" conf="build->default">
 		<artifact name="webservices-api" type="jar" />
 	</dependency>
-	<dependency org="com.sun.tools.ws" name="webservices-tools" rev="1.4-SNAPSHOT">
+	<dependency org="com.sun.tools.ws" name="webservices-tools" rev="1.4-SNAPSHOT" conf="build->default">
 		<artifact name="webservices-tools" type="jar" />
 	</dependency>
 	
