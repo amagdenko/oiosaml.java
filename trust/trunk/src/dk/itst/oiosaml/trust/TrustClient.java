@@ -46,6 +46,7 @@ import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
+import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.UnmarshallingException;
@@ -197,6 +198,10 @@ public class TrustClient {
 				throw new TrustException("Unable to retrieve STS token: " + SAMLUtil.getSAMLObjectAsPrettyPrintXML(f));
 			} else if (res instanceof RequestSecurityTokenResponse) {
 				RequestSecurityTokenResponse tokenResponse = (RequestSecurityTokenResponse) res;
+				
+				return validateToken(SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class));
+			} else if (res instanceof RequestSecurityTokenResponseCollection){
+				RequestSecurityTokenResponse tokenResponse = ((RequestSecurityTokenResponseCollection)res).getRequestSecurityTokenResponses().get(0);
 				
 				return validateToken(SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class));
 			} else {
