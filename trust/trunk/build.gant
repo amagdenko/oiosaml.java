@@ -160,7 +160,8 @@ target (javadoc: 'Generate javadocs') {
 		author: true, version: true, use: true, windowtitle: "OIOSAML Trust API", classpathref: 'classpath', charset: "UTF-8", 
 		doctitle: '<h1>OIOSAML Trust API</h1>', 
 		bottom: '<i><p><small>The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/<br />Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governingrights and limitations under the License.<br />The Original Code is OIOSAML Trust Client.<br />The Initial Developer of the Original Code is <a href="http://trifork.com">Trifork A/S</a>. Portions created by <a href="http://trifork.com">Trifork A/S</a> are Copyright (C) 2008 <a href="http://itst.dk">Danish National IT and Telecom Agency (http://www.itst.dk)</a>. All Rights Reserved.</small></p></i>',
-		overview: 'src/overview.html'
+		overview: 'src/overview.html',
+		linksource: true
 	)	
 }
 
