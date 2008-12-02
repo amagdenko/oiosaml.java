@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Subject;
 import org.opensaml.saml2.core.SubjectConfirmation;
@@ -31,6 +33,7 @@ import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -42,14 +45,24 @@ import dk.itst.oiosaml.trust.TrustBootstrap;
 public class TokenService extends HttpServlet {
 	private static CredentialRepository credentialRepository = new CredentialRepository();
 	
+	private static final Logger log = Logger.getLogger(TokenService.class);
+
+	private Configuration cfg;
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		TrustBootstrap.bootstrap();
+		
+		SAMLConfiguration.setConfigurationName("sts");
+		SAMLConfiguration.setHomeProperty(null);
+		cfg = SAMLConfiguration.getSystemConfiguration();
+		
+		log.info("Configured OIOSAML to " + System.getProperty("user.home") + "/.oiosaml/sts.properties");
 	}
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		BasicX509Credential credential = credentialRepository.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
+		BasicX509Credential credential = credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(cfg, "sts.certificate.location"), cfg.getString("sts.certificate.password"));
 
 		String xml = IOUtils.toString(req.getInputStream());
 		
@@ -102,7 +115,7 @@ public class TokenService extends HttpServlet {
 		Assertion a = SAMLUtil.buildXMLObject(Assertion.class);
 		a.setID(Utils.generateUUID());
 		
-		a.setIssuer(SAMLUtil.createIssuer(req.getRequestURL().toString()));
+		a.setIssuer(SAMLUtil.createIssuer(cfg.getString("sts.entityId")));
 		Subject subject = SAMLUtil.buildXMLObject(Subject.class);
 		
 		subject.setNameID(SAMLUtil.clone(bootstrap.getAssertion().getSubject().getNameID()));
@@ -129,6 +142,7 @@ public class TokenService extends HttpServlet {
 		a.setSubject(subject);
 		
 		a.setConditions(SAMLUtil.createAudienceCondition(to));
+		a.getAttributeStatements().add(SAMLUtil.clone(bootstrap.getAssertion().getAttributeStatements().get(0)));
 		
 		OIOAssertion oa = new OIOAssertion(SAMLUtil.clone(a));
 		oa.sign(credential);
