@@ -5,6 +5,7 @@
  xmlns:sec="urn:liberty:security:2006-08"
  xmlns:sb="urn:liberty:sb:2006-08"
  xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"
+ xmlns:wsa="http://www.w3.org/2005/08/addressing"
  xmlns:wst="http://schemas.xmlsoap.org/ws/2005/02/trust"
  xmlns="http://www.opensaml.org/xmltooling-config">
     
@@ -64,6 +65,12 @@
         	<BuilderClass className="org.opensaml.ws.soap.soap11.impl.FaultBuilder" />
         	<MarshallingClass className="org.opensaml.ws.soap.soap11.impl.FaultMarshaller" />
         	<UnmarshallingClass className="org.opensaml.ws.soap.soap11.impl.FaultUnmarshaller" />
+		</ObjectProvider>
+		
+		<ObjectProvider qualifiedName="wsa:RelatesTo">
+        	<BuilderClass className="dk.itst.oiosaml.liberty.RelatesToBuilder" />
+        	<MarshallingClass className="org.opensaml.xml.schema.impl.XSAnyMarshaller" />
+        	<UnmarshallingClass className="org.opensaml.xml.schema.impl.XSAnyUnmarshaller" />
 		</ObjectProvider>
                         
     </ObjectProviders>

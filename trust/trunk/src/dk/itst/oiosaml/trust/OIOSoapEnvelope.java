@@ -91,6 +91,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.util.Utils;
@@ -198,7 +199,18 @@ public class OIOSoapEnvelope {
 		
 		return new OIOSoapEnvelope(env, msgId, framework, signingPolicy);
 	}
-	
+
+	/**
+	 * Build a response envelope.
+	 * @param signingPolicy The signing policy for the response.
+	 */
+	public static OIOSoapEnvelope buildResponse(SigningPolicy signingPolicy, OIOSoapEnvelope request) {
+		OIOSoapEnvelope env = buildEnvelope(request.getSoapVersion(), signingPolicy);
+		RelatesTo relatesTo = SAMLUtil.buildXMLObject(RelatesTo.class);
+		relatesTo.setTextContent(request.getMessageID());
+		env.addHeaderElement(relatesTo);
+		return env;
+	}
 	
 	public void setBody(XMLObject request) {
 		body = bodyBuilder.buildObject(envelope.getElementQName().getNamespaceURI(), "Body", "s");
@@ -519,6 +531,10 @@ public class OIOSoapEnvelope {
 		ui.setRedirect(redirect);
 		addHeaderElement(ui);
 		addSignatureElement(ui);
+	}
+	
+	public String getSoapVersion() {
+		return envelope.getElementQName().getNamespaceURI();
 	}
 	
 	private String addSignatureElement(AttributeExtensibleXMLObject obj) {

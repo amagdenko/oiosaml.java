@@ -115,6 +115,7 @@ public class TrustClient {
 	private boolean signRequests = true;
 
 	private String requestXML;
+	private OIOSoapEnvelope lastResponse;
 
 	private String soapVersion = SOAPConstants.SOAP11_NS;
 	private SigningPolicy signingPolicy = new SigningPolicy(true);
@@ -195,6 +196,7 @@ public class TrustClient {
 			log.debug(xml);
 			
 			OIOSoapEnvelope env = new OIOSoapEnvelope(soapClient.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"));
+			lastResponse = env;
 	
 			//TODO: finish validation when STS supports signatures in security header
 //			env.verifySignature(stsKey);
@@ -368,6 +370,7 @@ public class TrustClient {
 			if (log.isDebugEnabled()) log.debug("Signed request: " + requestXML);
 			
 			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, requestXML, action));
+			lastResponse = res;
 			if (!res.relatesTo(env.getMessageID())) {
 				log.error("Respose is not reply to " + env.getMessageID());
 				throw new TrustException("Respose is not reply to " + env.getMessageID());
@@ -567,5 +570,8 @@ public class TrustClient {
 	public void setUseReferenceForOnBehalfOf(boolean useReferenceForOnBehalfOf) {
 		this.useReferenceForOnBehalfOf = useReferenceForOnBehalfOf;
 	}
-		
+
+	public OIOSoapEnvelope getLastResponse() {
+		return lastResponse;
+	}
 }

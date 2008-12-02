@@ -85,6 +85,7 @@ import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
+import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -353,7 +354,7 @@ public class TokenClientTest extends TrustTests {
 					
 					Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
 					response.setHeader(SAMLUtil.buildXMLObject(Header.class));
-					XSAny relatesTo = new XSAnyBuilder().buildObject(MessageID.ELEMENT_NAME.getNamespaceURI(), "RelatesTo", "wsa");
+					RelatesTo relatesTo = SAMLUtil.buildXMLObject(RelatesTo.class);
 					relatesTo.setTextContent(env.getMessageID());
 					response.getHeader().getUnknownXMLObjects().add(relatesTo);
 					
@@ -458,7 +459,8 @@ public class TokenClientTest extends TrustTests {
 		
 		Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
 		response.setHeader(SAMLUtil.buildXMLObject(Header.class));
-		XSAny relatesTo = new XSAnyBuilder().buildObject(MessageID.ELEMENT_NAME.getNamespaceURI(), "RelatesTo", "wsa");
+		
+		RelatesTo relatesTo = SAMLUtil.buildXMLObject(RelatesTo.class);
 		relatesTo.setTextContent(env.getMessageID());
 		response.getHeader().getUnknownXMLObjects().add(relatesTo);
 		

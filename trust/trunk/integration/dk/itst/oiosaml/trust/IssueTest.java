@@ -1,13 +1,13 @@
 package dk.itst.oiosaml.trust;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wsaddressing.Metadata;
@@ -27,7 +27,8 @@ public class IssueTest extends TrustTests {
 	private Assertion assertion;
 	private BasicX509Credential stsCredential;
 	private TrustClient client;
-	private static final String ADDRESS = "http://localhost:8880/sts/STSService";
+//	private static final String ADDRESS = "http://localhost:8880/sts/STSService";
+	private static final String ADDRESS = "http://localhost:8080/sts/TokenService";
 	
 	@Before
 	public void setUp() throws Exception {
@@ -70,17 +71,16 @@ public class IssueTest extends TrustTests {
 	@Test
 	public void responseMustBeSigned() throws Exception {
 		client.getToken(null);
-		
-		OIOSoapEnvelope env = getEnvelope(client.getLastRequestXML());
-		assertTrue(env.isSigned());
-		assertTrue(env.verifySignature(stsCredential.getPublicKey()));
+
+		assertTrue(client.getLastResponse().isSigned());
+		assertTrue(client.getLastResponse().verifySignature(stsCredential.getPublicKey()));
 	}
 	
 	@Test
 	public void RSTRMustBeCollection() throws Exception {
 		client.getToken(null);
-		OIOSoapEnvelope env = getEnvelope(client.getLastRequestXML());
-		assertTrue(env.getBody() instanceof RequestSecurityTokenResponseCollection);
+		OIOSoapEnvelope env = client.getLastResponse();
+		assertTrue(env.getBody().getClass().toString(), env.getBody() instanceof RequestSecurityTokenResponseCollection);
 	}
 	
 	@Test
@@ -97,10 +97,6 @@ public class IssueTest extends TrustTests {
 		
 		assertTrue(assertion.isHolderOfKey());
 		
-	}
-	
-	private OIOSoapEnvelope getEnvelope(String xml) {
-		return new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(xml));
 	}
 	
 	private OIOAssertion getAssertion(Element e) {

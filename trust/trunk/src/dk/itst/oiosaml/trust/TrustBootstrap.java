@@ -24,6 +24,7 @@ package dk.itst.oiosaml.trust;
 
 import org.apache.log4j.Logger;
 import org.opensaml.Configuration;
+import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLConfigurator;
 
@@ -58,6 +59,8 @@ public class TrustBootstrap {
 	        };
 	        if (log.isDebugEnabled())  log.debug("Loading XMLTooling configuration " + config);
 	        try {
+				DefaultBootstrap.bootstrap();
+				
 	        	XMLConfigurator configurator = new XMLConfigurator();
 	        	for (String c : config) {
 	        		log.debug("Loading config " + c);
