@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jar name="sts.war">
+    <dir path="" from="WebContent"/>
+    <dir path="WEB-INF/classes" from="build/classes"/>
+    <dir path="WEB-INF/classes/dk/itst/oiosaml/liberty" from="../oiosaml-trust/bin/dk/itst/oiosaml/liberty" />
+    <dir path="WEB-INF/classes/dk/itst/oiosaml/trust" from="../oiosaml-trust/bin/dk/itst/oiosaml/trust" />
+    <dir path="WEB-INF/lib" from="lib/dist"/>
+</jar>
