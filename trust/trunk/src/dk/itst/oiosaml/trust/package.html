@@ -1,0 +1,104 @@
+<html>
+
+<head>
+<title>OIOSAML Trust client</title>
+</head>
+<body>
+
+Generic WS-Trust 1.3 compliant Web Service client.
+
+<p>The OIOSAML Trust client can be used to invoke OIOIDWS (OIO Identity-based web services). These services require extra security headers in the soap requests, 
+and this client can issue requests containing the correct headers and signatures.</p>
+
+<p>Under normal circumstances, the client is used in conjunction with a OIOSAML.java enabled web application. However, this is not a strict requirement, but the default 
+{@link dk.itst.oiosaml.trust.TrustClient} constructor cannot be used, as it expects the OIOSAML.java filter to be enabled.</p>
+
+<h2>Configuration</h2>
+The configuration extends the default OIOSAML.java configuration. The configuration must be extende with 3 properties in oiosaml-sp.properties:
+<pre>
+oiosaml-trust.certificate.location=certificate/sts-certificate
+oiosaml-trust.certificate.password=Test1234
+oiosaml-trust.certificate.alias=mykey
+</pre>
+
+<p>In other words, the configuration must specify a keystore with the STS certificate, password for the keystore and an alias if the keystore contains multiple certificates.</p>
+
+
+<h2>Usage</h2>
+<p>A usage example:</p>
+
+<pre>
+String serviceEndpointAddress = "http://localhost:8080/poc-provider/EchoService";
+
+TrustClient tokenClient = new TrustClient();
+tokenClient.setSoapVersion(SOAPConstants.SOAP11_NS);
+tokenClient.setUseReferenceForOnBehalfOf(false);
+tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
+tokenClient.setAppliesTo(serviceEndpointAddress);
+
+// retrieve token from sts
+Element stsToken = tokenClient.getToken(null);
+String stsXml = XMLHelper.nodeToString(stsToken);
+System.out.println("Received token from STS: " + stsXml);
+
+
+// send service request
+
+// jaxb generated class
+Echo request = new Echo();
+
+tokenClient.sendRequest(request, 
+		JAXBContext.newInstance(Echo.class, EchoResponse.class), 
+		serviceEndpointAddress, 
+		"http://provider.poc.saml.itst.dk/EchoService/echoRequest", 
+		null, 
+		new ResultHandler&lt;EchoResponse&gt;() {
+	public void handleResult(EchoResponse result) throws Exception {
+		System.out.println("Client request: " + tokenClient.getLastRequestXML());
+		System.out.println("Response: " + result.getOutput());
+	}
+});
+</pre>
+
+<p>The main class for the client is {@link dk.itst.oiosaml.trust.TrustClient}. By default, no other classes are necessary.</p>
+
+<p>The general usage pattern is to call getToken(), which contacts the STS to get a new service token on behalf of the current user (using a WS-Trust Issue request). The token is stored in the client, and when sendRequest() is 
+called, the token is added to the request automatically.</p>
+
+<p>The STS address is retrieved from an EndpointReference (EPR) element. By default, the client expects that the current UserAssertion contains the EPR an 
+attribute called "urn:liberty:disco:2006-08:DiscoveryEPR". One of the elements in the EPR is the STS endpoint location. The EPR also contains a SAML assertion identifying the user, which 
+is sent to the STS.</p>
+
+<h3>Error handling</h3>
+When service requests are executed using one of the sendRequest methods, SOAP faults are converted to a generic {@link dk.itst.oiosaml.common.SOAPException}. To avoid type checking in 
+a catch block, it is possible to add fault handlers to the client. An example:
+<pre>
+client.addFaultHander("urn:test", "fault", new FaultHandler() {
+	public void handleFault(QName faultCode, String faultMessage, XMLObject detail) {
+		assertEquals("test", faultMessage);
+		assertEquals("urn:test", detail.getElementQName().getNamespaceURI());
+		assertEquals("fault", detail.getElementQName().getLocalPart());
+		
+		// do something
+	}
+});
+</pre>
+
+<p>Fault handlers are configured based in the namespace and local name of the fault detail element. If a fault handler is executed, the normal resulthandler is not executed.</p>
+
+<h3>Signing Policy</h3>
+<p>By default, all header elements and the body are signed. If this is not the intended behaviour, it is possible to configure signing using a {@link dk.itst.oiosaml.trust.SigningPolicy}, which can be injected into the TrustClient.</p>
+<p>The SigningPolicy specifies which elements (identified by their QNames) should be signed. The policy also has a default policy which matches all elements which have not been described
+explicitely.</p>
+
+An example:
+<pre>
+SigningPolicy policy = new SigningPolicy(false);
+policy.addPolicy(To.ELEMENT_NAME, true);
+policy.addPolicy(ReplyTo.ELEMENT_NAME, true);
+tokenClient.setSigningPolicy(policy);
+</pre> 
+
+
+</body>
+</html>

@@ -27,11 +27,24 @@ import org.opensaml.Configuration;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLConfigurator;
 
+/**
+ * Static configuration for OIOSAML Trust.
+ * 
+ * The {@link #bootstrap()} method must be invoked before any WS-Trust types can be used. This is done automatically in {@link TrustClient}.
+ * 
+ * @author recht
+ *
+ */
 public class TrustBootstrap {
 	private static final Logger log = Logger.getLogger(TrustBootstrap.class);
 	
 	private static boolean bootstrapped = false;
 
+	/**
+	 * Configure xmltools with WS-Trust types. 
+	 * 
+	 * This method can be called any number of times, only the first will actually load the types.
+	 */
 	public static void bootstrap() {
 		if (!bootstrapped) {
 	        Class<Configuration> clazz = Configuration.class;

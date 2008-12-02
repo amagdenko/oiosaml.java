@@ -24,6 +24,9 @@ package dk.itst.oiosaml.trust;
 
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * Handle web service results.
+ */
 public interface ResultHandler<T> {
 	
 	/**
