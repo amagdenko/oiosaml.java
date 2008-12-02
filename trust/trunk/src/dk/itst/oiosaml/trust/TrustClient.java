@@ -25,6 +25,7 @@ package dk.itst.oiosaml.trust;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -34,9 +35,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
@@ -54,6 +60,7 @@ import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -72,7 +79,9 @@ import dk.itst.oiosaml.sp.service.util.SOAPClient;
 /**
  * Client interface for retrieving STS tokens and sending OIOIDWS-based SOAP requests.
  * 
- * Call {@link #getToken()} to make an STS Issue request.
+ * <p>Call {@link #getToken()} to make an STS Issue request.</p>
+ * 
+ * <p>Instances of this class are not considered thread-safe. They can, however, be reused.</p>
  * 
  * @author Joakim Recht
  *
@@ -181,6 +190,7 @@ public class TrustClient {
 	public Element getToken(String dialect) throws TrustException {
 		try {
 			String xml = toXMLRequest(dialect);
+			this.requestXML = xml;
 			
 			log.debug(xml);
 			
@@ -328,7 +338,7 @@ public class TrustClient {
 	 * @throws InvocationTargetException Thrown when an exception is thrown in a handler.
 	 * @throws TrustException If an unhandled SOAP Fault occurs, or if a transport error occurs.
 	 */
-	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) throws InvocationTargetException {
+	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler<XMLObject> resultHandler) throws InvocationTargetException {
 		if (log.isDebugEnabled()) log.debug("Invoking action " + action + " at service " + location);
 		
 		body.detach();
@@ -418,14 +428,66 @@ public class TrustClient {
 		}
 	}
 
-	public void sendRequest(Element body, String location, String action, PublicKey verificationKey, ResultHandler resultHandler) throws InvocationTargetException {
+	public void sendRequest(Element body, String location, String action, PublicKey verificationKey, final ResultHandler<Element> resultHandler) throws InvocationTargetException {
 		try {
 			XMLObject any = new XSAnyUnmarshaller().unmarshall(body);
 			
-			sendRequest(any, location, action, verificationKey, resultHandler);
+			sendRequest(any, location, action, verificationKey, new ResultHandler<XMLObject>() {
+				public void handleResult(XMLObject result) throws Exception {
+					if (resultHandler != null) {
+						resultHandler.handleResult(SAMLUtil.marshallObject(result));
+					}
+				}
+			});
 		} catch (UnmarshallingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Send a request using JAXB types.
+	 * @param <T> The response type. No type checking is performed, so if this type is not correct, a {@link ClassCastException} will occur.
+	 * @param body The request body. Must be a JAXB-mapped object.
+	 * @param context A JAXB context which recognized the body object.
+	 * @param location Location of the service. 
+	 * @param action SOAP Action to invoke.
+	 * @param verificationKey Key to use for signature validation.
+	 * @param resultHandler Handler for the result.
+	 */
+	public <T> void sendRequest(Object body, final JAXBContext context, String location, String action, PublicKey verificationKey, final ResultHandler<T> resultHandler) {
+		try {
+			Marshaller marshaller = context.createMarshaller();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			Document doc = dbf.newDocumentBuilder().newDocument();
+
+			Object factory = Class.forName(body.getClass().getPackage().getName() + ".ObjectFactory").newInstance();
+			String name = body.getClass().getName();
+			Method m = factory.getClass().getDeclaredMethod("create" + name.substring(name.lastIndexOf('.') + 1), body.getClass());
+			Object jaxbElement = m.invoke(factory, body);
+			
+			marshaller.marshal(jaxbElement, doc);
+			
+			XMLObject any = new XSAnyUnmarshaller().unmarshall(doc.getDocumentElement());
+			
+			sendRequest(any, location, action, verificationKey, new ResultHandler<XMLObject>() {
+				@SuppressWarnings("unchecked")
+				public void handleResult(XMLObject result) throws Exception {
+					if (resultHandler != null) {
+						Unmarshaller unmarshaller = context.createUnmarshaller();
+						Object body = unmarshaller.unmarshal(SAMLUtil.marshallObject(result));
+						if (body instanceof JAXBElement) {
+							resultHandler.handleResult((T) ((JAXBElement<T>)body).getValue());
+						} else {
+							resultHandler.handleResult((T) body);
+						}
+					}
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 	/**
@@ -477,7 +539,7 @@ public class TrustClient {
 	}
 	
 	/**
-	 * Get the xml sent in the last {@link #sendRequest(XMLObject, String, String, PublicKey, ResultHandler)} call.
+	 * Get the xml sent in the last webservice call, either from {@link #getToken(String)} or from {@link #sendRequest(Element, String, String, PublicKey, ResultHandler)}.
 	 */
 	public String getLastRequestXML() {
 		return requestXML;
@@ -497,8 +559,13 @@ public class TrustClient {
 	public void setSigningPolicy(SigningPolicy signingPolicy) {
 		this.signingPolicy = signingPolicy;
 	}
-	
+
+	/**
+	 * Configure whether bootstrap tokens should be placed directly in OnBehalfOf or in the Security header using a SecurityTokenReference.
+	 * @param useReferenceForOnBehalfOf <code>true</code> to put the token in the security header.
+	 */
 	public void setUseReferenceForOnBehalfOf(boolean useReferenceForOnBehalfOf) {
 		this.useReferenceForOnBehalfOf = useReferenceForOnBehalfOf;
 	}
+		
 }

@@ -39,6 +39,7 @@ import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.namespace.QName;
@@ -203,7 +204,7 @@ public class TokenClientTest extends TrustTests {
 				}
 			});
 		}});
-		client.sendRequest(body, ADDRESS, "urn:action", null, new ResultHandler() {
+		client.sendRequest(body, ADDRESS, "urn:action", null, new ResultHandler<XMLObject>() {
 			public void handleResult(XMLObject res) {
 				assertTrue(res instanceof Assertion);
 			}
@@ -337,6 +338,34 @@ public class TokenClientTest extends TrustTests {
 		
 		client.sendRequest(SAMLUtil.loadElementFromString(xml), ADDRESS, "urn:action", null, null);
 		assertNotNull(faultHolder.getValue());
+		
+	}
+	
+	
+	@Test
+	public void testJAXBRequest() throws Exception {
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
+			will(new CustomAction("test") {
+				public Object invoke(Invocation invocation) throws Throwable {
+					OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
+					
+					Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
+					response.setHeader(SAMLUtil.buildXMLObject(Header.class));
+					XSAny relatesTo = new XSAnyBuilder().buildObject(MessageID.ELEMENT_NAME.getNamespaceURI(), "RelatesTo", "wsa");
+					relatesTo.setTextContent(env.getMessageID());
+					response.getHeader().getUnknownXMLObjects().add(relatesTo);
+					
+					String xml = "<test:blah xmlns:test='urn:testing'><test:more>blah</test:more></test:blah>";
+					response.setBody(SAMLUtil.buildXMLObject(Body.class));
+					response.getBody().getUnknownXMLObjects().add(new XSAnyUnmarshaller().unmarshall(SAMLUtil.loadElementFromString(xml)));
+					return response;
+				}
+			});
+		}});
+		
+		client.sendRequest(new TestBean(), JAXBContext.newInstance(TestBean.class), ADDRESS, "urn:action", null, null);
 		
 	}
 	

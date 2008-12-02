@@ -91,6 +91,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.trust.internal.SignatureFactory;
@@ -492,10 +493,8 @@ public class OIOSoapEnvelope {
 	
 	public boolean isHolderOfKey() {
 		if (securityToken == null) return false;
-		if (securityToken.getSubject() == null) return false;
-		if (securityToken.getSubject().getSubjectConfirmations().isEmpty()) return false;
 		
-		return TrustConstants.CONFIRMATION_METHOD_HOK.equals(securityToken.getSubject().getSubjectConfirmations().get(0).getMethod());
+		return new OIOAssertion(securityToken).isHolderOfKey();
 	}
 	
 	public String getMessageID() {
