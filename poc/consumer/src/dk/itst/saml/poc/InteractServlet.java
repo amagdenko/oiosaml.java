@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
@@ -31,6 +32,7 @@ import dk.itst.saml.poc.provider.RequestInteractResponse;
 
 public class InteractServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(InteractServlet.class);
+	private JAXBContext context;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -86,9 +88,8 @@ public class InteractServlet extends HttpServlet {
 //					resp.sendRedirect(redirectURL);
 				}
 			});
-			tokenClient.sendRequest(Utils.marshall(requestInteract), location, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler() {
-				public void handleResult(XMLObject response) throws ServletException, IOException {
-					RequestInteractResponse res = (RequestInteractResponse) Utils.unmarshall(response);
+			tokenClient.sendRequest(requestInteract, context, location, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
+				public void handleResult(RequestInteractResponse res) throws ServletException, IOException {
 					String info = res.getReturn();
 					log.debug("Info for user " + user + ": " + info);
 

@@ -11,10 +11,8 @@ import javax.xml.ws.BindingProvider;
 
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
-import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wsaddressing.To;
-import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
