@@ -12,6 +12,8 @@ import javax.xml.namespace.QName;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Subject;
 import org.opensaml.saml2.core.SubjectConfirmation;
@@ -19,12 +21,17 @@ import org.opensaml.saml2.core.SubjectConfirmationData;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
+import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.Security;
+import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wstrust.Issuer;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
+import org.opensaml.ws.wstrust.RequestedAttachedReference;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
+import org.opensaml.ws.wstrust.RequestedUnattachedReference;
+import org.opensaml.ws.wstrust.TokenType;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.X509Certificate;
@@ -41,6 +48,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.trust.OIOSoapEnvelope;
 import dk.itst.oiosaml.trust.SigningPolicy;
 import dk.itst.oiosaml.trust.TrustBootstrap;
+import dk.itst.oiosaml.trust.TrustConstants;
 
 public class TokenService extends HttpServlet {
 	private static CredentialRepository credentialRepository = new CredentialRepository();
@@ -65,13 +73,20 @@ public class TokenService extends HttpServlet {
 		BasicX509Credential credential = credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(cfg, "sts.certificate.location"), cfg.getString("sts.certificate.password"));
 
 		String xml = IOUtils.toString(req.getInputStream());
-		
+		log.debug("Received request: " + xml);
 		
 		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(xml));
 		BinarySecurityToken bst = SAMLUtil.getFirstElement(env.getHeaderElement(Security.class), BinarySecurityToken.class);
 		
 		RequestSecurityToken rst = (RequestSecurityToken) env.getBody();
-		OIOAssertion bootstrap = new OIOAssertion(SAMLUtil.getFirstElement(rst.getOnBehalfOf(), Assertion.class));
+		Assertion bootstrapAssertion = SAMLUtil.getFirstElement(rst.getOnBehalfOf(), Assertion.class);
+		OIOAssertion bootstrap = null;
+		if (bootstrapAssertion != null) {
+			bootstrap = new OIOAssertion(bootstrapAssertion);
+		} else {
+			log.error("No SAML Assertion in OnBehalfOf");
+		}
+		
 		
 		OIOSoapEnvelope res = OIOSoapEnvelope.buildResponse(new SigningPolicy(true), env);
 		
@@ -88,12 +103,22 @@ public class TokenService extends HttpServlet {
 		issuer.setAddress(address);
 		rstr.setIssuer(issuer);
 		
-		rstr.setRequestType(SAMLUtil.clone(rst.getRequestType()));
-		rstr.setTokenType(SAMLUtil.clone(rst.getTokenType()));
+		rstr.setTokenType(SAMLUtil.buildXMLObject(TokenType.class));
+		rstr.getTokenType().setValue(TrustConstants.TOKEN_TYPE_SAML_20);
 		
 		RequestedSecurityToken requestedSecurityToken = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
 		rstr.setRequestedSecurityToken(requestedSecurityToken);
-		requestedSecurityToken.getUnknownXMLObjects().add(generateAssertion(req, bootstrap, "urn:to", bst.getValue(), credential));
+		Assertion assertion = generateAssertion(req, bootstrap, "urn:to", bst.getValue(), credential);
+		requestedSecurityToken.getUnknownXMLObjects().add(assertion);
+		
+		RequestedAttachedReference attached = SAMLUtil.buildXMLObject(RequestedAttachedReference.class);
+		SecurityTokenReference tokenReference = generateTokenReference(assertion);
+		attached.setSecurityTokenReference(tokenReference);
+		rstr.setRequestedAttachedReference(attached);
+		
+		rstr.setRequestedUnattachedReference(SAMLUtil.buildXMLObject(RequestedUnattachedReference.class));
+		rstr.getRequestedUnattachedReference().setSecurityTokenReference(SAMLUtil.clone(tokenReference));
+		
 		
 		res.setBody(rstrc);
 		res.setTimestamp(5);
@@ -111,14 +136,27 @@ public class TokenService extends HttpServlet {
 		}
 	}
 
+	private SecurityTokenReference generateTokenReference(Assertion assertion) {
+		SecurityTokenReference tokenReference = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
+		KeyIdentifier keyIdentifier = SAMLUtil.buildXMLObject(KeyIdentifier.class);
+		keyIdentifier.setValue(assertion.getID());
+		keyIdentifier.setValueType(TrustConstants.SAMLID);
+		keyIdentifier.setEncodingType(null);
+		tokenReference.setKeyIdentifier(keyIdentifier);
+		return tokenReference;
+	}
+
 	private Assertion generateAssertion(HttpServletRequest req, OIOAssertion bootstrap, String to, String x509, BasicX509Credential credential) {
 		Assertion a = SAMLUtil.buildXMLObject(Assertion.class);
 		a.setID(Utils.generateUUID());
+		a.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		
 		a.setIssuer(SAMLUtil.createIssuer(cfg.getString("sts.entityId")));
 		Subject subject = SAMLUtil.buildXMLObject(Subject.class);
 		
-		subject.setNameID(SAMLUtil.clone(bootstrap.getAssertion().getSubject().getNameID()));
+		if (bootstrap != null) {
+			subject.setNameID(SAMLUtil.clone(bootstrap.getAssertion().getSubject().getNameID()));
+		}
 		
 		SubjectConfirmation confirmation = SAMLUtil.buildXMLObject(SubjectConfirmation.class);
 		confirmation.setMethod(OIOSAMLConstants.METHOD_HOK);
@@ -126,7 +164,6 @@ public class TokenService extends HttpServlet {
 		confirmation.getNameID().setFormat(NameIDFormat.ENTITY.getFormat());
 		
 		SubjectConfirmationData data = SAMLUtil.buildXMLObject(SubjectConfirmationData.class);
-		data.setRecipient(to);
 		data.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type"), "saml:KeyInfoConfirmationDataType");
 		
 		KeyInfo keyInfo = SAMLUtil.buildXMLObject(KeyInfo.class);
@@ -142,7 +179,10 @@ public class TokenService extends HttpServlet {
 		a.setSubject(subject);
 		
 		a.setConditions(SAMLUtil.createAudienceCondition(to));
-		a.getAttributeStatements().add(SAMLUtil.clone(bootstrap.getAssertion().getAttributeStatements().get(0)));
+		
+		if (bootstrap != null) {
+			a.getAttributeStatements().add(SAMLUtil.clone(bootstrap.getAssertion().getAttributeStatements().get(0)));
+		}
 		
 		OIOAssertion oa = new OIOAssertion(SAMLUtil.clone(a));
 		oa.sign(credential);
