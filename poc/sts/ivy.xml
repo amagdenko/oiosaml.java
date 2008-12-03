@@ -1,5 +1,5 @@
 <ivy-module version="1.0">
-    <info module="poc-consumer" organisation="dk.itst.oiosaml" status="integration"/>
+    <info module="sts" organisation="dk.itst.oiosaml" status="integration"/>
     <configurations>
       <conf name="dist"/>
       <conf name="build" extends="dist"/>
@@ -8,6 +8,5 @@
     <dependencies>
         <dependency org="dk.itst.oiosaml" name="oiosaml-trust" rev="latest.integration" conf="*->@" />
         <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="latest.integration" conf="*->@" />
-	<dependency org="javax.activation" name="activation" rev="1.1" />
     </dependencies>
 </ivy-module>

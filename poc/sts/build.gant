@@ -92,6 +92,29 @@ target (war: 'Generate code and build war') {
 		fileset (dir: webDir)
 		lib (dir: 'lib/dist', includes: '*.jar')
 		lib (dir: distDir, includes: "${system}-${version}.jar")
+		manifest {
+			attribute (name: 'Built-By', value: System.getProperty('user.name'))
+			attribute (name: 'Implementation-Title', value: system)
+			attribute (name: 'Implementation-Version', value: version)
+		}
 	}
 	
+}
+
+target (dist: 'Generate distribution zip file') {
+	depends(war)
+	
+	zip (destfile: "${distDir}/${system}-${version}.zip") {
+		fileset (dir: distDir) {
+			include(name: "${system}.war")
+		}
+		fileset (dir: '.') {
+			include(name: 'LICENSE.txt')
+			include(name: 'README.txt')
+		}
+		zipfileset (prefix: 'endorsed', dir: 'lib/build') {
+			include (name: 'xerces*')
+			include (name: 'xalan*')
+		}
+	}
 }

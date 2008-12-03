@@ -5,6 +5,7 @@
   <servlet>
   	<servlet-name>sts</servlet-name>
   	<servlet-class>dk.itst.saml.sts.TokenService</servlet-class>
+  	<load-on-startup>1</load-on-startup>
   </servlet>
   
   <servlet-mapping>
