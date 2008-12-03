@@ -20,6 +20,8 @@ import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml2.core.SubjectConfirmationData;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.wsaddressing.Address;
+import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.Security;
@@ -94,7 +96,7 @@ public class TokenService extends HttpServlet {
 		RequestSecurityTokenResponse rstr = SAMLUtil.buildXMLObject(RequestSecurityTokenResponse.class);
 		rstrc.getRequestSecurityTokenResponses().add(rstr);
 		
-		rstr.setAppliesTo(SAMLUtil.clone(rst.getAppliesTo()));
+		setAppliesTo(rst, rstr);
 		rstr.setContext(rst.getContext());
 		
 		Issuer issuer = SAMLUtil.buildXMLObject(Issuer.class);
@@ -131,9 +133,24 @@ public class TokenService extends HttpServlet {
 			resp.setContentLength(xml.length());
 			IOUtils.write(xml, resp.getOutputStream());
 			
+			log.debug("Response: " + xml);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void setAppliesTo(RequestSecurityToken rst, RequestSecurityTokenResponse rstr) {
+		EndpointReference epr = SAMLUtil.getFirstElement(rstr.getAppliesTo(), EndpointReference.class);
+		if (epr == null) return;
+		
+		AppliesTo appliesTo = SAMLUtil.buildXMLObject(AppliesTo.class);
+		EndpointReference reference = SAMLUtil.buildXMLObject(EndpointReference.class);
+		Address addr = SAMLUtil.buildXMLObject(Address.class);
+		reference.setAddress(addr);
+		addr.setValue(epr.getAddress().getValue());
+		appliesTo.getUnknownXMLObjects().add(epr);
+		
+		rstr.setAppliesTo(appliesTo);
 	}
 
 	private SecurityTokenReference generateTokenReference(Assertion assertion) {
