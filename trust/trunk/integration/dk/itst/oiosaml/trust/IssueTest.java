@@ -1,5 +1,6 @@
 package dk.itst.oiosaml.trust;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -96,7 +97,14 @@ public class IssueTest extends TrustTests {
 		OIOAssertion assertion = getAssertion(token);
 		
 		assertTrue(assertion.isHolderOfKey());
+	}
+	
+	@Test
+	public void assertionMustBeSignedCorrectly() throws Exception {
+		Element token = client.getToken(null);
+		OIOAssertion assertion = getAssertion(token);
 		
+		assertTrue(assertion.verifySignature(stsCredential.getPublicKey()));
 	}
 	
 	private OIOAssertion getAssertion(Element e) {

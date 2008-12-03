@@ -311,6 +311,9 @@ public class OIOSoapEnvelope {
 	 * Get the first element of the envelope body.
 	 */
 	public XMLObject getBody() {
+		if (envelope.getBody() == null) return null;
+		if (envelope.getBody().getUnknownXMLObjects().isEmpty()) return null;
+		
 		return envelope.getBody().getUnknownXMLObjects().get(0);
 	}
 	
