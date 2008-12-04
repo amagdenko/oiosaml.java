@@ -55,6 +55,7 @@ public class Provider {
 				sb.append("Credential: " + cred).append("\n");
 			}
 			sb.append("Subject: " ).append(subject);
+			log.info("Echo request: " + sb);
 //			sb.append("Subject: ").append(YAML.dump(subject));
 			
 			return input;
