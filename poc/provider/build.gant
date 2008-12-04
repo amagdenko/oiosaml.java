@@ -93,3 +93,17 @@ target(war: 'Build war') {
 	}
 
 }
+
+target (dist: 'Create a distributable zip file') {
+	depends(war)
+	
+	zip (destfile: "${distDir}/${system}-${version}.zip") {
+		fileset (dir: distDir) {
+			include(name: "${system}.war")
+		}
+		fileset (dir: '.') {
+			include(name: 'README.txt')
+			include(name: 'glassfish/**')
+		}
+	}
+}
