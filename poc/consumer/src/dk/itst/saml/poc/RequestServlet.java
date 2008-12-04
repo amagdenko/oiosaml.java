@@ -7,7 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.BindingProvider;
 
 import org.opensaml.saml2.core.Assertion;
 
@@ -19,20 +18,13 @@ import dk.itst.oiosaml.trust.TrustBootstrap;
 import dk.itst.oiosaml.trust.TrustClient;
 import dk.itst.saml.poc.provider.Echo;
 import dk.itst.saml.poc.provider.EchoResponse;
-import dk.itst.saml.poc.provider.Provider;
-import dk.itst.saml.poc.provider.ProviderService;
 import dk.itst.saml.poc.provider.Structure;
 
 public class RequestServlet extends HttpServlet {
 
-	private Provider port;
-	private BindingProvider bp;
-
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		TrustBootstrap.bootstrap();
-		port = new ProviderService().getProviderPort();
-		bp = (BindingProvider) port;
 	}
 
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -48,10 +40,7 @@ public class RequestServlet extends HttpServlet {
 
 		boolean simple = req.getParameter("simple") != null;
 		tokenClient.signRequests(!simple);
-		if (simple) {
-			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.replaceAll("ProviderService", "ProviderSimpleService"));
-		} else {
-			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint.replaceAll("ProviderSimpleService", "ProviderService"));
+		if (!simple) {
 			tokenClient.setToken((Assertion) SAMLUtil.unmarshallElementFromString((String) req.getSession().getAttribute("token")));
 		}
 

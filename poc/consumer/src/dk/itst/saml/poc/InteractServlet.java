@@ -8,7 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
 import liberty.sb._2006_08.RedirectRequest;
@@ -30,7 +29,6 @@ import dk.itst.saml.poc.provider.RequestInteractResponse;
 
 public class InteractServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(InteractServlet.class);
-	private JAXBContext context;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -84,7 +82,7 @@ public class InteractServlet extends HttpServlet {
 //					resp.sendRedirect(redirectURL);
 				}
 			});
-			tokenClient.sendRequest(requestInteract, context, endpoint, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
+			tokenClient.sendRequest(requestInteract, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
 				public void handleResult(RequestInteractResponse res) throws ServletException, IOException {
 					String info = res.getReturn();
 					log.debug("Info for user " + user + ": " + info);
@@ -96,6 +94,7 @@ public class InteractServlet extends HttpServlet {
 			});
 			
 		} catch (Exception e) {
+			log.error("Unable to process", e);
 			throw new ServletException(e);
 		} finally {}
 	}
