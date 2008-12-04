@@ -347,7 +347,7 @@ public class TrustClient {
 		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion, signingPolicy);
 		env.setBody(body);
 		env.setAction(action);
-		env.setTo(endpoint);
+		env.setTo(location);
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
 		env.setTimestamp(5);
 		env.addSecurityTokenReference(token);
