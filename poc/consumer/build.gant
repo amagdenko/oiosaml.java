@@ -108,5 +108,19 @@ target (war: 'Generate code and build war') {
 		lib (dir: 'lib/dist', includes: '*.jar')
 		lib (dir: distDir, includes: "${system}-${version}.jar")
 	}
+}
+
+target (dist: 'Create a distributable zip file') {
+	depends(war)
+	
+	zip (destfile: "${distDir}/${system}-${version}.zip") {
+		fileset (dir: distDir) {
+			include(name: "${system}.war")
+		}
+		fileset (dir: '.') {
+			include(name: 'LICENSE.txt')
+			include(name: 'README.txt')
+		}
+	}
 	
 }

@@ -10,13 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 
 import liberty.sb._2006_08.RedirectRequest;
 
 import org.apache.log4j.Logger;
 import org.opensaml.xml.XMLObject;
 
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.liberty.LibertyConstants;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
@@ -25,8 +25,6 @@ import dk.itst.oiosaml.trust.ResultHandler;
 import dk.itst.oiosaml.trust.TrustBootstrap;
 import dk.itst.oiosaml.trust.TrustClient;
 import dk.itst.oiosaml.trust.TrustConstants;
-import dk.itst.saml.poc.provider.Provider;
-import dk.itst.saml.poc.provider.ProviderService;
 import dk.itst.saml.poc.provider.RequestInteract;
 import dk.itst.saml.poc.provider.RequestInteractResponse;
 
@@ -41,15 +39,13 @@ public class InteractServlet extends HttpServlet {
 	
 	@Override
 	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-		Provider port = new ProviderService().getProviderPort();
-		BindingProvider bp = (BindingProvider) port;
+		String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
 		
 		final String user = UserAssertionHolder.get().getSubject();
 
 		TrustClient tokenClient = new TrustClient();
 		tokenClient.setUserInteraction(dk.itst.oiosaml.trust.UserInteraction.IF_NEEDED, true);
-		String location = (String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-		tokenClient.setAppliesTo(location);
+		tokenClient.setAppliesTo(endpoint);
 		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 		tokenClient.getToken(TrustConstants.DIALECT_OCES_PROFILE);
 
@@ -80,7 +76,7 @@ public class InteractServlet extends HttpServlet {
 					log.debug("Redirecting to " + redirectURL);
 					
 					req.setAttribute("request", "requestInteract");
-					req.setAttribute("service", new ProviderService().getServiceName());
+					req.setAttribute("service", "ProviderService");
 					req.setAttribute("url", redirectURL);
 					req.setAttribute("message", rr.getMessage());
 					req.getRequestDispatcher("/redirect.jsp").forward(req, resp);
@@ -88,7 +84,7 @@ public class InteractServlet extends HttpServlet {
 //					resp.sendRedirect(redirectURL);
 				}
 			});
-			tokenClient.sendRequest(requestInteract, context, location, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
+			tokenClient.sendRequest(requestInteract, context, endpoint, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
 				public void handleResult(RequestInteractResponse res) throws ServletException, IOException {
 					String info = res.getReturn();
 					log.debug("Info for user " + user + ": " + info);
