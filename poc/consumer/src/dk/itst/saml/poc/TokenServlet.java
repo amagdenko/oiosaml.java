@@ -11,8 +11,6 @@ import javax.xml.ws.BindingProvider;
 
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
-import org.opensaml.ws.wsaddressing.ReplyTo;
-import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
@@ -41,15 +39,15 @@ public class TokenServlet extends HttpServlet {
 	
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		TrustClient tokenClient = new TrustClient();
-		tokenClient.setSoapVersion(SOAPConstants.SOAP12_NS);
+		tokenClient.setSoapVersion(SOAPConstants.SOAP11_NS);
 		tokenClient.setUseReferenceForOnBehalfOf(false);
 		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 		tokenClient.setIssuer(null);
 		
-		SigningPolicy policy = new SigningPolicy(false);
+		SigningPolicy policy = new SigningPolicy(true);
 //		policy.addPolicy(Timestamp.ELEMENT_NAME, true);
-		policy.addPolicy(To.ELEMENT_NAME, true);
-		policy.addPolicy(ReplyTo.ELEMENT_NAME, true);
+//		policy.addPolicy(To.ELEMENT_NAME, true);
+//		policy.addPolicy(ReplyTo.ELEMENT_NAME, true);
 //		policy.addPolicy(MessageID.ELEMENT_NAME, true);
 		tokenClient.setSigningPolicy(policy);
 		

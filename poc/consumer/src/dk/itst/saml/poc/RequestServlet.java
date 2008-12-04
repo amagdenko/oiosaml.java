@@ -12,6 +12,7 @@ import javax.xml.ws.BindingProvider;
 import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.trust.ResultHandler;
 import dk.itst.oiosaml.trust.TrustBootstrap;
@@ -41,7 +42,7 @@ public class RequestServlet extends HttpServlet {
 		}
 		final TrustClient tokenClient = new TrustClient();
 		
-		String endpoint = (String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+		String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
 		tokenClient.setAppliesTo(endpoint);
 		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 
@@ -57,7 +58,7 @@ public class RequestServlet extends HttpServlet {
 		Echo request = new Echo();
 		generateRequest(req, request);
 		
-		tokenClient.sendRequest(request, Utils.getJAXBContext(), (String) bp.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY), "http://provider.poc.saml.itst.dk/Provider" + (simple ? "Simple" : "") + "/echoRequest", null, new ResultHandler<EchoResponse>() {
+		tokenClient.sendRequest(request, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider" + (simple ? "Simple" : "") + "/echoRequest", null, new ResultHandler<EchoResponse>() {
 			public void handleResult(EchoResponse result) throws Exception {
 				req.setAttribute("spRequest", tokenClient.getLastRequestXML());
 				req.setAttribute("spResponse", result.getOutput());
