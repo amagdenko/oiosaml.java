@@ -1,6 +1,6 @@
 ReadMe for oiosaml-trust
 
-General documentation is available in javadoc. 
+General documentation is available in javadoc under the doc/ dir. 
 
 For developers
 -----------------------------
@@ -13,3 +13,7 @@ The build process is based on Gant (http://gant.codehaus.org/). To build oiosaml
 be built first. oiosaml.java can be found at https://svn.softwareborsen.dk/oiosaml.java/sp/trunk/
 
 First run 'gant publish' in oiosaml.java, then run 'gant build_everything' in oiosaml-trust
+
+
+There is a number of high-level tests under integration/ which demonstrates functionality of the library.
+ 

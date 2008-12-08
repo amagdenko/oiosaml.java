@@ -172,8 +172,13 @@ target (javadoc: 'Generate javadocs') {
 
 target (dist: 'Generate distribution zip file') {
 	depends(compile, javadoc, jar, resolve_dist)
+	exportDir = 'target/export'
+	
+	delete (dir: exportDir)
+	execute.shell ("svn export . ${exportDir}", outProcessing: {})
 	
 	zip (destfile: "${distDir}/${system}-${version}.zip") {
+		zipfileset (dir: exportDir, prefix: 'src')
 		zipfileset (dir: 'docs', prefix: 'doc')
 		zipfileset (dir: javadocsDir, prefix: 'doc/javadoc')
 		fileset (dir: distDir) {
