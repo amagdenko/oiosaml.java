@@ -241,19 +241,24 @@ public class OIOSoapEnvelope {
 		securityToken = token;
 		addSecurityToken(token);
 		
-		securityTokenReference = createSecurityTokenReference(token);
-		security.getUnknownXMLObjects().add(securityTokenReference);
+//		securityTokenReference = createSecurityTokenReference(token);
+//		security.getUnknownXMLObjects().add(securityTokenReference);
 	}
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
 		SecurityTokenReference str = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
-		str.setTokenType(WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLV2.0");
 		str.setId(Utils.generateUUID());
+		str.setTokenType(WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLV2.0");
 		
 		KeyIdentifier keyIdentifier = SAMLUtil.buildXMLObject(KeyIdentifier.class);
 		keyIdentifier.setValueType(WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLID");
 		keyIdentifier.setValue(token.getID());
+		keyIdentifier.setEncodingType(null);
 		str.setKeyIdentifier(keyIdentifier);
+
+//		org.opensaml.ws.wssecurity.Reference ref = SAMLUtil.buildXMLObject(org.opensaml.ws.wssecurity.Reference.class);
+//		ref.setURI("#" + token.getID());
+//		str.setReference(ref);
 		
 		return str;
 	}
