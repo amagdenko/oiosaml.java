@@ -119,7 +119,7 @@ public class TrustClient {
 
 	private String soapVersion = SOAPConstants.SOAP11_NS;
 	private SigningPolicy signingPolicy = new SigningPolicy(true);
-	private boolean useReferenceForOnBehalfOf = true;
+	private boolean useReferenceForOnBehalfOf = false;
 	
 	/**
 	 * Create a new client using default settings.
