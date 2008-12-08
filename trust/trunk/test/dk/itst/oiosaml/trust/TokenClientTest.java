@@ -169,7 +169,7 @@ public class TokenClientTest extends TrustTests {
 		assertTrue(request.getBody() instanceof RequestSecurityToken);
 		RequestSecurityToken rst = ((RequestSecurityToken)request.getBody());
 		assertEquals("urn:service", SAMLUtil.getFirstElement(rst.getAppliesTo(), EndpointReference.class).getAddress().getValue());
-		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", rst.getOnBehalfOf().getSecurityTokenReference().getKeyIdentifier().getValue());
+		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", SAMLUtil.getFirstElement(rst.getOnBehalfOf(), Assertion.class).getID());
 
 		assertNotNull(rst.getClaims());
 		assertEquals(TrustConstants.DIALECT_OCES_PROFILE, rst.getClaims().getDialect());
