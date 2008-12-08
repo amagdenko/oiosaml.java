@@ -241,8 +241,8 @@ public class OIOSoapEnvelope {
 		securityToken = token;
 		addSecurityToken(token);
 		
-//		securityTokenReference = createSecurityTokenReference(token);
-//		security.getUnknownXMLObjects().add(securityTokenReference);
+		securityTokenReference = createSecurityTokenReference(token);
+		security.getUnknownXMLObjects().add(securityTokenReference);
 	}
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
