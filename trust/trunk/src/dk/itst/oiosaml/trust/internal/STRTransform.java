@@ -37,6 +37,7 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Class STRTransform
@@ -172,14 +173,31 @@ public class STRTransform extends TransformSpi {
 			id = secRef.getReference().getURI().substring(1);
 		}
 		Element token = doc.getElementById(id);
+		if (token == null) {
+			establishIdness(doc);
+			token = doc.getElementById(id);
+		}
 		if (doDebug) {
-			log.debug("Referenced token: " + token);
+			log.debug("Referenced token with id " + id + ": " + token);
 		}
 		if (token == null) {
 			throw new CanonicalizationException("Token with id " + id + " not found");
 		}
 		return token;
 
+	}
+
+	private void establishIdness(Document doc) {
+		NodeList nl = doc.getElementsByTagNameNS("*", "*");
+		for (int i = 0; i < nl.getLength(); i++) {
+    		Element e = (Element) nl.item(i);
+    		if (e.hasAttribute("ID")) {
+    			e.setIdAttributeNS(null, "ID", true);
+    		}
+    		if (e.hasAttributeNS(WSSecurityConstants.WSU_NS, "Id")) {
+    			e.setIdAttributeNS(WSSecurityConstants.WSU_NS, "Id", true);
+    		}
+		}
 	}
 
 }
