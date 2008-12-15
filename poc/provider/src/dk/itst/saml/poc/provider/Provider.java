@@ -15,10 +15,14 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.log4j.Logger;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.xml.XMLObject;
 
 import com.sun.xml.wss.SubjectAccessor;
 
-import dk.itst.oiosaml.sp.service.util.Utils;
+import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
+import dk.itst.oiosaml.sp.model.validation.BasicAssertionValidator;
 import dk.itst.saml.poc.idws.Framework;
 import dk.itst.saml.poc.idws.FrameworkMismatchFault;
 import dk.itst.saml.poc.idws.RequestToInteractFault;
@@ -41,22 +45,10 @@ public class Provider {
 			
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
-
-			Object cred = subject.getPublicCredentials().iterator().next();
 			
-			StringBuffer sb = new StringBuffer();
-			sb.append("Provider Request: ").append(Utils.beautifyAndHtmlXML((String)context.getMessageContext().get("envelope"), "&nbsp;&nbsp;&nbsp;&nbsp;")).append("\n");
-			
-			if (cred instanceof XMLStreamReader) {
-//				validateAssertion(subject, sb);
-				sb.append("Credential: " + printCredential((XMLStreamReader)cred)).append("\n");
-				
-			} else {
-				sb.append("Credential: " + cred).append("\n");
-			}
-			sb.append("Subject: " ).append(subject);
-			log.info("Echo request: " + sb);
-//			sb.append("Subject: ").append(YAML.dump(subject));
+			OIOAssertion assertion = new OIOAssertion(getCredential(subject));
+			HttpServletRequest req = (HttpServletRequest) context.getMessageContext().get(MessageContext.SERVLET_REQUEST);
+			assertion.validateAssertion(new BasicAssertionValidator(), req.getRequestURL().toString(), req.getRequestURL().toString());
 			
 			return input;
 		} catch (FrameworkMismatchFault e) {
@@ -65,6 +57,23 @@ public class Provider {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private Assertion getCredential(Subject subject) {
+		for (Object o : subject.getPublicCredentials()) {
+			if (o instanceof XMLStreamReader) {
+				String xml = printCredential((XMLStreamReader) o);
+				try {
+					XMLObject obj = SAMLUtil.unmarshallElementFromString(xml);
+					if (obj instanceof Assertion) {
+						return (Assertion) obj;
+					}
+				} catch (Exception e) {
+					log.error("Unable to unmarshall subject: " + xml, e);
+				}
+			}
+		}
+		throw new RuntimeException("No assertion in principal");
 	}
 	
 	private String printCredential(XMLStreamReader cred) {
