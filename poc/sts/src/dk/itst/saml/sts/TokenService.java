@@ -96,7 +96,7 @@ public class TokenService extends HttpServlet {
 		RequestSecurityTokenResponse rstr = SAMLUtil.buildXMLObject(RequestSecurityTokenResponse.class);
 		rstrc.getRequestSecurityTokenResponses().add(rstr);
 		
-		setAppliesTo(rst, rstr);
+		String to = setAppliesTo(rst, rstr);
 		rstr.setContext(rst.getContext());
 		
 		Issuer issuer = SAMLUtil.buildXMLObject(Issuer.class);
@@ -110,7 +110,7 @@ public class TokenService extends HttpServlet {
 		
 		RequestedSecurityToken requestedSecurityToken = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
 		rstr.setRequestedSecurityToken(requestedSecurityToken);
-		Assertion assertion = generateAssertion(req, bootstrap, "urn:to", bst.getValue(), credential);
+		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential);
 		requestedSecurityToken.getUnknownXMLObjects().add(assertion);
 		
 		RequestedAttachedReference attached = SAMLUtil.buildXMLObject(RequestedAttachedReference.class);
@@ -139,18 +139,21 @@ public class TokenService extends HttpServlet {
 		}
 	}
 
-	private void setAppliesTo(RequestSecurityToken rst, RequestSecurityTokenResponse rstr) {
-		EndpointReference epr = SAMLUtil.getFirstElement(rstr.getAppliesTo(), EndpointReference.class);
-		if (epr == null) return;
+	private String setAppliesTo(RequestSecurityToken rst, RequestSecurityTokenResponse rstr) {
+		EndpointReference epr = SAMLUtil.getFirstElement(rst.getAppliesTo(), EndpointReference.class);
+		log.debug("AppliesTo EPR: " + epr);
+		
+		if (epr == null) return null;
 		
 		AppliesTo appliesTo = SAMLUtil.buildXMLObject(AppliesTo.class);
 		EndpointReference reference = SAMLUtil.buildXMLObject(EndpointReference.class);
 		Address addr = SAMLUtil.buildXMLObject(Address.class);
 		reference.setAddress(addr);
 		addr.setValue(epr.getAddress().getValue());
-		appliesTo.getUnknownXMLObjects().add(epr);
+		appliesTo.getUnknownXMLObjects().add(reference);
 		
 		rstr.setAppliesTo(appliesTo);
+		return epr.getAddress().getValue();
 	}
 
 	private SecurityTokenReference generateTokenReference(Assertion assertion) {
@@ -196,6 +199,8 @@ public class TokenService extends HttpServlet {
 		a.setSubject(subject);
 		
 		a.setConditions(SAMLUtil.createAudienceCondition(to));
+		a.getConditions().setNotOnOrAfter(new DateTime().plusMinutes(5));
+		
 		
 		if (bootstrap != null) {
 			a.getAttributeStatements().add(SAMLUtil.clone(bootstrap.getAssertion().getAttributeStatements().get(0)));
