@@ -1,19 +1,23 @@
-﻿using System;
-using System.IdentityModel.Tokens;
+﻿using System.IdentityModel.Tokens;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Security.Tokens;
 using System.Text;
 
-namespace EchoWebserviceProvider
+namespace OIOSaml.Serviceprovider.Binding
 {
-    public class BindingFactory
+    public class OIOServiceproviderBinding : CustomBinding
     {
-        public static Binding CreateAsymmetricBinding()
+        public OIOServiceproviderBinding()
+            : base(CreateBinding())
+        {
+        }
+
+        private static System.ServiceModel.Channels.Binding CreateBinding()
         {
             TextMessageEncodingBindingElement encodingBindingElement = new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressing10, Encoding.UTF8);
             HttpTransportBindingElement httpTransport = new HttpTransportBindingElement();
-            
+
             var messageSecurity = new AsymmetricSecurityBindingElement();
             messageSecurity.MessageSecurityVersion =
                 MessageSecurityVersion.
@@ -33,8 +37,9 @@ namespace EchoWebserviceProvider
             messageSecurity.EndpointSupportingTokenParameters.SignedEndorsing.Add(tokenParam);
 
             var customBinding = new CustomBinding(encodingBindingElement, messageSecurity, httpTransport);
+
             return customBinding;
         }
     }
-
 }
+

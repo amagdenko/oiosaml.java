@@ -64,7 +64,6 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BindingFactory.cs" />
     <Compile Include="EchoServiceHost.cs" />
     <Compile Include="EchoServiceHostFactory.cs" />
     <Compile Include="IEchoService.cs" />
@@ -74,6 +73,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structure.cs" />
     <Compile Include="TrustedIssuerNameRegistry.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OIOSaml.Serviceprovider.Binding\OIOSaml.Serviceprovider.Binding.csproj">
+      <Project>{8F9357AA-D95F-45E2-B585-F83805E07AC8}</Project>
+      <Name>OIOSaml.Serviceprovider.Binding</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
