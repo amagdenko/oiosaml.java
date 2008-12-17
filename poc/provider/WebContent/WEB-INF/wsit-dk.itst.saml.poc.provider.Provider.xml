@@ -74,17 +74,20 @@
 				 	<wsp:Policy>
 				 		<sp:InitiatorToken>
 				 			<wsp:Policy>
-				 				<sp:SamlToken sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
-				 					<wsp:Policy>
-				 						<sp:RequireKeyIdentifierReference />
-				 						<sp:WssSamlV20Token11 />
-				 					</wsp:Policy>
-				 				</sp:SamlToken>
+				 				 <sp:IssuedToken>
+			 				 		<sp:RequestSecurityTokenTemplate>
+			 				 			<t:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</t:TokenType>
+			 				 			<t:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/AsymmetricKey</t:KeyType>
+			 				 		</sp:RequestSecurityTokenTemplate>
+				 				 	<wsp:Policy>
+				 				 		<sp:RequireInternalReference />
+				 				 	</wsp:Policy>
+				 				 </sp:IssuedToken>
 				 			</wsp:Policy>
 				 		</sp:InitiatorToken>
 				 		<sp:RecipientToken>
 				 			<wsp:Policy>
-				 				<sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToInitiator" />
+				 				<sp:X509Token />
 				 			</wsp:Policy>
 				 		</sp:RecipientToken>
 						<sp:AlgorithmSuite>
