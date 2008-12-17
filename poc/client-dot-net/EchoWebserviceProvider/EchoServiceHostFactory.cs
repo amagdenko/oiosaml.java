@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Net.Security;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Channels;
+using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.IdentityModel.Tokens.Saml11;
 using OIOSaml.Serviceprovider.Binding;
 
 namespace EchoWebserviceProvider
@@ -15,10 +14,16 @@ namespace EchoWebserviceProvider
         {
             ServiceHost serviceHost = new EchoServiceHost(baseAddresses);
             Binding oioBinding = new OIOServiceproviderBinding();
-            serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService", oioBinding, "Echo");
+            ServiceEndpoint endpoint = serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService", oioBinding, "Echo");
 
             FederatedServiceCredentials.ConfigureServiceHost(serviceHost);
 
+            var federatedCredentials = (FederatedServiceCredentials)serviceHost.Credentials;
+
+            // Remove the default ServiceCredentials behavior.
+            serviceHost.Description.Behaviors.Remove<ServiceCredentials>();
+
+            serviceHost.Description.Behaviors.Add(new Saml2InitiatorFederatedServiceCredentials(federatedCredentials));
             return serviceHost;
         }
     }

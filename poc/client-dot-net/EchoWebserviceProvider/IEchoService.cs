@@ -11,7 +11,7 @@ namespace EchoWebserviceProvider
     [ServiceContract(Name = "ProviderService", Namespace = "http://provider.poc.saml.itst.dk/", ProtectionLevel = ProtectionLevel.Sign)]
     public interface IEchoService
     {
-        [OperationContract(Action = "http://provider.poc.saml.itst.dk/Provider/echoRequest", Name="echo" )]
+        [OperationContract(Action = "http://provider.poc.saml.itst.dk/Provider/echoRequest", Name="echo", ProtectionLevel = ProtectionLevel.Sign)]
         Structure Echo(Structure structureToEcho);
     }
 }

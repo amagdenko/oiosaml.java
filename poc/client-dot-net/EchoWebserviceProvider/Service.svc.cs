@@ -6,11 +6,13 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using Microsoft.IdentityModel.Claims;
+using System.Security.Permissions;
 
 namespace EchoWebserviceProvider
 {
     public class EchoService : IEchoService
     {
+       
         public Structure Echo(Structure structureToEcho)
         {
             var principal = Thread.CurrentPrincipal as ClaimsPrincipal;

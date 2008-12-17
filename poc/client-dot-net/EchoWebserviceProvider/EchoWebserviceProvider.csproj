@@ -41,12 +41,14 @@
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.IdentityModel">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.ServiceModel">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions">
@@ -75,9 +77,9 @@
     <Compile Include="TrustedIssuerNameRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OIOSaml.Serviceprovider.Binding\OIOSaml.Serviceprovider.Binding.csproj">
+    <ProjectReference Include="..\OIOSaml.Serviceprovider\OIOSaml.Serviceprovider.csproj">
       <Project>{8F9357AA-D95F-45E2-B585-F83805E07AC8}</Project>
-      <Name>OIOSaml.Serviceprovider.Binding</Name>
+      <Name>OIOSaml.Serviceprovider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
