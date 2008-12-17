@@ -52,6 +52,7 @@ import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 
 import org.jcp.xml.dsig.internal.dom.DOMTransform;
 
+@SuppressWarnings("unchecked")
 public class DOMXMLSignatureFactory  extends XMLSignatureFactory {
 
 	public URIDereferencer getURIDereferencer() {
