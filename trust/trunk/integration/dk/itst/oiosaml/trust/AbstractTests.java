@@ -1,5 +1,8 @@
 package dk.itst.oiosaml.trust;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.opensaml.saml2.core.Assertion;
@@ -20,17 +23,15 @@ public class AbstractTests extends TrustTests {
 	private Assertion assertion;
 	protected BasicX509Credential stsCredential;
 	protected TrustClient client;
-//	private static final String ADDRESS = "http://localhost:8880/sts/STSService";
-	private static final String ADDRESS = "https://localhost:8443/sts/TokenService";
 	
 	@Before
 	public final void setUpTest() throws Exception {
-		credential = credentialRepository.getCredential("/home/recht/download/TestMOCES1.pfx", "Test1234");
+		credential = credentialRepository.getCredential(getProperty("wsc.certificate"), getProperty("wsc.certificate.password"));
 		assertion = (Assertion)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
 		epr = SAMLUtil.buildXMLObject(EndpointReference.class);
 		
 		Address address = SAMLUtil.buildXMLObject(Address.class);
-		address.setValue(ADDRESS);
+		address.setValue(getProperty("sts"));
 		epr.setAddress(address);
 		
 		Metadata md = SAMLUtil.buildXMLObject(Metadata.class);
@@ -50,11 +51,20 @@ public class AbstractTests extends TrustTests {
 		ctx.getTokens().add(token);
 		token.setAssertion(assertion);
 
-		stsCredential = credentialRepository.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
+		stsCredential = credentialRepository.getCredential(getProperty("sts.certificate"), getProperty("sts.certificate.password"));
 		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
-		client.setAppliesTo("urn:appliesto");
+		client.setAppliesTo(getProperty("endpoint"));
 		client.setUseReferenceForOnBehalfOf(false);
 	}
 
+	protected String getProperty(String name) {
+		Properties p = new Properties();
+		try {
+			p.load(getClass().getResourceAsStream("/test.properties"));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return p.getProperty(name);
+	}
 
 }
