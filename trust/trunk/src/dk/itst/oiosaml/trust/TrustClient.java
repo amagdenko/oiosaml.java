@@ -45,6 +45,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Fault;
@@ -120,6 +121,7 @@ public class TrustClient {
 	private String soapVersion = SOAPConstants.SOAP11_NS;
 	private SigningPolicy signingPolicy = new SigningPolicy(true);
 	private boolean useReferenceForOnBehalfOf = false;
+	private boolean endorsingToken;
 	
 	/**
 	 * Create a new client using default settings.
@@ -179,6 +181,10 @@ public class TrustClient {
 		}
 	}
 
+	public Element getToken(String dialect) {
+		return getToken(dialect, (DateTime)null);
+	}
+	
 	/**
 	 * Execute a Issue request against the STS.
 	 * 
@@ -188,9 +194,9 @@ public class TrustClient {
 	 * @return A DOM element with the returned token.
 	 * @throws TrustException If any error occurred.
 	 */
-	public Element getToken(String dialect) throws TrustException {
+	public Element getToken(String dialect, DateTime lifetimeExpire) throws TrustException {
 		try {
-			String xml = toXMLRequest(dialect);
+			String xml = toXMLRequest(dialect, lifetimeExpire);
 			this.requestXML = xml;
 			
 			log.debug(xml);
@@ -255,7 +261,7 @@ public class TrustClient {
 		return new OIOAssertion((Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(SAMLUtil.marshallObject(token.getAssertion()))));
 	}
 	
-	private String toXMLRequest(String dialect) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+	private String toXMLRequest(String dialect, DateTime lifetimeExpire) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
 		
         OIOIssueRequest req = OIOIssueRequest.buildRequest();
@@ -266,7 +272,9 @@ public class TrustClient {
         if (dialect != null) {
         	req.setClaims(dialect);
         }
-        
+        if (lifetimeExpire != null) {
+        	req.setLifetime(lifetimeExpire);
+        }
 		
 		
 		req.setAppliesTo(appliesTo);
@@ -323,6 +331,11 @@ public class TrustClient {
 		this.token = token;
 	}
 	
+	public void setUseEndorsing(boolean endorsingToken) {
+		this.endorsingToken = endorsingToken;
+		
+	}
+	
 	/**
 	 * Execute a SOAP request.
 	 * 
@@ -350,7 +363,11 @@ public class TrustClient {
 		env.setTo(location);
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
 		env.setTimestamp(5);
-		env.addSecurityTokenReference(token);
+		if (endorsingToken) {
+			env.addEndorsingToken(token);
+		} else {
+			env.addSecurityTokenReference(token);
+		}
 		
 		if (interact != null) {
 			if (log.isDebugEnabled()) log.debug("UserInteract set: " + interact + ", redirect: " + redirect);

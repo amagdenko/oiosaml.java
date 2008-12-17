@@ -22,13 +22,16 @@
  */
 package dk.itst.oiosaml.trust;
 
+import org.joda.time.DateTime;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wspolicy.AppliesTo;
+import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wstrust.Claims;
 import org.opensaml.ws.wstrust.Issuer;
+import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestType;
@@ -128,6 +131,15 @@ public class OIOIssueRequest {
 			claims.getUnknownXMLObjects().add(co);
 		}
 		request.setClaims(claims);
+	}
+	
+	public void setLifetime(DateTime expire) {
+		Lifetime lifetime = SAMLUtil.buildXMLObject(Lifetime.class);
+		Expires expires = SAMLUtil.buildXMLObject(Expires.class);
+		expires.setDateTime(expire);
+		lifetime.setExpires(expires);
+
+		request.setLifetime(lifetime);
 	}
 	
 	public XMLObject getXMLObject() {

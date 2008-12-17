@@ -122,6 +122,8 @@ public class OIOSoapEnvelope {
 	private SecurityTokenReference securityTokenReference;
 	private final SigningPolicy signingPolicy;
 
+	private Assertion endorsingToken;
+
 	public OIOSoapEnvelope(Envelope envelope) {
 		this(envelope, false, new SigningPolicy(true));
 	}
@@ -244,6 +246,21 @@ public class OIOSoapEnvelope {
 		securityTokenReference = createSecurityTokenReference(token);
 		security.getUnknownXMLObjects().add(securityTokenReference);
 	}
+	
+	/**
+	 * Add an endorsing token to the envelope.
+	 * 
+	 * Adding an endorsing token will implement SignedEndorsingSupportingTokens from WS-SecurityPolicy. Don't add both a security token and an endorsing token.
+	 */
+	public void addEndorsingToken(Assertion token) {
+		if (token == null) return;
+		
+		token.detach();
+		endorsingToken = token;
+		addSecurityToken(token);
+		
+		references.put(token, token.getID());
+	}
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
 		SecurityTokenReference str = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
@@ -256,10 +273,6 @@ public class OIOSoapEnvelope {
 		keyIdentifier.setEncodingType(null);
 		str.setKeyIdentifier(keyIdentifier);
 
-//		org.opensaml.ws.wssecurity.Reference ref = SAMLUtil.buildXMLObject(org.opensaml.ws.wssecurity.Reference.class);
-//		ref.setURI("#" + token.getID());
-//		str.setReference(ref);
-		
 		return str;
 	}
 
@@ -341,7 +354,7 @@ public class OIOSoapEnvelope {
 		SignatureMethod signatureMethod = xsf.newSignatureMethod(SignatureMethod.RSA_SHA1, null);
 
 		KeyInfoFactory keyInfoFactory = xsf.getKeyInfoFactory();
-		KeyInfo ki = generateKeyInfo(credential, keyInfoFactory);
+		KeyInfo ki = generateKeyInfo(credential, keyInfoFactory, true);
     	
     	List<Reference> refs = new ArrayList<Reference>();
 		
@@ -374,10 +387,10 @@ public class OIOSoapEnvelope {
 
 		// Create the SignedInfo
 		SignedInfo signedInfo = xsf.newSignedInfo(canonicalizationMethod, signatureMethod, refs);
-		
         
         
-        XMLSignature signature = xsf.newXMLSignature(signedInfo, ki);
+        String signatureId = Utils.generateUUID();
+		XMLSignature signature = xsf.newXMLSignature(signedInfo, ki, null, signatureId, null);
         
         String xml = XMLHelper.nodeToString(envelope.getDOM());
         log.debug("Signing envelope: " + xml);
@@ -390,67 +403,127 @@ public class OIOSoapEnvelope {
         signContext.putNamespacePrefix(SAMLConstants.XMLENC_NS, SAMLConstants.XMLENC_PREFIX);
 
         for (XMLObject o : references.keySet()) {
-        	NodeList nl = element.getElementsByTagNameNS(o.getDOM().getNamespaceURI(), o.getDOM().getLocalName());
-        	for (int i = 0; i < nl.getLength(); i++) {
-        		Element e = (Element) nl.item(i);
-        		if (e.hasAttributeNS(WSSecurityConstants.WSU_NS, "Id")) {
-        			signContext.setIdAttributeNS(e, WSSecurityConstants.WSU_NS, "Id");
-        			e.setIdAttributeNS(WSSecurityConstants.WSU_NS, "Id", true);
-        		}
-        	}
+        	fixIdAttributes(element, o);
         }
-        if (securityTokenReference != null) {
-        	NodeList nl = element.getElementsByTagNameNS(SecurityTokenReference.ELEMENT_NAME.getNamespaceURI(), SecurityTokenReference.ELEMENT_LOCAL_NAME);
-        	for (int i = 0; i < nl.getLength(); i++) {
-        		Element e = (Element) nl.item(i);
-        		e.setIdAttributeNS(WSSecurityConstants.WSU_NS, "Id", true);
-        	}
-        	nl = element.getElementsByTagNameNS(securityToken.getElementQName().getNamespaceURI(), securityToken.getElementQName().getLocalPart());
-        	for (int i = 0; i < nl.getLength(); i++) {
-        		Element e = (Element) nl.item(i);
-        		if (e.hasAttribute("ID")) {
-        			e.setIdAttributeNS(null, "ID", true);
-        		}
-        		if (e.hasAttributeNS(WSSecurityConstants.WSU_NS, "Id")) {
-        			e.setIdAttributeNS(WSSecurityConstants.WSU_NS, "Id", true);
-        		}
-        	}
-        }
+        fixIdAttributes(element, securityTokenReference);
+        fixIdAttributes(element, securityToken);
+        fixIdAttributes(element, endorsingToken);
         
         // Marshal, generate (and sign) the detached XMLSignature. The DOM
         // Document will contain the XML Signature if this method returns
         // successfully.
         // HIERARCHY_REQUEST_ERR: Raised if this node is of a type that does not allow children of the type of the newChild  node, or if the node to insert is one of this node's ancestors.
         signature.sign(signContext);
+
+        element = signSignature(signatureId, element, keyInfoFactory, credential);
+        
         return element;
 	}
-
-	private KeyInfo generateKeyInfo(X509Credential credential,
-			KeyInfoFactory keyInfoFactory) throws XMLSignatureException {
-		DOMStructure info;
-        if (isHolderOfKey()) {
-        	info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(securityToken)));
-        } else {
-        	BinarySecurityToken bst = SAMLUtil.buildXMLObject(BinarySecurityToken.class);
-        	bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
-        	bst.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
-        	bst.setId(Utils.generateUUID());
-        	
-        	if (signingPolicy.sign(bst)) {
-        		references.put(bst, bst.getId());
-        	}
-        	try {
-				bst.setValue(Base64.encodeBytes(credential.getEntityCertificate().getEncoded(), Base64.DONT_BREAK_LINES));
-			} catch (CertificateEncodingException e) {
-				throw new XMLSignatureException(e);
+	
+	private void fixIdAttributes(Element env, XMLObject obj) {
+		if (obj == null) return;
+		
+    	NodeList nl = env.getElementsByTagNameNS(obj.getDOM().getNamespaceURI(), obj.getDOM().getLocalName());
+    	for (int i = 0; i < nl.getLength(); i++) {
+    		Element e = (Element) nl.item(i);
+    		if (e.hasAttribute("ID")) {
+    			e.setIdAttributeNS(null, "ID", true);
+    		}
+    		if (e.hasAttributeNS(WSSecurityConstants.WSU_NS, "Id")) {
+    			e.setIdAttributeNS(WSSecurityConstants.WSU_NS, "Id", true);
+    		}
+    	}
+		
+	}
+	
+	private Element signSignature(String id, Element env, KeyInfoFactory keyInfoFactory, X509Credential credential) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+		if (endorsingToken == null) return env;
+		
+		NodeList nl = env.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element e = (Element) nl.item(i);
+			if (e.hasAttributeNS(null, "Id")) {
+				e.setAttributeNS(WSSecurityConstants.WSU_NS, "Id", e.getAttribute("Id"));
+				e.setIdAttributeNS(WSSecurityConstants.WSU_NS, "Id", true);
 			}
-			info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(bst)));
-			
-			// assume that the first element is Timestamp (or the list is empty)
-        	security.getUnknownXMLObjects().add(Math.min(1, security.getUnknownXMLObjects().size()), bst);
-        }
+		}
+		env = SAMLUtil.loadElementFromString(XMLHelper.nodeToString(env));
+		
+		
+		DigestMethod digestMethod = xsf.newDigestMethod(DigestMethod.SHA1, null);
+		List<Transform> transforms = new ArrayList<Transform>(2);
+		transforms.add(xsf.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",new ExcC14NParameterSpec(Collections.singletonList("xsd"))));
+
+
+    	List<Reference> refs = new ArrayList<Reference>();
+    	Reference r = xsf.newReference("#"+id, digestMethod, transforms, null, null);
+    	refs.add(r);
+    	
+		CanonicalizationMethod canonicalizationMethod = xsf.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null);
+		SignatureMethod signatureMethod = xsf.newSignatureMethod(SignatureMethod.RSA_SHA1, null);
+    	SignedInfo signedInfo = xsf.newSignedInfo(canonicalizationMethod, signatureMethod, refs);
+    	
+    	KeyInfo ki = generateKeyInfo(credential, keyInfoFactory, false);
+		XMLSignature signature = xsf.newXMLSignature(signedInfo, ki);
+
+        Node security = env.getElementsByTagNameNS(WSSecurityConstants.WSSE_NS, "Security").item(0);
+        
+        DOMSignContext signContext = new DOMSignContext(credential.getPrivateKey(), security); 
+        signContext.putNamespacePrefix(SAMLConstants.XMLSIG_NS, SAMLConstants.XMLSIG_PREFIX);
+        signContext.putNamespacePrefix(SAMLConstants.XMLENC_NS, SAMLConstants.XMLENC_PREFIX);
+        
+        signature.sign(signContext);
+        
+        return env;
+	}
+
+	private KeyInfo generateKeyInfo(X509Credential credential, KeyInfoFactory keyInfoFactory, boolean primary) throws XMLSignatureException {
+		DOMStructure info;
+		if (primary) {
+			if (isHolderOfKey()) {
+				info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(securityToken)));
+			} else {
+				BinarySecurityToken bst = createBinarySecurityToken(credential);
+				info = new DOMStructure(SAMLUtil.marshallObject(createSecurityTokenReference(bst)));
+			}
+		} else {
+			SecurityTokenReference str = createSecurityTokenReference(endorsingToken);
+			info = new DOMStructure(SAMLUtil.marshallObject(str));
+		}
     	KeyInfo ki = keyInfoFactory.newKeyInfo(Collections.singletonList(info));
 		return ki;
+	}
+
+	private BinarySecurityToken createBinarySecurityToken(X509Credential credential)
+			throws XMLSignatureException {
+		BinarySecurityToken bst = SAMLUtil.buildXMLObject(BinarySecurityToken.class);
+    	bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
+    	bst.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
+    	bst.setId(Utils.generateUUID());
+    	
+		// assume that the first element is Timestamp (or the list is empty)
+		int idx = -1;
+		if (securityToken != null) {
+			idx = security.getUnknownXMLObjects().indexOf(securityToken);
+		}
+		if (endorsingToken != null) {
+			idx = Math.max(idx, security.getUnknownXMLObjects().indexOf(securityToken));
+		}
+		if (idx > -1) {
+			security.getUnknownXMLObjects().add(idx + 1, bst);
+		} else {
+			security.getUnknownXMLObjects().add(Math.min(1, security.getUnknownXMLObjects().size()), bst);
+		}
+		
+    	if (signingPolicy.sign(bst)) {
+    		references.put(bst, bst.getId());
+    	}
+    	try {
+			bst.setValue(Base64.encodeBytes(credential.getEntityCertificate().getEncoded(), Base64.DONT_BREAK_LINES));
+		} catch (CertificateEncodingException e) {
+			throw new XMLSignatureException(e);
+		}
+		return bst;
 	}
 	
 	/**
