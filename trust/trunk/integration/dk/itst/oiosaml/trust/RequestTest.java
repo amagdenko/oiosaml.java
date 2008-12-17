@@ -143,7 +143,24 @@ public class RequestTest extends AbstractTests {
 
 	@Test
 	public void expiredTokenMustBeRejected() throws Exception {
-		token = client.getToken(null, new DateTime().minusMinutes(5));
+		token = client.getToken(null, new DateTime().minusDays(5));
+
+		try {
+			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			fail();
+		} catch (TrustException e) {
+			SOAPException ex = (SOAPException) e.getCause();
+			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity"), ex.getFault().getCode().getValue());			
+		}
+	}
+	
+	@Test
+	public void allHeadersMustBeSigned() throws Exception {
+		SigningPolicy sp = new SigningPolicy(true);
+		sp.addPolicy(To.ELEMENT_NAME, false);
+		
+		client.setSigningPolicy(sp);
+		token = client.getToken(null, new DateTime().minusDays(5));
 
 		try {
 			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
