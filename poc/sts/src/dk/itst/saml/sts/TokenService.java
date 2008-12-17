@@ -23,10 +23,12 @@ import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
+import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wstrust.Issuer;
+import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
@@ -88,7 +90,12 @@ public class TokenService extends HttpServlet {
 		} else {
 			log.error("No SAML Assertion in OnBehalfOf");
 		}
-		
+		DateTime expire;
+		if (rst.getLifetime() != null && rst.getLifetime().getExpires() != null) {
+			expire = rst.getLifetime().getExpires().getDateTime();
+		} else {
+			expire = new DateTime().plusMinutes(5);
+		}
 		
 		OIOSoapEnvelope res = OIOSoapEnvelope.buildResponse(new SigningPolicy(true), env);
 		
@@ -108,9 +115,15 @@ public class TokenService extends HttpServlet {
 		rstr.setTokenType(SAMLUtil.buildXMLObject(TokenType.class));
 		rstr.getTokenType().setValue(TrustConstants.TOKEN_TYPE_SAML_20);
 		
+		Lifetime lifetime = SAMLUtil.buildXMLObject(Lifetime.class);
+		Expires expires = SAMLUtil.buildXMLObject(Expires.class);
+		expires.setDateTime(expire);
+		lifetime.setExpires(expires);
+		rstr.setLifetime(lifetime);
+		
 		RequestedSecurityToken requestedSecurityToken = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
 		rstr.setRequestedSecurityToken(requestedSecurityToken);
-		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential);
+		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential, expire);
 		requestedSecurityToken.getUnknownXMLObjects().add(assertion);
 		
 		RequestedAttachedReference attached = SAMLUtil.buildXMLObject(RequestedAttachedReference.class);
@@ -166,7 +179,7 @@ public class TokenService extends HttpServlet {
 		return tokenReference;
 	}
 
-	private Assertion generateAssertion(HttpServletRequest req, OIOAssertion bootstrap, String to, String x509, BasicX509Credential credential) {
+	private Assertion generateAssertion(HttpServletRequest req, OIOAssertion bootstrap, String to, String x509, BasicX509Credential credential, DateTime expire) {
 		Assertion a = SAMLUtil.buildXMLObject(Assertion.class);
 		a.setID(Utils.generateUUID());
 		a.setIssueInstant(new DateTime(DateTimeZone.UTC));
@@ -199,7 +212,7 @@ public class TokenService extends HttpServlet {
 		a.setSubject(subject);
 		
 		a.setConditions(SAMLUtil.createAudienceCondition(to));
-		a.getConditions().setNotOnOrAfter(new DateTime().plusMinutes(5));
+		a.getConditions().setNotOnOrAfter(expire);
 		
 		
 		if (bootstrap != null) {
