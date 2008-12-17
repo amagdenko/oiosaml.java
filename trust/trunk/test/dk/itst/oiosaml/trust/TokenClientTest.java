@@ -28,16 +28,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
-import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.crypto.MarshalException;
@@ -49,7 +46,6 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Body;
@@ -75,11 +71,7 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
-import org.opensaml.xml.security.credential.AbstractCredential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.X509Certificate;
-import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
@@ -88,6 +80,7 @@ import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
+import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 
@@ -225,7 +218,7 @@ public class TokenClientTest extends TrustTests {
 	}
 
 	@Test
-	public void sendRequestWithSenderVouchexToken() throws Exception {
+	public void sendRequestWithSenderVouchesToken() throws Exception {
 		client.setToken(assertion);
 		
 		final StringValueHolder holder = new StringValueHolder();
@@ -367,93 +360,8 @@ public class TokenClientTest extends TrustTests {
 		}});
 		
 		client.sendRequest(new TestBean(), JAXBContext.newInstance(TestBean.class), ADDRESS, "urn:action", null, null);
-		
 	}
 	
-	@Test
-	@Ignore
-	public void testRequest() throws Exception {
-		BasicX509Credential stsCredential = credentialRepository.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234");
-		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
-		client.setAppliesTo("urn:appliesto");
-		
-		
-		normalRequest(credential, client, request);
-		wrongSAMLSignatureShouldFail(credential, client, request);
-		signingWithWrongKeyShouldFail(request, stsCredential);
-	}
-
-	private void signingWithWrongKeyShouldFail(XMLObject request, AbstractCredential stsCredential) throws CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
-		TrustClient client = new TrustClient(epr, credential, stsCredential.getPublicKey());
-		client.setAppliesTo("urn:appliesto");
-		Assertion token = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(client.getToken(TrustConstants.DIALECT_OCES_PROFILE)));
-		
-		
-		credential = TestHelper.getCredential();
-		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
-		client.setToken(token);
-		
-		try {
-			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest", null, null);
-			fail();
-		} catch (TrustException e) {
-			SOAPException ex = (SOAPException) e.getCause();
-			assertTrue(ex.getFault().getMessage().getValue().toLowerCase().contains("verification"));
-			assertTrue(ex.getFault().getMessage().getValue().toLowerCase().contains("failed"));
-		} catch (InvocationTargetException e) {
-			SOAPException ex = (SOAPException) e.getCause();
-			assertTrue(ex.getFault().getMessage().getValue().toLowerCase().contains("verification"));
-			assertTrue(ex.getFault().getMessage().getValue().toLowerCase().contains("failed"));
-		}
-	}
-
-	/**
-	 * Test that only the STS signature is actually accepted.
-	 */
-	private void wrongSAMLSignatureShouldFail(BasicX509Credential credential, TrustClient client, XMLObject request) throws CertificateEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
-		Element res = client.getToken(TrustConstants.DIALECT_OCES_PROFILE);
-		Assertion rstrAssertion = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(res));
-		rstrAssertion.setSignature(null);
-
-		OIOAssertion rstr = new OIOAssertion(rstrAssertion);
-		rstr.sign(TestHelper.getCredential());
-		
-		client.setToken(rstr.getAssertion());
-		
-		try {
-			client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest", null, null);
-			fail();
-		} catch (TrustException e) {
-			SOAPException ex = (SOAPException) e.getCause();
-			assertNotNull(ex.getEnvelope());
-			assertNotNull(ex.getFault());
-			
-			assertTrue(ex.getFault().getMessage().getValue().toLowerCase().contains("validation"));
-			assertTrue(ex.getFault().getMessage().getValue().toLowerCase().contains("failed"));
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void normalRequest(BasicX509Credential credential, TrustClient client, XMLObject request) throws CertificateEncodingException, UnmarshallingException, InvocationTargetException {
-		Element res = client.getToken(TrustConstants.DIALECT_OCES_PROFILE);
-
-		Assertion rstrAssertion = (Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(res));
-		OIOAssertion rstr = new OIOAssertion(rstrAssertion);
-		
-		KeyInfo ki = (KeyInfo) rstrAssertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getUnknownXMLObjects(KeyInfo.DEFAULT_ELEMENT_NAME).get(0);
-		X509Certificate cert = ki.getX509Datas().get(0).getX509Certificates().get(0);
-		assertNotNull(cert);
-		assertTrue(Arrays.equals(credential.getEntityCertificate().getEncoded(), Base64.decode(cert.getValue())));
-
-		assertTrue(rstr.verifySignature(credentialRepository.getCredential("/home/recht/download/TestVOCES1.pfx", "Test1234").getPublicKey()));
-		
-		
-		client.setToken(rstrAssertion);
-		client.sendRequest(request, "http://recht-laptop:8880/poc-provider/ProviderService", "http://provider.poc.saml.itst.dk/Provider/echoRequest", null, null);
-	}
-
 	private Envelope buildResponse(String request, boolean sign) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		OIOSoapEnvelope env = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(request));
 		

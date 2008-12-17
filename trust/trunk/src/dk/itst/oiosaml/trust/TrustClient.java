@@ -133,6 +133,7 @@ public class TrustClient {
 	 * <li>oiosaml-trust.certificate.location: Keystore containing STS certificate</li>
 	 * <li>oiosaml-trust.certificate.password: Password for the sts keystore</li>
 	 * <li>oiosaml-trust.certificate.alias: Certificate alias for the sts certificate</li>
+	 * <li>oiosaml-trust.bootstrap.base64: Set to false if the bootstrap EPR attribute contains regular XML. Default value is false.</li>
 	 * </ul>
 	 * 
 	 * <p>Furthermore, this constructor assumes that a valid SAML assertion has been placed in {@link UserAssertionHolder} (which should be the case if the OIOSAML SPFilter is configured correctly),
@@ -142,7 +143,7 @@ public class TrustClient {
 		this(UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE), 
 				credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
 				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
-				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)), null);
+				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)), null, SAMLConfiguration.getSystemConfiguration().getBoolean(TrustConstants.PROP_BOOTSTRAP_ATTRIBUTE_BASE64, true));
 		
 		X509Certificate certificate = credentialRepository.getCertificate(SAMLConfiguration.getStringPrefixedWithBRSHome(SAMLConfiguration.getSystemConfiguration(), TrustConstants.PROP_CERTIFICATE_LOCATION),
 				SAMLConfiguration.getSystemConfiguration().getString(TrustConstants.PROP_CERTIFICATE_PASSWORD),
@@ -151,9 +152,13 @@ public class TrustClient {
 		stsKey = certificate.getPublicKey();
 	}
 	
-	public TrustClient(UserAttribute eprAttribute, X509Credential credential, PublicKey stsKey) {
+	public TrustClient(UserAttribute eprAttribute, X509Credential credential, PublicKey stsKey, boolean eprIsBase64) {
 		if (eprAttribute != null) {
-			this.epr = (EndpointReference)SAMLUtil.unmarshallElement(new ByteArrayInputStream(eprAttribute.getBase64Value()));
+			if (eprIsBase64) {
+				this.epr = (EndpointReference)SAMLUtil.unmarshallElement(new ByteArrayInputStream(eprAttribute.getBase64Value()));
+			} else {
+				this.epr = (EndpointReference)SAMLUtil.unmarshallElementFromString(eprAttribute.getValue());
+			}
 		} else {
 			this.epr = null;
 		}

@@ -14,14 +14,21 @@ and this client can issue requests containing the correct headers and signatures
 {@link dk.itst.oiosaml.trust.TrustClient} constructor cannot be used, as it expects the OIOSAML.java filter to be enabled.</p>
 
 <h2>Configuration</h2>
-The configuration extends the default OIOSAML.java configuration. The configuration must be extende with 3 properties in oiosaml-sp.properties:
+The configuration extends the default OIOSAML.java configuration. The configuration must be extended with 3 properties in oiosaml-sp.properties:
 <pre>
 oiosaml-trust.certificate.location=certificate/sts-certificate
 oiosaml-trust.certificate.password=Test1234
 oiosaml-trust.certificate.alias=mykey
 </pre>
-
 <p>In other words, the configuration must specify a keystore with the STS certificate, password for the keystore and an alias if the keystore contains multiple certificates.</p>
+
+<p>Furthermore, depending on how the IdP works, set:</p> 
+<pre>
+oiosaml-trust.bootstrap.base64=true|false
+</pre>
+This property controls how the bootstrap attribute is read from the user's assertion. If the property is set to true (the default), the client expects the
+bootstrap attribute value to be a base64 encoded string. Otherwise, the client expects regular XML as the attribute value.
+
 
 
 <h2>Usage</h2>

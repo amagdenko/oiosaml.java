@@ -50,6 +50,7 @@ public class TrustConstants {
 	public static final String PROP_CERTIFICATE_LOCATION = "oiosaml-trust.certificate.location";
 	public static final String PROP_CERTIFICATE_PASSWORD = "oiosaml-trust.certificate.password";	
 	public static final String PROP_CERTIFICATE_ALIAS = "oiosaml-trust.certificate.alias";
+	public static final String PROP_BOOTSTRAP_ATTRIBUTE_BASE64 = "oiosaml-trust.bootstrap.base64";
 	
 	public static final String DISCOVERY_EPR_ATTRIBUTE = "urn:liberty:disco:2006-08:DiscoveryEPR";
 	
