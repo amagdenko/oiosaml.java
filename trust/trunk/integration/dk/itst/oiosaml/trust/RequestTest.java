@@ -132,11 +132,8 @@ public class RequestTest extends AbstractTests {
 		token = client.getToken(null);
 
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, new ResultHandler<Element>() {
-				public void handleResult(Element result) throws Exception {
-					assertEquals("echoResponse", result.getLocalName());
-				}
-			});
+			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
 			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity"), ex.getFault().getCode().getValue());			
@@ -149,11 +146,8 @@ public class RequestTest extends AbstractTests {
 		token = client.getToken(null, new DateTime().minusMinutes(5));
 
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, new ResultHandler<Element>() {
-				public void handleResult(Element result) throws Exception {
-					assertEquals("echoResponse", result.getLocalName());
-				}
-			});
+			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
 			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity"), ex.getFault().getCode().getValue());			
