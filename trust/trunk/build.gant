@@ -150,6 +150,7 @@ target (instrument: 'Instrument test code') {
 		fileset (dir: buildDirectory) {
 			include(name: '**/*.class')
 			exclude(name: '**/*Test.class')
+			exclude(name: '**/internal/apache/**')
 		}
 	}
 }
