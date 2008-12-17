@@ -3,11 +3,11 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap12/"
 	xmlns:tns="http://provider.poc.saml.itst.dk/" 
-	xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+	xmlns:wsp="http://www.w3.org/ns/ws-policy"
 	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
 	xmlns:wsaws="http://www.w3.org/2006/05/addressing/wsdl" 
-	xmlns:sp2="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
-	xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy"
+	xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
+	xmlns:sp2="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy"
 	xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512" 
 	xmlns:sc="http://schemas.sun.com/2006/03/wss/server"
 	xmlns:wsa="http://www.w3.org/2005/08/addressing"
@@ -74,16 +74,9 @@
 				 	<wsp:Policy>
 				 		<sp:InitiatorToken>
 				 			<wsp:Policy>
-				 			<!--  sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never"> -->
-				 			<!-- 
-				 				<sp:X509Token>
+				 				<sp:SamlToken sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
 				 					<wsp:Policy>
-				 						<sp:WssX509V3Token11 />
-				 					</wsp:Policy>
-				 				</sp:X509Token>
-				 				 -->
-				 				<sp:SamlToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
-				 					<wsp:Policy>
+				 						<sp:RequireKeyIdentifierReference />
 				 						<sp:WssSamlV20Token11 />
 				 					</wsp:Policy>
 				 				</sp:SamlToken>
@@ -91,7 +84,7 @@
 				 		</sp:InitiatorToken>
 				 		<sp:RecipientToken>
 				 			<wsp:Policy>
-				 				<sp:X509Token />
+				 				<sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToInitiator" />
 				 			</wsp:Policy>
 				 		</sp:RecipientToken>
 						<sp:AlgorithmSuite>
@@ -104,16 +97,12 @@
 						<sp:ProtectTokens/>
 				 	</wsp:Policy>
 				 </sp:AsymmetricBinding>
-				 <!-- 
-				<sp:Wss11>
+				<sp:Wss10>
 					<wsp:Policy>
 						<sp:MustSupportRefKeyIdentifier />
 						<sp:MustSupportRefIssuerSerial />
-						<sp:MustSupportRefThumbprint />
-						<sp:MustSupportRefEncryptedKey />
 					</wsp:Policy>
-				</sp:Wss11>
-				 -->
+				</sp:Wss10>
 				<sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks" alias="voces"
 					location="server-keystore.jks" />
 				<sc:TrustStore wspp:visibility="private" location="truststore" storepass="changeit" />
@@ -121,17 +110,6 @@
 		</wsp:ExactlyOne>
 	</wsp:Policy>
 	<wsp:Policy wsu:Id="Input_Policy">
-	<!-- 
-				 <sp:SignedEndorsingSupportingTokens sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
-					<wsp:Policy>
-						<sp:SamlToken>
-							<wsp:Policy>
-								<sp:WssSamlV20Token11 />
-							</wsp:Policy>
-						</sp:SamlToken>
-		      		</wsp:Policy>
-				</sp:SignedEndorsingSupportingTokens>
-				 -->
 		<sp:SignedParts>
 			<sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing" />
 			<sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing" />
