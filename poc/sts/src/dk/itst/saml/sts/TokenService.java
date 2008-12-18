@@ -23,6 +23,7 @@ import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
+import org.opensaml.ws.wssecurity.Created;
 import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.Security;
@@ -117,8 +118,11 @@ public class TokenService extends HttpServlet {
 		
 		Lifetime lifetime = SAMLUtil.buildXMLObject(Lifetime.class);
 		Expires expires = SAMLUtil.buildXMLObject(Expires.class);
+		Created created = SAMLUtil.buildXMLObject(Created.class);
+		created.setDateTime(new DateTime());
 		expires.setDateTime(expire);
 		lifetime.setExpires(expires);
+		lifetime.setCreated(created);
 		rstr.setLifetime(lifetime);
 		
 		RequestedSecurityToken requestedSecurityToken = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
