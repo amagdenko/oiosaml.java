@@ -58,7 +58,7 @@ public class Provider {
 			try {
 				assertion.validateAssertion(new BasicAssertionValidator(), req.getRequestURL().toString(), req.getRequestURL().toString());
 			} catch (ValidationException e) {
-				throw new SOAPFaultException(SOAPFactory.newInstance().createFault(e.getMessage(), new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity")));
+				throw new SOAPFaultException(SOAPFactory.newInstance().createFault(e.getMessage(), new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurityToken")));
 			}
 			
 			return input;
