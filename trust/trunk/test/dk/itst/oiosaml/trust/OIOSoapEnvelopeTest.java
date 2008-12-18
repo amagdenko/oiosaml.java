@@ -246,7 +246,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 	@Test
 	public void testSecurityReferenceIsSignedWithSTRTransform() throws Exception {
 		Assertion assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
-		env.addSecurityTokenReference(assertion);
+		env.addSecurityTokenReference(assertion, true);
 
 		Security sec = env.getHeaderElement(Security.class);
 		assertNotNull(SAMLUtil.getFirstElement(sec, Assertion.class));

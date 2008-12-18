@@ -44,6 +44,8 @@ public class RequestTest extends AbstractTests {
 
 		String xml = getProperty("request");
 		req = SAMLUtil.loadElementFromString(xml);
+		
+		client.setProtectTokens(Boolean.valueOf(getProperty("protectTokens")));
 	}
 	
 	@Test
@@ -136,7 +138,7 @@ public class RequestTest extends AbstractTests {
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
-			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity"), ex.getFault().getCode().getValue());			
+			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurityToken"), ex.getFault().getCode().getValue());			
 		}
 	}
 	
@@ -150,7 +152,7 @@ public class RequestTest extends AbstractTests {
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
-			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity"), ex.getFault().getCode().getValue());			
+			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurityToken"), ex.getFault().getCode().getValue());			
 		}
 	}
 	
@@ -160,7 +162,7 @@ public class RequestTest extends AbstractTests {
 		sp.addPolicy(To.ELEMENT_NAME, false);
 		
 		client.setSigningPolicy(sp);
-		token = client.getToken(null, new DateTime().minusDays(5));
+		token = client.getToken(null);
 
 		try {
 			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);

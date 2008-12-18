@@ -122,6 +122,7 @@ public class TrustClient {
 	private SigningPolicy signingPolicy = new SigningPolicy(true);
 	private boolean useReferenceForOnBehalfOf = false;
 	private boolean endorsingToken;
+	private boolean protectTokens = true;
 	
 	/**
 	 * Create a new client using default settings.
@@ -369,9 +370,9 @@ public class TrustClient {
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
 		env.setTimestamp(5);
 		if (endorsingToken) {
-			env.addEndorsingToken(token);
+			env.addEndorsingToken(token, protectTokens);
 		} else {
-			env.addSecurityTokenReference(token);
+			env.addSecurityTokenReference(token, protectTokens);
 		}
 		
 		if (interact != null) {
@@ -595,5 +596,14 @@ public class TrustClient {
 
 	public OIOSoapEnvelope getLastResponse() {
 		return lastResponse;
+	}
+	
+	/**
+	 * Set whether to protect security tokens with the message signature or not.
+	 * 
+	 * @param protectTokens Set token protection. Defaults to <code>true</code>.
+	 */
+	public void setProtectTokens(boolean protectTokens) {
+		this.protectTokens = protectTokens;
 	}
 }

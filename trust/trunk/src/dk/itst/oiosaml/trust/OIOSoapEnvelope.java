@@ -235,16 +235,21 @@ public class OIOSoapEnvelope {
 	
 	/**
 	 * Insert a token and a SecurityTokenReference pointing to the token.
+	 * 
+	 * @param token The assertion to add to the security header.
+	 * @param protect Set to true to create a SecurityTokenReference element pointing to the token and to add the element to the message signature.
 	 */
-	public void addSecurityTokenReference(Assertion token) {
+	public void addSecurityTokenReference(Assertion token, boolean protect) {
 		if (token == null) return;
 		
 		token.detach();
 		securityToken = token;
 		addSecurityToken(token);
 		
-		securityTokenReference = createSecurityTokenReference(token);
-		security.getUnknownXMLObjects().add(securityTokenReference);
+		if (protect) {
+			securityTokenReference = createSecurityTokenReference(token);
+			security.getUnknownXMLObjects().add(securityTokenReference);
+		}
 	}
 	
 	/**
@@ -252,7 +257,7 @@ public class OIOSoapEnvelope {
 	 * 
 	 * Adding an endorsing token will implement SignedEndorsingSupportingTokens from WS-SecurityPolicy. Don't add both a security token and an endorsing token.
 	 */
-	public void addEndorsingToken(Assertion token) {
+	public void addEndorsingToken(Assertion token, boolean protect) {
 		if (token == null) return;
 		
 		token.detach();
@@ -260,6 +265,11 @@ public class OIOSoapEnvelope {
 		addSecurityToken(token);
 		
 		references.put(token, token.getID());
+		
+		if (protect) {
+			securityTokenReference = createSecurityTokenReference(token);
+			security.getUnknownXMLObjects().add(securityTokenReference);
+		}
 	}
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
