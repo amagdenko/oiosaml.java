@@ -1,4 +1,5 @@
-ReadMe for oiosaml-authz
+ReadMe for oiosaml-authz - Addon for OIOSAML.Java which adds access control based on virk.dk BRS.
+
 
 General documentation is available in javadoc. See doc/javadoc, the package documentation contains
 information on how to install and configure oiosaml-authz.

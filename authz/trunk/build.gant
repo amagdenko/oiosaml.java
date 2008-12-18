@@ -1,4 +1,4 @@
-system = 'oiosaml-authz'
+system = 'oiosaml-virk-authz'
 buildDirectory = 'target/build'
 testBuildDir = 'target/test'
 instrumentDir = 'target/instrumented'

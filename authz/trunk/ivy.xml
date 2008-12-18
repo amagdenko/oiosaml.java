@@ -1,5 +1,5 @@
 <ivy-module version="1.0">
-    <info module="oiosaml-authz" organisation="dk.itst.oiosaml" status="integration"/>
+    <info module="oiosaml-virk-authz" organisation="dk.itst.oiosaml" status="integration"/>
     <configurations>
       <conf name="dist"/>
       <conf name="build" extends="dist"/>
