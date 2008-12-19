@@ -80,7 +80,6 @@ import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
-import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 
@@ -90,7 +89,6 @@ public class TokenClientTest extends TrustTests {
 	private static final String ADDRESS = "https://oiosaml.trifork.com:8082/TokenService/services/Trust";
 	private Assertion assertion;
 	private EndpointReference epr;
-	private XMLObject request;
 	private BasicX509Credential credential;
 	private BasicX509Credential stsCredential;
 	private TrustClient client;
@@ -123,11 +121,6 @@ public class TokenClientTest extends TrustTests {
 		ctx.getTokens().add(token);
 		token.setAssertion(assertion);
 		
-		String echo = "<ns5:echo xmlns:ns5=\"http://provider.poc.saml.itst.dk/\" />";
-		
-		XSAnyUnmarshaller unmarshaller = new XSAnyUnmarshaller();
-		request = unmarshaller.unmarshall(SAMLUtil.loadElementFromString(echo));
-
 		stsCredential = TestHelper.getCredential();
 		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		soapClient = context.mock(SOAPClient.class);
@@ -348,7 +341,7 @@ public class TokenClientTest extends TrustTests {
 					Envelope response = SAMLUtil.buildXMLObject(Envelope.class);
 					response.setHeader(SAMLUtil.buildXMLObject(Header.class));
 					RelatesTo relatesTo = SAMLUtil.buildXMLObject(RelatesTo.class);
-					relatesTo.setTextContent(env.getMessageID());
+					relatesTo.setValue(env.getMessageID());
 					response.getHeader().getUnknownXMLObjects().add(relatesTo);
 					
 					String xml = "<test:blah xmlns:test='urn:testing'><test:more>blah</test:more></test:blah>";
@@ -369,7 +362,7 @@ public class TokenClientTest extends TrustTests {
 		response.setHeader(SAMLUtil.buildXMLObject(Header.class));
 		
 		RelatesTo relatesTo = SAMLUtil.buildXMLObject(RelatesTo.class);
-		relatesTo.setTextContent(env.getMessageID());
+		relatesTo.setValue(env.getMessageID());
 		response.getHeader().getUnknownXMLObjects().add(relatesTo);
 		
 		response.setBody(SAMLUtil.buildXMLObject(Body.class));

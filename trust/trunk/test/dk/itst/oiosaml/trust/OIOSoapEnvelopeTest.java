@@ -19,6 +19,7 @@ import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
+import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.ws.wsaddressing.WSAddressingConstants;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.Security;
@@ -36,6 +37,7 @@ import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.liberty.UserInteraction;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
@@ -311,6 +313,26 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		
 		assertTrue(indexOf(e, Security.class) > indexOf(e, MessageID.class));
 		assertTrue(indexOf(e, Security.class) > indexOf(e, Action.class));
+	}
+	
+	@Test
+	public void testResponseTo() throws Exception {
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS);
+		
+		
+		SigningPolicy sp = new SigningPolicy(false);
+		sp.addPolicy(RelatesTo.ELEMENT_NAME, true);
+		sp.addPolicy(To.ELEMENT_NAME, true);
+		OIOSoapEnvelope resp = OIOSoapEnvelope.buildResponse(sp, env);
+		resp.setTo("http://www.w3.org/2005/08/addressing/anonymous");
+		
+		assertEquals(env.getMessageID(), resp.getHeaderElement(RelatesTo.class).getValue());
+		
+		Element signed = resp.sign(TestHelper.getCredential());
+		
+		assertEquals(2, signed.getElementsByTagNameNS(javax.xml.crypto.dsig.XMLSignature.XMLNS, "Reference").getLength());
+		
+		System.out.println(XMLHelper.nodeToString(signed));
 	}
 	
 	private <T extends XMLObject> int  indexOf(Envelope e, Class<T> type) {

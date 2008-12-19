@@ -209,8 +209,9 @@ public class OIOSoapEnvelope {
 	public static OIOSoapEnvelope buildResponse(SigningPolicy signingPolicy, OIOSoapEnvelope request) {
 		OIOSoapEnvelope env = buildEnvelope(request.getSoapVersion(), signingPolicy);
 		RelatesTo relatesTo = SAMLUtil.buildXMLObject(RelatesTo.class);
-		relatesTo.setTextContent(request.getMessageID());
+		relatesTo.setValue(request.getMessageID());
 		env.addHeaderElement(relatesTo);
+		
 		return env;
 	}
 	
@@ -226,7 +227,6 @@ public class OIOSoapEnvelope {
 		Action a = SAMLUtil.buildXMLObject(Action.class);
 		a.setValue(action);
 		addHeaderElement(a);
-		addSignatureElement(a);
 	}
 	
 	public void addSecurityToken(Assertion token) {
@@ -433,6 +433,8 @@ public class OIOSoapEnvelope {
 	private void fixIdAttributes(Element env, XMLObject obj) {
 		if (obj == null) return;
 		
+		if (log.isDebugEnabled()) log.debug("Fixing id attribute on " + obj);
+		
     	NodeList nl = env.getElementsByTagNameNS(obj.getDOM().getNamespaceURI(), obj.getDOM().getLocalName());
     	for (int i = 0; i < nl.getLength(); i++) {
     		Element e = (Element) nl.item(i);
@@ -556,7 +558,6 @@ public class OIOSoapEnvelope {
 		To to = SAMLUtil.buildXMLObject(To.class);
 		to.setValue(endpoint);
 		addHeaderElement(to);
-		addSignatureElement(to);
 	}
 
 	public void setReplyTo(String replyTo) {
@@ -565,7 +566,6 @@ public class OIOSoapEnvelope {
 		addr.setValue(replyTo);
 		reply.setAddress(addr);
 		addHeaderElement(reply);
-		addSignatureElement(reply);
 	}
 
 	/**
@@ -621,7 +621,6 @@ public class OIOSoapEnvelope {
 		ui.setInteract(interaction.getValue());
 		ui.setRedirect(redirect);
 		addHeaderElement(ui);
-		addSignatureElement(ui);
 	}
 	
 	public String getSoapVersion() {
@@ -646,6 +645,9 @@ public class OIOSoapEnvelope {
 			envelope.getHeader().getUnknownXMLObjects().add(element);
 		} else {
 			envelope.getHeader().getUnknownXMLObjects().add(envelope.getHeader().getUnknownXMLObjects().size() - 1, element);
+		}
+		if (element instanceof AttributeExtensibleXMLObject) {
+			addSignatureElement((AttributeExtensibleXMLObject) element);
 		}
 	}
 

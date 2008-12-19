@@ -69,8 +69,8 @@
 		
 		<ObjectProvider qualifiedName="wsa:RelatesTo">
         	<BuilderClass className="dk.itst.oiosaml.liberty.RelatesToBuilder" />
-        	<MarshallingClass className="org.opensaml.xml.schema.impl.XSAnyMarshaller" />
-        	<UnmarshallingClass className="org.opensaml.xml.schema.impl.XSAnyUnmarshaller" />
+        	<MarshallingClass className="org.opensaml.ws.wsaddressing.impl.MessageIDMarshaller" />
+        	<UnmarshallingClass className="org.opensaml.ws.wsaddressing.impl.MessageIDUnmarshaller" />
 		</ObjectProvider>
                         
     </ObjectProviders>
