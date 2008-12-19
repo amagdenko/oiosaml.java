@@ -28,7 +28,6 @@ import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
-import org.opensaml.ws.wstrust.Issuer;
 import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
@@ -106,12 +105,6 @@ public class TokenService extends HttpServlet {
 		
 		String to = setAppliesTo(rst, rstr);
 		rstr.setContext(rst.getContext());
-		
-		Issuer issuer = SAMLUtil.buildXMLObject(Issuer.class);
-		Address address = SAMLUtil.buildXMLObject(Address.class);
-		address.setValue(req.getRequestURL().toString());
-		issuer.setAddress(address);
-		rstr.setIssuer(issuer);
 		
 		rstr.setTokenType(SAMLUtil.buildXMLObject(TokenType.class));
 		rstr.getTokenType().setValue(TrustConstants.TOKEN_TYPE_SAML_20);
