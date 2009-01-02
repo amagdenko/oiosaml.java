@@ -30,40 +30,40 @@ public class TokenServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		TrustBootstrap.bootstrap();
 	}
-	
+
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		TrustClient tokenClient = new TrustClient();
-		tokenClient.setSoapVersion(SOAPConstants.SOAP11_NS);
-		tokenClient.setUseReferenceForOnBehalfOf(false);
-		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
-		tokenClient.setIssuer(null);
-		
-		SigningPolicy policy = new SigningPolicy(true);
-//		policy.addPolicy(Timestamp.ELEMENT_NAME, true);
-//		policy.addPolicy(To.ELEMENT_NAME, true);
-//		policy.addPolicy(ReplyTo.ELEMENT_NAME, true);
-//		policy.addPolicy(MessageID.ELEMENT_NAME, true);
-		tokenClient.setSigningPolicy(policy);
-		
-		UserAttribute bootstrap = UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE);
-		log.debug("Bootstrap data: " + bootstrap);
-		String xml = bootstrap.getValue();
-		log.debug("XML: " + xml);
-		req.setAttribute("epr", xml);
-		
 		try {
-			
+			TrustClient tokenClient = new TrustClient();
+			tokenClient.setSoapVersion(SOAPConstants.SOAP11_NS);
+			tokenClient.setUseReferenceForOnBehalfOf(false);
+			tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
+			tokenClient.setIssuer(null);
+
+			SigningPolicy policy = new SigningPolicy(true);
+			//		policy.addPolicy(Timestamp.ELEMENT_NAME, true);
+			//		policy.addPolicy(To.ELEMENT_NAME, true);
+			//		policy.addPolicy(ReplyTo.ELEMENT_NAME, true);
+			//		policy.addPolicy(MessageID.ELEMENT_NAME, true);
+			tokenClient.setSigningPolicy(policy);
+
+			UserAttribute bootstrap = UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE);
+			log.debug("Bootstrap data: " + bootstrap);
+			String xml = bootstrap.getValue();
+			log.debug("XML: " + xml);
+			req.setAttribute("epr", xml);
+
+
 			try {
 				String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
 				tokenClient.setAppliesTo(endpoint);
 				Element stsToken = tokenClient.getToken(TrustConstants.DIALECT_OCES_PROFILE);
-				
+
 				String stsXml = XMLHelper.nodeToString(stsToken);
 				req.getSession().setAttribute("token", stsXml);
-	
+
 				req.setAttribute("message", stsXml);
 				log.debug("SAML token: " + stsXml);
-				
+
 				req.getRequestDispatcher("/sp/ticket.jsp").forward(req, resp);
 			} catch (TrustException e) {
 				log.error("Unable to complete request", e);

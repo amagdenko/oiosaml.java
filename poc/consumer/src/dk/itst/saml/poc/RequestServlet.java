@@ -28,32 +28,38 @@ public class RequestServlet extends HttpServlet {
 	}
 
 	protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		if (req.getSession().getAttribute("token") == null) {
-			resp.sendRedirect("token");
-			return;
-		}
-		final TrustClient tokenClient = new TrustClient();
-		
-		String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
-		tokenClient.setAppliesTo(endpoint);
-		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
-
-		boolean simple = req.getParameter("simple") != null;
-		tokenClient.signRequests(!simple);
-		if (!simple) {
-			tokenClient.setToken((Assertion) SAMLUtil.unmarshallElementFromString((String) req.getSession().getAttribute("token")));
-		}
-
-		Echo request = new Echo();
-		generateRequest(req, request);
-		
-		tokenClient.sendRequest(request, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider" + (simple ? "Simple" : "") + "/echoRequest", null, new ResultHandler<EchoResponse>() {
-			public void handleResult(EchoResponse result) throws Exception {
-				req.setAttribute("spRequest", tokenClient.getLastRequestXML());
-				req.setAttribute("spResponse", result.getOutput());
+		try {
+			if (req.getSession().getAttribute("token") == null) {
+				resp.sendRedirect("token");
+				return;
 			}
-		});
-		req.getRequestDispatcher("/sp/token.jsp").forward(req, resp);
+			final TrustClient tokenClient = new TrustClient();
+			
+			String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
+			tokenClient.setAppliesTo(endpoint);
+			tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
+	
+			boolean simple = req.getParameter("simple") != null;
+			tokenClient.signRequests(!simple);
+			if (!simple) {
+				tokenClient.setToken((Assertion) SAMLUtil.unmarshallElementFromString((String) req.getSession().getAttribute("token")));
+			}
+	
+			Echo request = new Echo();
+			generateRequest(req, request);
+			
+			tokenClient.sendRequest(request, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider" + (simple ? "Simple" : "") + "/echoRequest", null, new ResultHandler<EchoResponse>() {
+				public void handleResult(EchoResponse result) throws Exception {
+					req.setAttribute("spRequest", tokenClient.getLastRequestXML());
+					req.setAttribute("spResponse", result.getOutput());
+				}
+			});
+			req.getRequestDispatcher("/sp/token.jsp").forward(req, resp);
+		} catch (Exception e) {
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			resp.setContentType("text/plain");
+			e.printStackTrace(resp.getWriter());
+		}
 
 	}
 
