@@ -155,6 +155,7 @@ public class TrustClient {
 	
 	public TrustClient(UserAttribute eprAttribute, X509Credential credential, PublicKey stsKey, boolean eprIsBase64) {
 		if (eprAttribute != null) {
+			log.debug("EPR Attribute: " + eprAttribute);
 			if (eprIsBase64) {
 				this.epr = (EndpointReference)SAMLUtil.unmarshallElement(new ByteArrayInputStream(eprAttribute.getBase64Value()));
 			} else {

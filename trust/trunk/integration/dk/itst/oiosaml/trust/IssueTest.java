@@ -6,11 +6,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
 public class IssueTest extends AbstractTests {
@@ -55,6 +58,30 @@ public class IssueTest extends AbstractTests {
 		OIOAssertion assertion = getAssertion(token);
 		
 		assertTrue(assertion.verifySignature(stsCredential.getPublicKey()));
+	}
+	
+	@Test
+	public void relatesToMustBeSigned() throws Exception {
+		client.getToken(null);
+		OIOSoapEnvelope res = client.getLastResponse();
+		
+		RelatesTo rt = res.getHeaderElement(RelatesTo.class);
+		String id = rt.getUnknownAttributes().get(TrustConstants.WSU_ID);
+		
+		boolean found = false;
+		NodeList nl = res.getXMLObject().getDOM().getElementsByTagNameNS(javax.xml.crypto.dsig.XMLSignature.XMLNS, "Reference");
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element e = (Element) nl.item(i);
+			if (("#" + id).equals(e.getAttribute("URI"))) {
+				found = true;
+				break;
+			}
+			
+		}
+		
+		assertTrue(found);
+
+		
 	}
 	
 	private OIOAssertion getAssertion(Element e) {
