@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 
 namespace OIOSaml.Serviceprovider.Saml2GenevaFix
 {
-    public class Saml2InitiatorSecurityToken : Saml2SecurityToken
+    public class OIOSaml2SecurityToken : Saml2SecurityToken
     {
         public override T CreateKeyIdentifierClause<T>()
         {
@@ -13,12 +13,12 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
 
         #region Constructors
 
-        public Saml2InitiatorSecurityToken(Saml2Assertion assertion)
+        public OIOSaml2SecurityToken(Saml2Assertion assertion)
             : base(assertion)
         {
         }
 
-        public Saml2InitiatorSecurityToken(Saml2Assertion assertion, ReadOnlyCollection<SecurityKey> keys, SecurityToken issuerToken)
+        public OIOSaml2SecurityToken(Saml2Assertion assertion, ReadOnlyCollection<SecurityKey> keys, SecurityToken issuerToken)
             : base(assertion, keys, issuerToken)
         {
         }

@@ -2,7 +2,6 @@ using System.IdentityModel.Selectors;
 using System.IdentityModel.Tokens;
 using System.Xml;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using OIOSaml.Serviceprovider.Saml2GenevaFix;
 
 namespace OIOSaml.Serviceprovider.Saml2GenevaFix
 {
@@ -13,10 +12,11 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
         protected override SecurityToken ReadTokenCore(XmlReader reader, SecurityTokenResolver tokenResolver)
         {
             var token = (Saml2SecurityToken)serializer.ReadToken(reader, tokenResolver);
-            return new Saml2InitiatorSecurityToken(token.Assertion, token.SecurityKeys, token.IssuerToken);
+            return new OIOSaml2SecurityToken(token.Assertion, token.SecurityKeys, token.IssuerToken);
         }
 
         #region WrappedPassthroughMethods
+
         public Saml2InitiatorSecurityTokenSerializer(SecurityTokenSerializer serializer)
         {
             this.serializer = serializer;
