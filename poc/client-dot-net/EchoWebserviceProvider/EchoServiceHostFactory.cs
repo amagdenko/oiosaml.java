@@ -5,6 +5,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Tokens;
 using OIOSaml.Serviceprovider.Binding;
+using OIOSaml.Serviceprovider.Saml2GenevaFix;
 
 namespace EchoWebserviceProvider
 {
@@ -13,17 +14,17 @@ namespace EchoWebserviceProvider
         public override ServiceHostBase CreateServiceHost(string constructorString, Uri[] baseAddresses)
         {
             ServiceHost serviceHost = new EchoServiceHost(baseAddresses);
-            Binding oioBinding = new OIOServiceproviderBinding();
-            ServiceEndpoint endpoint = serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService", oioBinding, "Echo");
+            Binding oioBinding = new ServiceproviderBinding();
+            serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService", oioBinding, "Echo");
 
-            FederatedServiceCredentials.ConfigureServiceHost(serviceHost);
+            OIOFederatedServiceCredentials.ConfigureServiceHost(serviceHost);
 
             var federatedCredentials = (FederatedServiceCredentials)serviceHost.Credentials;
 
             // Remove the default ServiceCredentials behavior.
             serviceHost.Description.Behaviors.Remove<ServiceCredentials>();
 
-            serviceHost.Description.Behaviors.Add(new Saml2InitiatorFederatedServiceCredentials(federatedCredentials));
+            serviceHost.Description.Behaviors.Add(new OIOFederatedServiceCredentials(federatedCredentials));
             return serviceHost;
         }
     }
