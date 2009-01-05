@@ -9,7 +9,6 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
         public OIOFederatedSecurityTokenManger(OIOFederatedServiceCredentials credentials)
             : base(credentials,credentials.SecurityTokenHandlers, credentials.ClaimsAuthenticationManager, credentials.SaveBootstrapTokenInSession)
         {
-
         }
 
         public override SecurityTokenSerializer CreateSecurityTokenSerializer(SecurityTokenVersion version)

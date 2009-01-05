@@ -1,6 +1,7 @@
 using System.IdentityModel.Selectors;
 using System.IdentityModel.Tokens;
 using System.Xml;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 
 namespace OIOSaml.Serviceprovider.Saml2GenevaFix
@@ -11,8 +12,13 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
 
         protected override SecurityToken ReadTokenCore(XmlReader reader, SecurityTokenResolver tokenResolver)
         {
-            var token = (Saml2SecurityToken)serializer.ReadToken(reader, tokenResolver);
-            return new OIOSaml2SecurityToken(token.Assertion, token.SecurityKeys, token.IssuerToken);
+            var securityToken = serializer.ReadToken(reader, tokenResolver);
+            if (securityToken is Saml2SecurityToken)
+            {
+                var saml2Token = (Saml2SecurityToken)securityToken;
+                return new OIOSaml2SecurityToken(saml2Token.Assertion, saml2Token.SecurityKeys, saml2Token.IssuerToken);
+            }
+            return securityToken;
         }
 
         #region WrappedPassthroughMethods
@@ -20,6 +26,10 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
         public Saml2InitiatorSecurityTokenSerializer(SecurityTokenSerializer serializer)
         {
             this.serializer = serializer;
+            var securityTokenSerializerAdapter = (SecurityTokenSerializerAdapter) serializer;
+            securityTokenSerializerAdapter.SecurityTokenHandlers.Remove(
+                securityTokenSerializerAdapter.SecurityTokenHandlers[typeof (Saml2SecurityToken)]);
+            securityTokenSerializerAdapter.SecurityTokenHandlers.Add(new OIOSaml2SecurityTokenHandler());
         }
 
         protected override bool CanReadTokenCore(XmlReader reader)
@@ -29,7 +39,8 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
 
         protected override bool CanWriteTokenCore(SecurityToken token)
         {
-            return serializer.CanWriteToken(token);
+            bool flag = serializer.CanWriteToken(token);
+            return flag;
         }
 
         protected override bool CanReadKeyIdentifierCore(XmlReader reader)

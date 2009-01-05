@@ -32,6 +32,18 @@ namespace Client
         [Test]
         public void RequestToken()
         {
+            Saml2NameIdentifier identifier = new Saml2NameIdentifier("http://localhost/Echo");
+
+            Saml2Assertion assertion = new Saml2Assertion(identifier);
+
+            assertion.Issuer = new Saml2NameIdentifier("idp1.test.oio.dk");
+            assertion.Subject = new Saml2Subject(new Saml2NameIdentifier("Casper", new Uri("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified")));
+            Saml2Attribute atribue = new Saml2Attribute("dk:gov:saml:attribute:AssuranceLevel", "2");
+            atribue.NameFormat = new Uri("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
+
+            assertion.Statements.Add(new Saml2AttributeStatement(atribue));
+            SecurityToken token2 = new Saml2SecurityToken(assertion);
+
             //Uri STSAddress = new Uri("http://213.237.161.81:8082/sts/TokenService");
             Uri STSAddress = new Uri("http://jre-mac.trifork.com:8081/sts/TokenService");
             var clientCredentials = new ClientCredentials();
@@ -51,7 +63,7 @@ namespace Client
             rst.AppliesTo = new EndpointAddress(ServiceAddress);
             rst.TokenType = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
             rst.KeyType = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey";
-
+            rst.OnBehalfOf = new SecurityTokenElement(token2);
             SecurityKeyIdentifierClause clause = new X509RawDataKeyIdentifierClause(clientCertifikat);
             rst.UseKey = new UseKey(new SecurityKeyIdentifier(clause), new X509SecurityToken(clientCertifikat));
 

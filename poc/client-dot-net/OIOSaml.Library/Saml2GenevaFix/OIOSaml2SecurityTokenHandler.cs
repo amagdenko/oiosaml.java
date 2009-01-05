@@ -13,6 +13,14 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
 {
     public class OIOSaml2SecurityTokenHandler : Saml2SecurityTokenHandler
     {
+        public override Type TokenType
+        {
+            get
+            {
+                return typeof(OIOSaml2SecurityToken);
+            }
+        }
+
         public OIOSaml2SecurityToken ReadOIOSaml2SecurityToken(XmlReader reader)
         {
             Saml2Assertion assertion = this.ReadAssertion(reader);

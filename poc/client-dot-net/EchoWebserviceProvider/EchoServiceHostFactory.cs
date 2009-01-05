@@ -6,6 +6,7 @@ using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Tokens;
 using OIOSaml.Serviceprovider.Binding;
 using OIOSaml.Serviceprovider.Saml2GenevaFix;
+using System.ServiceModel.Security;
 
 
 namespace EchoWebserviceProvider
@@ -26,6 +27,9 @@ namespace EchoWebserviceProvider
             serviceHost.Description.Behaviors.Remove<ServiceCredentials>();
 
             serviceHost.Description.Behaviors.Add(new OIOSaml.Serviceprovider.Saml2GenevaFix.OIOFederatedServiceCredentials(federatedCredentials));
+            serviceHost.Credentials.ClientCertificate.Authentication.CertificateValidationMode =
+                X509CertificateValidationMode.None;
+
             return serviceHost;
         }
     }
