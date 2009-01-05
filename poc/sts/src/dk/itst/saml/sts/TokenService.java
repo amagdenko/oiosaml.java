@@ -39,6 +39,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Subject;
 import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml2.core.SubjectConfirmationData;
@@ -80,6 +83,7 @@ import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Utils;
+import dk.itst.oiosaml.sp.util.AttributeUtil;
 import dk.itst.oiosaml.trust.OIOSoapEnvelope;
 import dk.itst.oiosaml.trust.SigningPolicy;
 import dk.itst.oiosaml.trust.TrustBootstrap;
@@ -156,12 +160,12 @@ public class TokenService extends HttpServlet {
 		requestedSecurityToken.getUnknownXMLObjects().add(assertion);
 		
 		RequestedAttachedReference attached = SAMLUtil.buildXMLObject(RequestedAttachedReference.class);
-		SecurityTokenReference tokenReference = generateTokenReference(assertion);
-		attached.setSecurityTokenReference(tokenReference);
+		attached.setSecurityTokenReference(generateTokenReference(assertion));
 		rstr.setRequestedAttachedReference(attached);
 		
 		rstr.setRequestedUnattachedReference(SAMLUtil.buildXMLObject(RequestedUnattachedReference.class));
-		rstr.getRequestedUnattachedReference().setSecurityTokenReference(SAMLUtil.clone(tokenReference));
+		rstr.getRequestedUnattachedReference().setSecurityTokenReference(generateTokenReference(assertion));
+		rstr.addNamespace(new Namespace(SecurityTokenReference.TOKEN_TYPE_ATTR_NAME.getNamespaceURI(), "wsse11"));
 		
 		
 		res.setBody(rstrc);
@@ -204,6 +208,7 @@ public class TokenService extends HttpServlet {
 		keyIdentifier.setValue(assertion.getID());
 		keyIdentifier.setValueType(TrustConstants.SAMLID);
 		keyIdentifier.setEncodingType(null);
+		tokenReference.setTokenType(TrustConstants.TOKEN_TYPE_SAML_20);
 		tokenReference.setKeyIdentifier(keyIdentifier);
 		return tokenReference;
 	}
@@ -217,7 +222,10 @@ public class TokenService extends HttpServlet {
 		Subject subject = SAMLUtil.buildXMLObject(Subject.class);
 		
 		if (bootstrap != null) {
-			subject.setNameID(SAMLUtil.clone(bootstrap.getAssertion().getSubject().getNameID()));
+			NameID nameID = bootstrap.getAssertion().getSubject().getNameID();
+			NameID nameId = SAMLUtil.createNameID(nameID.getValue());
+			nameId.setFormat(nameID.getFormat());
+			subject.setNameID(nameId);
 		}
 		
 		SubjectConfirmation confirmation = SAMLUtil.buildXMLObject(SubjectConfirmation.class);
@@ -245,7 +253,21 @@ public class TokenService extends HttpServlet {
 		
 		
 		if (bootstrap != null) {
-			a.getAttributeStatements().add(SAMLUtil.clone(bootstrap.getAssertion().getAttributeStatements().get(0)));
+			for (AttributeStatement as : bootstrap.getAssertion().getAttributeStatements()) {
+				AttributeStatement newAs = SAMLUtil.buildXMLObject(AttributeStatement.class);
+				a.getAttributeStatements().add(newAs);
+				
+				for (Attribute attr : as.getAttributes()) {
+					Attribute newAttr = SAMLUtil.buildXMLObject(Attribute.class);
+					newAs.getAttributes().add(newAttr);
+					
+					newAttr.setFriendlyName(attr.getFriendlyName());
+					newAttr.setName(attr.getName());
+					newAttr.setNameFormat(attr.getNameFormat());
+					
+					newAttr.getAttributeValues().add(AttributeUtil.createAttributeValue(AttributeUtil.extractAttributeValueValue(attr)));
+				}
+			}
 		}
 		a.addNamespace(new Namespace(XMLConstants.W3C_XML_SCHEMA_NS_URI, "xs"));
 		a.addNamespace(new Namespace(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "xsi"));
@@ -300,7 +322,7 @@ public class TokenService extends HttpServlet {
 		XMLSignature signature = xsf.newXMLSignature(signedInfo, ki, null, signatureId, null);
         
         String xml = XMLHelper.nodeToString(assertion.getDOM());
-        log.debug("Signing envelope: " + xml);
+        log.debug("Signing assertion: " + xml);
         Element element = SAMLUtil.loadElementFromString(xml);
         
         Node next = element.getElementsByTagNameNS(Subject.DEFAULT_ELEMENT_NAME.getNamespaceURI(), Subject.DEFAULT_ELEMENT_LOCAL_NAME).item(0);
