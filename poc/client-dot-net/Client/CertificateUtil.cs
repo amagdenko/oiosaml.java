@@ -20,7 +20,7 @@ namespace Microsoft.IdentityModel.Samples.TrustClient
     /// </summary>
     public class CertificateUtil
     {
-        public static X509Certificate2 GetCertificate(string serialnumber, StoreLocation location, StoreName name)
+        public static X509Certificate2 GetCertificate(string subjectName, StoreLocation location, StoreName name)
         {
             X509Store store = new X509Store(name, location);
             X509Certificate2Collection certificates = null;
@@ -39,18 +39,19 @@ namespace Microsoft.IdentityModel.Samples.TrustClient
                 {
                     X509Certificate2 cert = certificates[i];
 
-                    if (cert.GetSerialNumberString().ToLower() == serialnumber.ToLower())
+                    if (cert.SubjectName.Name.ToLower() == subjectName.ToLower())
                     {
                         if (result != null)
-                            throw new ApplicationException(string.Format("Found more than one certificate with the following subject name: {0}", serialnumber));
+                            throw new ApplicationException(string.Format("Found more than one certificate with the following subject name: {0}", subjectName));
 
                         result = new X509Certificate2(cert);
                     }
                 }
 
+
                 if (result == null)
                 {
-                    throw new ApplicationException(string.Format("Did not find any certificate with the following subject name: {0}", serialnumber));
+                    throw new ApplicationException(string.Format("Did not find any certificate with the following subject name: {0}", subjectName));
                 }
 
                 return result;
