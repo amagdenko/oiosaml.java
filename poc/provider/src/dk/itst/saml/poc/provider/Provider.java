@@ -47,11 +47,13 @@ public class Provider {
 	public @WebResult(name="output", targetNamespace="http://provider.poc.saml.itst.dk/") Structure echo(
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework, 
 			@WebParam(name="input", targetNamespace="http://provider.poc.saml.itst.dk/") Structure input) {
+		FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
 		try {
-			FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
-			
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
+			if (subject.getPublicCredentials().size() != 1) {
+				throw new SOAPFaultException(SOAPFactory.newInstance().createFault("Invalid number of credentials: " + subject.getPublicCredentials().size() + ", expected 1", new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurityToken")));
+			}
 			
 			OIOAssertion assertion = new OIOAssertion(getCredential(subject));
 			HttpServletRequest req = (HttpServletRequest) context.getMessageContext().get(MessageContext.SERVLET_REQUEST);
