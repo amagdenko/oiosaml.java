@@ -3,6 +3,8 @@ package dk.itst.oiosaml.trust;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+
 import javax.xml.namespace.QName;
 
 import org.joda.time.DateTime;
@@ -10,17 +12,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Body;
+import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.x509.BasicX509Credential;
+import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
+import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.model.OIOSamlObject;
+import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
+import dk.itst.oiosaml.sp.service.util.SOAPClient;
 
 
 public class RequestTest extends AbstractTests {
@@ -172,5 +183,69 @@ public class RequestTest extends AbstractTests {
 			assertEquals(new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurity"), ex.getFault().getCode().getValue());			
 		}
 	}
+
+	@Test
+	public void tokensCanBeReplacedWhenNotProtected() throws Exception {
+		client.getToken(null);
+		
+		client.setProtectTokens(false);
+		SOAPClientStub soapClient = new SOAPClientStub();
+		client.setSOAPClient(soapClient);
+		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		
+		Element env = SAMLUtil.loadElementFromString(soapClient.xml);
+		NodeList nl = env.getElementsByTagNameNS(TrustConstants.WSSE_NS, "KeyIdentifier");
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element item = (Element) nl.item(i);
+			item.setTextContent(token.getAttribute("ID"));
+		}
+		
+		Element a = (Element) env.getElementsByTagNameNS(Assertion.TYPE_NAME.getNamespaceURI(), "Assertion").item(0);
+		Node localToken = a.getOwnerDocument().adoptNode(token);
+		a.getParentNode().replaceChild(localToken, a);
+		
+		new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(env), getProperty("action"));
+	}
 	
+	@Test(expected=SOAPException.class)
+	public void securityTokenReferenceCannotBeReplaced() throws Exception {
+		client.getToken(null);
+		
+		client.setProtectTokens(true);
+		SOAPClientStub soapClient = new SOAPClientStub();
+		client.setSOAPClient(soapClient);
+		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		
+		Element env = SAMLUtil.loadElementFromString(soapClient.xml);
+		NodeList nl = env.getElementsByTagNameNS(TrustConstants.WSSE_NS, "KeyIdentifier");
+		Element item = (Element) nl.item(nl.getLength() - 1);
+		item.setTextContent(token.getAttribute("ID"));
+		
+		Element a = (Element) env.getElementsByTagNameNS(Assertion.TYPE_NAME.getNamespaceURI(), "Assertion").item(0);
+		Node localToken = a.getOwnerDocument().adoptNode(token);
+		a.getParentNode().insertBefore(localToken, a);
+		
+		new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(env), getProperty("action"));
+		fail();
+	}
+	
+	private static class SOAPClientStub implements SOAPClient {
+		private String xml;
+
+		public Envelope wsCall(XMLObject arg0, LogUtil arg1, String arg2, String arg3, String arg4, boolean arg5) throws IOException {
+			return null;
+		}
+
+		public XMLObject wsCall(OIOSamlObject arg0, LogUtil arg1, String arg2, String arg3, String arg4, boolean arg5) throws IOException {
+			return null;
+		}
+
+		public Envelope wsCall(String arg0, String arg1, String arg2, boolean arg3, String xml, String arg5) throws IOException,
+				SOAPException {
+			
+			this.xml = xml;
+			return (Envelope) OIOSoapEnvelope.buildResponse(new SigningPolicy(false), new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(xml))).getXMLObject();
+		}
+		
+	}
 }
