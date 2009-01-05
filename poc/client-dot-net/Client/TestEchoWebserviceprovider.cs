@@ -33,7 +33,7 @@ namespace Client
         {
             ChannelFactory<IEchoService> echoServiceFactory = new ChannelFactory<IEchoService>(new ServiceproviderBinding(), new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity("TDC TOTALLØSNINGER A/S - TDC Test")));
 
-            echoServiceFactory.Credentials.ClientCertificate.Certificate = CertificateUtil.GetCertificate("CN=localhost",
+            echoServiceFactory.Credentials.ClientCertificate.Certificate = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK",
                                                                                               StoreLocation.LocalMachine,
                                                                                               StoreName.My);
             echoServiceFactory.Credentials.IssuedToken.LocalIssuerBinding = new SecurityTokenServiceBinding();
