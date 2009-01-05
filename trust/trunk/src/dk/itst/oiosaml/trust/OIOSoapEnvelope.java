@@ -599,7 +599,12 @@ public class OIOSoapEnvelope {
 		
 		return new OIOAssertion(securityToken).isHolderOfKey();
 	}
-	
+
+	/**
+	 * Get the wsa:MessageID.
+	 *  
+	 * @return The MessageID or <code>null</code> if the envelope does not contain a message id tag.
+	 */
 	public String getMessageID() {
 		MessageID mid = SAMLUtil.getFirstElement(envelope.getHeader(), MessageID.class);
 		if (mid == null) return null;
@@ -622,7 +627,11 @@ public class OIOSoapEnvelope {
 		ui.setRedirect(redirect);
 		addHeaderElement(ui);
 	}
-	
+
+	/**
+	 * Get the SOAP version of the envelope, identified by the root namespace.
+	 * @return
+	 */
 	public String getSoapVersion() {
 		return envelope.getElementQName().getNamespaceURI();
 	}
