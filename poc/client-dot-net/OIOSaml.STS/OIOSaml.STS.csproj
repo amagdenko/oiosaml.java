@@ -59,7 +59,7 @@
     <Compile Include="TrustedIssuerNameRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OIOSaml.Serviceprovider\OIOSaml.Library.csproj">
+    <ProjectReference Include="..\OIOSaml.Library\OIOSaml.Library.csproj">
       <Project>{8F9357AA-D95F-45E2-B585-F83805E07AC8}</Project>
       <Name>OIOSaml.Serviceprovider</Name>
     </ProjectReference>

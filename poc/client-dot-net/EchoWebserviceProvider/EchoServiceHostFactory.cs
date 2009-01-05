@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using OIOSaml.Serviceprovider.Binding;
 using OIOSaml.Serviceprovider.Saml2GenevaFix;
 
+
 namespace EchoWebserviceProvider
 {
     public class EchoServiceHostFactory : ServiceHostFactoryBase
@@ -24,7 +25,7 @@ namespace EchoWebserviceProvider
             // Remove the default ServiceCredentials behavior.
             serviceHost.Description.Behaviors.Remove<ServiceCredentials>();
 
-            serviceHost.Description.Behaviors.Add(new OIOFederatedServiceCredentials(federatedCredentials));
+            serviceHost.Description.Behaviors.Add(new OIOSaml.Serviceprovider.Saml2GenevaFix.OIOFederatedServiceCredentials(federatedCredentials));
             return serviceHost;
         }
     }

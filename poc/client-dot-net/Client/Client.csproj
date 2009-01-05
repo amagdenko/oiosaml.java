@@ -86,7 +86,7 @@
       <Project>{E5C8168E-6B9A-46A3-A382-DAC93618D1C8}</Project>
       <Name>EchoWebserviceprovider.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OIOSaml.Serviceprovider\OIOSaml.Library.csproj">
+    <ProjectReference Include="..\OIOSaml.Library\OIOSaml.Library.csproj">
       <Project>{8F9357AA-D95F-45E2-B585-F83805E07AC8}</Project>
       <Name>OIOSaml.Library</Name>
     </ProjectReference>

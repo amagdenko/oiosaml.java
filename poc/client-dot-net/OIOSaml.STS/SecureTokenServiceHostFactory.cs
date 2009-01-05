@@ -6,7 +6,6 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Microsoft.IdentityModel.Samples.TrustClient;
-using OIOSaml.Serviceprovider.Binding;
 
 /// <summary>
     /// Creates service instance to handle incoming request.

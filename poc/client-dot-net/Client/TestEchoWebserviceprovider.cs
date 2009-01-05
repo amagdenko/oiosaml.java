@@ -1,22 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
 using System.ServiceModel.Description;
-using System.Text;
-using Client.Test;
 using EchoWebserviceProvider;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Microsoft.IdentityModel.Samples.TrustClient;
-using Microsoft.IdentityModel.SecurityTokenService;
-using Microsoft.IdentityModel.Tokens.Saml2;
 using NUnit.Framework;
 using OIOSaml.Serviceprovider.Binding;
 using OIOSaml.Serviceprovider.Saml2GenevaFix;
-using System.IdentityModel.Tokens;
 
 namespace Client
 {
