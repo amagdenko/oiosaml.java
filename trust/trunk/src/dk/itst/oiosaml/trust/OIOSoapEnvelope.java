@@ -154,6 +154,10 @@ public class OIOSoapEnvelope {
 					addSignatureElement((AttributeExtensibleXMLObject) o);
 				}
 			}
+			if (envelope.getBody() != null) {
+				body = envelope.getBody();
+				addSignatureElement(body);
+			}
 		}
 	}
 	
@@ -192,7 +196,8 @@ public class OIOSoapEnvelope {
 		
 		XSAny framework = new XSAnyBuilder().buildObject("urn:liberty:sb:2006-08", "Framework", "sbf");
 		framework.getUnknownAttributes().put(new QName("version"), "2.0");
-		framework.getUnknownAttributes().put(new QName("urn:liberty:sb:eGovprofile", "profile"), "urn:liberty:sb:profile:basicegovsimple");
+		framework.getUnknownAttributes().put(new QName("urn:liberty:sb:profile", "profile"), "urn:liberty:sb:profile:basic");
+		framework.getUnknownAttributes().put(new QName(soapVersion, "mustUnderstand"), "1");
 		header.getUnknownXMLObjects().add(framework);
 		
 		Security security = SAMLUtil.buildXMLObject(Security.class);

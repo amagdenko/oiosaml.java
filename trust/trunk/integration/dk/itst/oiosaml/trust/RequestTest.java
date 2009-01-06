@@ -17,9 +17,11 @@ import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wsaddressing.To;
+import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
@@ -229,6 +231,49 @@ public class RequestTest extends AbstractTests {
 		fail();
 	}
 	
+	@Test
+	public void missingFrameworkHeaderShouldFail() throws Exception {
+		SOAPClientStub soapClient = new SOAPClientStub();
+		client.setSOAPClient(soapClient);
+		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		
+		Envelope env = (Envelope) SAMLUtil.unmarshallElementFromString(soapClient.xml);
+		env.getHeader().getUnknownXMLObjects().remove(env.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).get(0));
+		
+		env.getHeader().getUnknownXMLObjects().remove(SAMLUtil.getFirstElement(env.getHeader(), Security.class));
+		
+		OIOSoapEnvelope e = new OIOSoapEnvelope(env, true, new SigningPolicy(true));
+		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), true);
+		e.setTimestamp(5);
+		try {
+			new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(e.sign(credential)), getProperty("action"));
+		} catch (SOAPException ex) {
+			assertEquals(new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch"), ex.getFault().getCode().getValue());
+		}
+	}
+	
+	@Test
+	public void wrongFrameworkHeaderShouldFail() throws Exception {
+		SOAPClientStub soapClient = new SOAPClientStub();
+		client.setSOAPClient(soapClient);
+		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		
+		Envelope env = (Envelope) SAMLUtil.unmarshallElementFromString(soapClient.xml);
+		XSAny framework = (XSAny) env.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).get(0);
+		framework.getUnknownAttributes().put(new QName("version"), "1.0");
+		
+		env.getHeader().getUnknownXMLObjects().remove(SAMLUtil.getFirstElement(env.getHeader(), Security.class));
+		
+		OIOSoapEnvelope e = new OIOSoapEnvelope(env, true, new SigningPolicy(true));
+		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), true);
+		e.setTimestamp(5);
+		try {
+			new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(e.sign(credential)), getProperty("action"));
+		} catch (SOAPException ex) {
+			assertEquals(new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch"), ex.getFault().getCode().getValue());
+		}
+	}
+
 	private static class SOAPClientStub implements SOAPClient {
 		private String xml;
 
