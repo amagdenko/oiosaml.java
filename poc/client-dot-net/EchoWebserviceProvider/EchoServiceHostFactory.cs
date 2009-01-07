@@ -5,6 +5,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Tokens;
 using OIOSaml.Serviceprovider.Binding;
+using OIOSaml.Serviceprovider.Headers;
 using OIOSaml.Serviceprovider.Saml2GenevaFix;
 using System.ServiceModel.Security;
 
@@ -17,7 +18,8 @@ namespace EchoWebserviceProvider
         {
             ServiceHost serviceHost = new EchoServiceHost(baseAddresses);
             Binding oioBinding = new ServiceproviderBinding();
-            serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService", oioBinding, "Echo");
+            var serviceEndpoint = serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService2", oioBinding, "Echo");
+            //serviceEndpoint.Behaviors.Add(new ProtectionLevelEndpointBehavior());
 
             OIOFederatedServiceCredentials.ConfigureServiceHost(serviceHost);
 
