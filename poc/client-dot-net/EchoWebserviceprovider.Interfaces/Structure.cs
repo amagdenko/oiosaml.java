@@ -1,9 +1,9 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace EchoWebserviceProvider
 {
-    [DataContract(Namespace = "http://provider.poc.saml.itst.dk/")]
-    public partial class Structure
+    [System.Serializable]
+    public  class Structure
     {
 
         private Structure[] structureField;
@@ -11,7 +11,7 @@ namespace EchoWebserviceProvider
         private string valueField;
 
         /// <remarks/>
-        [DataMember(Name = "structure", Order = 0)]
+        [XmlElement(ElementName = "structure", Order = 0)]
         public Structure[] structure
         {
             get
@@ -25,7 +25,7 @@ namespace EchoWebserviceProvider
         }
 
         /// <remarks/>
-        [DataMember(Order = 1)]
+        [XmlElement(Order = 1)]
         public string value
         {
             get

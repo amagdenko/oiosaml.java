@@ -55,6 +55,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structure.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OIOSaml.Library\OIOSaml.Library.csproj">
+      <Project>{8F9357AA-D95F-45E2-B585-F83805E07AC8}</Project>
+      <Name>OIOSaml.Library</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
