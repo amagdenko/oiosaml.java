@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OIOSaml.STS", "OIOSaml.STS\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{B7122642-B987-41F9-BDAE-B3348E27B0A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoWebserviceProvider", "EchoWebserviceProvider\EchoWebserviceProvider.csproj", "{BD8689F6-6F9E-4E21-B68D-6347414827A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{B7122642-B987-41F9-BDAE-B3348E27B0A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7122642-B987-41F9-BDAE-B3348E27B0A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7122642-B987-41F9-BDAE-B3348E27B0A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD8689F6-6F9E-4E21-B68D-6347414827A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD8689F6-6F9E-4E21-B68D-6347414827A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD8689F6-6F9E-4E21-B68D-6347414827A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD8689F6-6F9E-4E21-B68D-6347414827A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
