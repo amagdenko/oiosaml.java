@@ -59,17 +59,26 @@
   <ItemGroup>
     <Compile Include="Binding\ServiceproviderBinding.cs" />
     <Compile Include="Binding\SecurityTokenServiceBinding.cs" />
-    <Compile Include="ClientFactories\STSClientFactory.cs" />
+    <Compile Include="ClientFactories\WSTrustClientFactory.cs" />
+    <Compile Include="ClientFactories\WebserviceproviderChannelFactory.cs" />
     <Compile Include="Headers\LibertyHeader.cs" />
     <Compile Include="Headers\ProtectionlevelEndpointBehaviour.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Saml2GenevaFix\OIOFederatedClientCredentials.cs" />
-    <Compile Include="Saml2GenevaFix\OIOFederatedClientCredentialsTokenManager.cs" />
-    <Compile Include="Saml2GenevaFix\OIOFederatedSecurityTokenManger.cs" />
-    <Compile Include="Saml2GenevaFix\OIOFederatedServiceCredentials.cs" />
-    <Compile Include="Saml2GenevaFix\OIOSaml2SecurityToken.cs" />
-    <Compile Include="Saml2GenevaFix\OIOSaml2SecurityTokenHandler.cs" />
-    <Compile Include="Saml2GenevaFix\OIOSaml2SecurityTokenSerializer.cs" />
+    <Compile Include="Saml2GenevaFix\OIOFederatedSecurityTokenManger.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Saml2GenevaFix\OIOFederatedServiceCredentials.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Saml2GenevaFix\OIOSaml2SecurityToken.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Saml2GenevaFix\OIOSaml2SecurityTokenHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Saml2GenevaFix\OIOSaml2SecurityTokenSerializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TrustedIssuerNameRegistry.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

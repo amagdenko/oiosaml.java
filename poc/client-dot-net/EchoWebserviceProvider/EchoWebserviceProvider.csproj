@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EchoWebserviceprovider.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\EchoWebserviceprovider.Interfaces\bin\Debug\EchoWebserviceprovider.Interfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.IdentityModel, Version=0.5.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -60,13 +64,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EchoWebserviceprovider.Interfaces\EchoWebserviceprovider.Interfaces.csproj">
-      <Project>{E5C8168E-6B9A-46A3-A382-DAC93618D1C8}</Project>
-      <Name>EchoWebserviceprovider.Interfaces</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OIOSaml.Library\OIOSaml.Library.csproj">
       <Project>{8F9357AA-D95F-45E2-B585-F83805E07AC8}</Project>
-      <Name>OIOSaml.Serviceprovider</Name>
+      <Name>OIOSaml.Library</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -88,7 +88,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>56832</DevelopmentServerPort>
+          <DevelopmentServerPort>56833</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

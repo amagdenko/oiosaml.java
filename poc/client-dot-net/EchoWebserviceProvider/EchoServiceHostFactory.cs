@@ -5,9 +5,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Tokens;
 using OIOSaml.Serviceprovider.Binding;
-using OIOSaml.Serviceprovider.Headers;
 using OIOSaml.Serviceprovider.Saml2GenevaFix;
-using System.ServiceModel.Security;
 
 
 namespace EchoWebserviceProvider
@@ -21,17 +19,15 @@ namespace EchoWebserviceProvider
             var serviceEndpoint = serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService2", oioBinding, "Echo");
             //serviceEndpoint.Behaviors.Add(new ProtectionLevelEndpointBehavior());
 
-            OIOFederatedServiceCredentials.ConfigureServiceHost(serviceHost);
+            FederatedServiceCredentials.ConfigureServiceHost(serviceHost);
 
             var federatedCredentials = (FederatedServiceCredentials)serviceHost.Credentials;
 
             // Remove the default ServiceCredentials behavior.
             serviceHost.Description.Behaviors.Remove<ServiceCredentials>();
 
-            serviceHost.Description.Behaviors.Add(new OIOSaml.Serviceprovider.Saml2GenevaFix.OIOFederatedServiceCredentials(federatedCredentials));
-            serviceHost.Credentials.ClientCertificate.Authentication.CertificateValidationMode =
-                X509CertificateValidationMode.None;
-
+            serviceHost.Description.Behaviors.Add(new OIOFederatedServiceCredentials(federatedCredentials));
+           
             return serviceHost;
         }
     }

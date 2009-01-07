@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace EchoWebserviceProvider
+namespace EchoWebserviceprovider.Interfaces
 {
     [System.Serializable]
     public  class Structure

@@ -11,7 +11,7 @@ using OIOSaml.Serviceprovider.Binding;
 
 namespace OIOSaml.Serviceprovider.ClientFactories
 {
-    public class STSClientFactory
+    public class WSTrustClientFactory
     {
         public static WSTrustClient GetWSTrustClient(X509Certificate2 clientCertificate, X509Certificate2 securityTokenServiceCertificate, EndpointAddress endpointAddress)
         {
@@ -25,7 +25,7 @@ namespace OIOSaml.Serviceprovider.ClientFactories
             return trustClient;
         }
 
-        public static RequestSecurityToken MakeRequestSecurityToken(SecurityToken bootstrapSecurityToken, X509Certificate2 clientCertificate, Uri RelyingPartyAdress)
+        public static RequestSecurityToken MakeOnBehalfOfSTSRequestSecurityToken(SecurityToken bootstrapSecurityToken, X509Certificate2 clientCertificate, Uri RelyingPartyAdress)
         {
             var requestSecurityToken = new RequestSecurityToken(WSTrust13Constants.RequestTypes.Issue);
             Uri ServiceAddress = RelyingPartyAdress;
@@ -37,5 +37,7 @@ namespace OIOSaml.Serviceprovider.ClientFactories
             requestSecurityToken.UseKey = new UseKey(new SecurityKeyIdentifier(clause), new X509SecurityToken(clientCertificate));
             return requestSecurityToken;
         }
+
+        
     }
 }
