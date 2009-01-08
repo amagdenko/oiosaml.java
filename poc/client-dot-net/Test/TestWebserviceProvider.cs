@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
 using EchoWebserviceProvider;
@@ -122,17 +123,16 @@ namespace Client
             var req = new echo();
             req.structureToEcho = new Structure();
             req.Framework = new LibertyFrameworkHeader();
-            req.Framework.Sbfprofile = "FailureToComply";//Failure
+            req.Framework.Profile = "FailureToComply";//Failure
 
             echoService.Echo(req);
         }
 
-        /// <summary>
-        /// LibertyHeader profile is a Must
-        /// </summary>
         [Test]
-        public void CorrectLibertyHeaderOnResponse()
+        public void DotNetServiceSSLConversation()
         {
+            ServicePointManager.ServerCertificateValidationCallback = delegate {return (true);};
+
             SecurityToken bootstrapSecurityToken = BootstrapSecurityTokenGenerator.MakeBootstrapSecurityToken();
 
             Uri audience = new Uri("http://localhost/Echo/service.svc/Echo");
@@ -141,7 +141,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
+            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("https://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo")));
 
             var req = new echo();
             req.structureToEcho = new Structure();
@@ -149,8 +149,54 @@ namespace Client
 
             var reply = echoService.Echo(req);
             Assert.IsNotNull(reply.Framework);
-            Assert.AreEqual("2.0", reply.Framework.Version);
-            Assert.AreEqual("urn:liberty:sb:profile", reply.Framework.Sbfprofile);
+        }
+
+        [Test]
+        public void JAVAServiceSSLConversation()
+        {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return (true);};
+
+            SecurityToken bootstrapSecurityToken = BootstrapSecurityTokenGenerator.MakeBootstrapSecurityToken();
+
+            Uri audience = new Uri("https://oiosaml.trifork.com:8082/poc-provider/GenevaProviderService");
+
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+
+            var token = STSConnection.GetIssuedToken(rst);
+
+            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("https://oiosaml.trifork.com:8082/poc-provider/GenevaProviderService")));
+
+            var req = new echo();
+            req.structureToEcho = new Structure();
+            req.structureToEcho.value = "kvlsjvsldk";
+            req.Framework = new LibertyFrameworkHeader();
+
+            var reply = echoService.Echo(req);
+            Assert.IsNotNull(reply.Framework);
+            Assert.IsNotNull(reply.structureToEcho.value);
+        }
+
+        [Test]
+        public void JAVAServiceNoSSLConversation()
+        {
+            SecurityToken bootstrapSecurityToken = BootstrapSecurityTokenGenerator.MakeBootstrapSecurityToken();
+
+            Uri audience = new Uri("http://jre-mac.trifork.com:8880/poc-provider/GenevaProviderService");
+
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+
+            var token = STSConnection.GetIssuedToken(rst);
+
+            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://jre-mac.trifork.com:8880/poc-provider/GenevaProviderService")));
+
+            var req = new echo();
+            req.structureToEcho = new Structure();
+            req.structureToEcho.value = "kvlsjvsldk";
+            req.Framework = new LibertyFrameworkHeader();
+
+            var reply = echoService.Echo(req);
+            Assert.IsNotNull(reply.Framework);
+            Assert.IsNotNull(reply.structureToEcho.value);
         }
     }
 }
