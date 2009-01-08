@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoWebserviceprovider.Inte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OIOSaml.Library", "OIOSaml.Library\OIOSaml.Library.csproj", "{8F9357AA-D95F-45E2-B585-F83805E07AC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Client\Test.csproj", "{B7122642-B987-41F9-BDAE-B3348E27B0A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{B7122642-B987-41F9-BDAE-B3348E27B0A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoWebserviceProvider", "EchoWebserviceProvider\EchoWebserviceProvider.csproj", "{BD8689F6-6F9E-4E21-B68D-6347414827A3}"
 EndProject
