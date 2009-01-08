@@ -3,7 +3,7 @@
 namespace EchoWebserviceprovider.Interfaces
 {
     [System.Serializable]
-    public  class Structure
+    public  class   Structure
     {
 
         private Structure[] structureField;
