@@ -1,6 +1,7 @@
 package dk.itst.oiosaml.trust;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class RequestTest extends AbstractTests {
 
 	private Element req;
 	private Element token;
+	private BasicX509Credential serviceCredential;
 	
 	@Before
 	public void setUp() {
@@ -59,6 +61,7 @@ public class RequestTest extends AbstractTests {
 		req = SAMLUtil.loadElementFromString(xml);
 		
 		client.setProtectTokens(Boolean.valueOf(getProperty("protectTokens")));
+		serviceCredential = credentialRepository.getCredential(getProperty("wsp.certificate"), getProperty("wsp.certificate.password"));
 	}
 	
 	@Test
@@ -67,6 +70,11 @@ public class RequestTest extends AbstractTests {
 		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, new ResultHandler<Element>() {
 			public void handleResult(Element result) throws Exception {
 				assertEquals("echoResponse", result.getLocalName());
+				assertEquals(1, result.getChildNodes().getLength());
+				assertEquals("structure", result.getChildNodes().item(0).getLocalName());
+				
+				Action action = client.getLastResponse().getHeaderElement(Action.class);
+				assertEquals("http://provider.poc.saml.itst.dk/Provider/echoResponse", action.getValue());
 			}
 		});
 	}
@@ -132,8 +140,6 @@ public class RequestTest extends AbstractTests {
 	
 	@Test
 	public void responseMustBeSigned() throws Exception {
-		BasicX509Credential serviceCredential = credentialRepository.getCredential(getProperty("wsp.certificate"), getProperty("wsp.certificate.password"));
-
 		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), serviceCredential.getPublicKey(), new ResultHandler<Element>() {
 			public void handleResult(Element result) throws Exception {
 				assertEquals("echoResponse", result.getLocalName());
@@ -228,7 +234,6 @@ public class RequestTest extends AbstractTests {
 		a.getParentNode().insertBefore(localToken, a);
 		
 		new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(env), getProperty("action"));
-		fail();
 	}
 	
 	@Test
@@ -243,11 +248,13 @@ public class RequestTest extends AbstractTests {
 		env.getHeader().getUnknownXMLObjects().remove(SAMLUtil.getFirstElement(env.getHeader(), Security.class));
 		
 		OIOSoapEnvelope e = new OIOSoapEnvelope(env, true, new SigningPolicy(true));
-		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), true);
+		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), Boolean.valueOf(getProperty("protectTokens")));
 		e.setTimestamp(5);
 		try {
 			new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(e.sign(credential)), getProperty("action"));
 		} catch (SOAPException ex) {
+			assertNotNull(ex.getFault());
+			assertNotNull(ex.getFault().getCode());
 			assertEquals(new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch"), ex.getFault().getCode().getValue());
 		}
 	}
@@ -265,7 +272,7 @@ public class RequestTest extends AbstractTests {
 		env.getHeader().getUnknownXMLObjects().remove(SAMLUtil.getFirstElement(env.getHeader(), Security.class));
 		
 		OIOSoapEnvelope e = new OIOSoapEnvelope(env, true, new SigningPolicy(true));
-		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), true);
+		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), Boolean.valueOf(getProperty("protectTokens")));
 		e.setTimestamp(5);
 		try {
 			new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(e.sign(credential)), getProperty("action"));
