@@ -1,6 +1,7 @@
 package dk.itst.saml.poc.provider;
 
 import javax.annotation.Resource;
+import javax.jws.HandlerChain;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -37,6 +38,7 @@ import dk.itst.saml.poc.idws.UserInteraction;
 
 @WebService
 @SOAPBinding(style=SOAPBinding.Style.DOCUMENT)
+@HandlerChain(file="handlers.xml")
 public class Provider {
 	private static final Logger log = Logger.getLogger(Provider.class);
 	
@@ -47,7 +49,6 @@ public class Provider {
 	public @WebResult(name="output", targetNamespace="http://provider.poc.saml.itst.dk/") Structure echo(
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework, 
 			@WebParam(name="input", targetNamespace="http://provider.poc.saml.itst.dk/") Structure input) {
-		FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
 		try {
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
@@ -64,8 +65,6 @@ public class Provider {
 			}
 			
 			return input;
-		} catch (FrameworkMismatchFault e) {
-			throw e;
 		} catch (XWSSecurityException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

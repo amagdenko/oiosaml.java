@@ -1,0 +1,7 @@
+<jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee">
+	<jws:handler-chain>
+		<jws:handler>
+			<jws:handler-class>dk.itst.saml.poc.provider.FrameworkHandler</jws:handler-class>
+		</jws:handler>
+	</jws:handler-chain>
+</jws:handler-chains>
