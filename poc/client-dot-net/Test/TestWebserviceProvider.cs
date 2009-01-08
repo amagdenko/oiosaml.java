@@ -84,7 +84,7 @@ namespace Client
         /// <summary>
         /// LibertyHeader is a Must
         /// </summary>
-        [Test, ExpectedException(typeof(FaultException))]
+        [Test, ExpectedException(typeof(FaultException<FrameworkFault>))]
         public void MissingLibertyHeader()
         {
             SecurityToken bootstrapSecurityToken = BootstrapSecurityTokenGenerator.MakeBootstrapSecurityToken();
@@ -107,7 +107,7 @@ namespace Client
         /// <summary>
         /// LibertyHeader profile is a Must
         /// </summary>
-        [Test, ExpectedException(typeof(FaultException))]
+        [Test, ExpectedException(typeof(FaultException<FrameworkFault>))]
         public void WrongProfileForLibertyHeader()
         {
             SecurityToken bootstrapSecurityToken = BootstrapSecurityTokenGenerator.MakeBootstrapSecurityToken();
