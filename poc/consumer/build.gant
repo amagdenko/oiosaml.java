@@ -65,7 +65,7 @@ target (generate: 'Generate source files') {
             classpath(refid: "classpath")
 	}
 	wsimport(xendorsed: "true", verbose: true, keep: true, destdir: "target/genclasses", sourcedestdir: "target/gensrc", wsdl: '${wsdl.uri}', fork: true, extension: true) {
-		jvmarg(value: "-Djavax.net.ssl.trustStore=/home/recht/.keystore")
+		jvmarg(value: "-Djavax.net.ssl.trustStore=${System.getProperty('user.home')}/.keystore")
 	}
 }
 
