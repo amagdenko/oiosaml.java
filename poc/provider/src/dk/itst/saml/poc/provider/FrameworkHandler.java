@@ -47,9 +47,10 @@ public class FrameworkHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 
 	public boolean handleFault(SOAPMessageContext context) {
-		return false;
+		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean handleMessage(SOAPMessageContext context) {
 		boolean outbound = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 		log.debug("Outbound message: " + outbound);
@@ -58,7 +59,7 @@ public class FrameworkHandler implements SOAPHandler<SOAPMessageContext> {
 				SOAPHeader h = context.getMessage().getSOAPHeader();
 				SOAPHeaderElement framework = h.addHeaderElement(FRAMEWORK);
 				framework.addAttribute(new QName("version"), "2.0");
-				framework.addAttribute(new QName("urn:liberty:sb:profile", "profile"), "urn:liberty:sb:profile:basic");
+				framework.addAttribute(new QName("urn:liberty:sb:profile", "profile", "sbfprofile"), "urn:liberty:sb:profile:basic");
 			} else {
 				Framework f = null;
 				Object[] headers = context.getHeaders(FRAMEWORK, jc, true);

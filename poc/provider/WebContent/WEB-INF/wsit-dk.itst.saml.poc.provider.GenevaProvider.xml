@@ -12,24 +12,16 @@
 	xmlns:sc="http://schemas.sun.com/2006/03/wss/server"
 	xmlns:wsa="http://www.w3.org/2005/08/addressing"
 	xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
-	xmlns:wspp="http://java.sun.com/xml/ns/wsit/policy" targetNamespace="http://provider.poc.saml.itst.dk/" name="ProviderService">
+	xmlns:wspp="http://java.sun.com/xml/ns/wsit/policy" targetNamespace="http://provider.poc.saml.itst.dk/" name="GenevaProviderService">
 	<message name="echo" />
 	<message name="echoResponse" />
-	<message name="requestInteract" />
-	<message name="requestInteractResponse" />
-	<message name="RequestToInteractFault" />
-	<portType name="Provider">
+	<portType name="GenevaProvider">
 		<operation name="echo">
 			<input message="tns:echo"></input>
 			<output message="tns:echoResponse"></output>
 		</operation>
-		<operation name="requestInteract" parameterOrder="parameters interact">
-			<input message="tns:requestInteract"/>
-			<output message="tns:requestInteractResponse"/>
-			<fault message="tns:RequestToInteractFault" name="RequestToInteractFault"/>
-	</operation>
 	</portType>
-	<binding name="ProviderPortBinding" type="tns:Provider">
+	<binding name="GenevaProviderPortBinding" type="tns:GenevaProvider">
 		<wsp:PolicyReference URI="#PortBindingPolicySymm"/>
 		<soap:binding transport="http://www.w3.org/2003/05/soap/bindings/HTTP/" style="document" />
 		<operation name="echo">
@@ -43,26 +35,10 @@
 				<soap:body use="literal"></soap:body>
 			</output>
 		</operation>
-		<operation name="requestInteract">
-			<soap:operation soapAction=""/>
-			<input>
-				<wsp:PolicyReference URI="#Input_Policy" />
-				<soap:body use="literal" parts="parameters"/>
-				<soap:header message="tns:requestInteract" part="interact" use="literal"/>
-			</input>
-			<output>
-				<wsp:PolicyReference URI="#Signing_Policy" />
-				<soap:body use="literal"/>
-			</output>
-			<fault name="RequestToInteractFault">
-				<wsp:PolicyReference URI="#Signing_Policy" />
-				<soap:fault name="RequestToInteractFault" use="literal"/>
-			</fault>
-		</operation>
 	</binding>
-	<service name="ProviderService">
-		<port name="ProviderPort" binding="tns:ProviderPortBinding">
-			<soap:address location="http://localhost:8080/poc-provider/ProviderService"></soap:address>
+	<service name="GenevaProviderService">
+		<port name="GenevaProviderPort" binding="tns:GenevaProviderPortBinding">
+			<soap:address location="http://localhost:8080/poc-provider/GenevaProviderService"></soap:address>
 		</port>
 	</service>
 	
@@ -87,12 +63,7 @@
 				 		</sp:InitiatorToken>
 				 		<sp:RecipientToken>
 				 			<wsp:Policy>
-				 				<sp:X509Token>
-				 					<wsp:Policy>
-				 						<sp:RequireKeyIdentifierReference />
-				 						<sp:WssX509V3Token11 />
-				 					</wsp:Policy>
-				 				</sp:X509Token>
+				 				<sp:X509Token />
 				 			</wsp:Policy>
 				 		</sp:RecipientToken>
 						<sp:AlgorithmSuite>
@@ -102,7 +73,6 @@
 						</sp:AlgorithmSuite>
 						<sp:IncludeTimestamp/>
 						<sp:OnlySignEntireHeadersAndBody />
-						<sp:ProtectTokens/>
 				 	</wsp:Policy>
 				 </sp:AsymmetricBinding>
 				<sp:Wss10>

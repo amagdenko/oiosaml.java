@@ -6,19 +6,14 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
-public class FrameworkMismatchFault extends SOAPFaultException {
+public class FrameworkMismatchFault {
 
-	public FrameworkMismatchFault(String version, String profile) throws SOAPException {
-		super(SOAPFactory.newInstance().
-				createFault("Framework version " + version + " in profile " + profile + " not valid", new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch")));
-	}
-	
-	public static FrameworkMismatchFault createFault(Framework fw) {
+	public static SOAPFaultException createFault(Framework fw) {
 		try {
 			if (fw == null) {
-				return new FrameworkMismatchFault(null, null);
+				return new SOAPFaultException(SOAPFactory.newInstance().createFault("Missing Framework header", new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch")));
 			} else {
-				return new FrameworkMismatchFault(fw.getVersion(), fw.getProfile());
+				return new SOAPFaultException(SOAPFactory.newInstance().createFault("Framework version " + fw.getVersion() + " in profile " + fw.getProfile() + " not valid", new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch")));
 			}
 		} catch (SOAPException e) {
 			throw new RuntimeException(e);
@@ -43,5 +38,5 @@ public class FrameworkMismatchFault extends SOAPFaultException {
 	private static void setError(MessageContext ctx) {
 		ctx.put(MessageContext.HTTP_RESPONSE_CODE, 500);
 	}
-
+	
 }

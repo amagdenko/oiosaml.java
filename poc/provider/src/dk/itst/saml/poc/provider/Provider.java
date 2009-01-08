@@ -37,7 +37,7 @@ import dk.itst.saml.poc.idws.RequestToInteractFault;
 import dk.itst.saml.poc.idws.UserInteraction;
 
 @WebService
-@SOAPBinding(style=SOAPBinding.Style.DOCUMENT)
+@SOAPBinding(style=SOAPBinding.Style.DOCUMENT, use = SOAPBinding.Use.LITERAL)
 @HandlerChain(file="handlers.xml")
 public class Provider {
 	private static final Logger log = Logger.getLogger(Provider.class);
@@ -46,9 +46,14 @@ public class Provider {
 	private WebServiceContext context;
 
 	@WebMethod(action="http://provider.poc.saml.itst.dk/Provider/echoRequest")
-	public @WebResult(name="output", targetNamespace="http://provider.poc.saml.itst.dk/") Structure echo(
+	public @WebResult(name="structure", targetNamespace="http://provider.poc.saml.itst.dk/") Structure echo(
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework, 
-			@WebParam(name="input", targetNamespace="http://provider.poc.saml.itst.dk/") Structure input) {
+			@WebParam(name="structure", targetNamespace="http://provider.poc.saml.itst.dk/") Structure input) {
+		return process(input, context, framework); 
+	}
+
+	public static Structure process(Structure input, WebServiceContext context, Framework fw) {
+		FrameworkMismatchFault.throwIfNecessary(fw, context.getMessageContext());
 		try {
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
@@ -70,10 +75,10 @@ public class Provider {
 			throw new RuntimeException(e);
 		} catch (SOAPException e) {
 			throw new RuntimeException(e);
-		} 
+		}
 	}
 	
-	private Assertion getCredential(Subject subject) {
+	private static Assertion getCredential(Subject subject) {
 		for (Object o : subject.getPublicCredentials()) {
 			if (o instanceof XMLStreamReader) {
 				String xml = printCredential((XMLStreamReader) o);
@@ -90,7 +95,7 @@ public class Provider {
 		throw new RuntimeException("No assertion in principal");
 	}
 	
-	private String printCredential(XMLStreamReader cred) {
+	private static String printCredential(XMLStreamReader cred) {
 		log.info("Credential: " + cred);
 		
 		return new StAXOMBuilder(cred).getDocumentElement().toString();
@@ -101,7 +106,6 @@ public class Provider {
 			@WebParam(name="UserInteraction", header=true, targetNamespace="urn:liberty:sb:2006-08") UserInteraction interact,
 			@WebParam(name="Framework", header=true, targetNamespace="urn:liberty:sb:2006-08") Framework framework,
 			@WebParam(name="user", targetNamespace="http://provider.poc.saml.itst.dk/") String user) throws RequestToInteractFault {
-		FrameworkMismatchFault.throwIfNecessary(framework, context.getMessageContext());
 		
 		String info = InfoRepository.getInfo(user);
 		if (info == null) {
