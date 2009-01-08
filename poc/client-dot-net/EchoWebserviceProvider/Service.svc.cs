@@ -4,6 +4,7 @@ using System.Threading;
 using EchoWebserviceprovider.Interfaces;
 using Microsoft.IdentityModel.Claims;
 using OIOSaml.Serviceprovider.Headers;
+using System;
 
 namespace EchoWebserviceProvider
 {
@@ -30,12 +31,11 @@ namespace EchoWebserviceProvider
         {
             if (echoRequest.Framework == null)
             {
-                MessageFault fault = MessageFault.CreateFault(FaultCode.CreateSenderFaultCode("dsvs", "cds"), new FaultReason(""));
-                throw new FaultException("Missing LibertyHeader", new FaultCode("FrameworkVersionMismatch", "urn:liberty:sb:2006-08"));
+                throw new FaultException<FrameworkFault>(null, new FaultReason("Missing frameworkheader"), new FaultCode("FrameworkVersionMismatch", "urn:liberty:sb:2006-08"));
             }
-            if (echoRequest.Framework.Sbfprofile != "urn:liberty:sb:profile")
+            if (echoRequest.Framework.Profile != "urn:liberty:sb:profile:basic")
             {
-                throw new FaultException(new FaultReason("Wrong profile"), new FaultCode("FrameworkVersionMismatch", "urn:liberty:sb:2006-08"));
+                throw new FaultException<FrameworkFault>(null, new FaultReason("Wrong profile"), new FaultCode("FrameworkVersionMismatch", "urn:liberty:sb:2006-08"));
             }
 
             var reply = new echoResponse();
