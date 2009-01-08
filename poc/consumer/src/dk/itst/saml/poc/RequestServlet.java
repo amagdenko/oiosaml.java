@@ -51,7 +51,7 @@ public class RequestServlet extends HttpServlet {
 			tokenClient.sendRequest(request, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider" + (simple ? "Simple" : "") + "/echoRequest", null, new ResultHandler<EchoResponse>() {
 				public void handleResult(EchoResponse result) throws Exception {
 					req.setAttribute("spRequest", tokenClient.getLastRequestXML());
-					req.setAttribute("spResponse", result.getOutput());
+					req.setAttribute("spResponse", result.getStructure());
 				}
 			});
 			req.getRequestDispatcher("/sp/token.jsp").forward(req, resp);
@@ -71,7 +71,7 @@ public class RequestServlet extends HttpServlet {
 		Structure s = new Structure();
 		generate(s, length, 0);
 		
-		request.setInput(s);
+		request.setStructure(s);
 	}
 	
 	private void generate(Structure root, int length, int depth) {
