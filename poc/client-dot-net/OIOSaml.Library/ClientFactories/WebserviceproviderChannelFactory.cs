@@ -12,7 +12,10 @@ namespace OIOSaml.Serviceprovider.ClientFactories
     {
         public static T CreateChannelWithIssuedToken<T>(SecurityToken token, X509Certificate2 clientCertificate, X509Certificate2 serviceCertificate, EndpointAddress serviceEndpointAddress)
         {
-            ChannelFactory<T> echoServiceFactory = new ChannelFactory<T>(new ServiceproviderBinding(), serviceEndpointAddress);
+            bool sslEnabled = serviceEndpointAddress.Uri.Scheme.ToLowerInvariant() == "https";
+
+            ChannelFactory<T> echoServiceFactory = new ChannelFactory<T>(new ServiceproviderBinding(sslEnabled), serviceEndpointAddress);
+
 
             echoServiceFactory.Credentials.ClientCertificate.Certificate = clientCertificate;
 

@@ -14,7 +14,8 @@ namespace OIOSaml.Serviceprovider.Headers
         public LibertyFrameworkHeader()
         {
             version = "2.0";
-            sbfprofile = "urn:liberty:sb:profile";
+        
+            sbfprofile = "urn:liberty:sb:profile:basic";
         }
 
         [System.Xml.Serialization.XmlAttribute(AttributeName = "version")]
@@ -24,8 +25,8 @@ namespace OIOSaml.Serviceprovider.Headers
             set { version = value; }
         }
 
-        [System.Xml.Serialization.XmlAttribute(AttributeName = "sbfprofile", Namespace = "urn:liberty:sb:profile:basic")]
-        public string Sbfprofile
+        [System.Xml.Serialization.XmlAttribute(AttributeName = "profile", Namespace = "urn:liberty:sb:profile")]
+        public string Profile
         {
             get { return sbfprofile; }
             set { sbfprofile = value; }

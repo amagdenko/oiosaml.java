@@ -57,8 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binding\Misc\DisabledDnsIdentityCheck.cs" />
     <Compile Include="Binding\ServiceproviderBinding.cs" />
     <Compile Include="Binding\SecurityTokenServiceBinding.cs" />
+    <Compile Include="Binding\Misc\TransportSSLBindingWithAnonomousAuthenticationAndWsdlGenereration.cs" />
     <Compile Include="ClientFactories\WSTrustClientFactory.cs" />
     <Compile Include="ClientFactories\WebserviceproviderChannelFactory.cs" />
     <Compile Include="Headers\LibertyHeader.cs" />
