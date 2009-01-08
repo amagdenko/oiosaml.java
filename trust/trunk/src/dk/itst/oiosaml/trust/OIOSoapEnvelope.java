@@ -191,7 +191,7 @@ public class OIOSoapEnvelope {
 		env.setHeader(header);
 		
 		MessageID msgId = SAMLUtil.buildXMLObject(MessageID.class);
-		msgId.setValue(UUID.randomUUID().toString());
+		msgId.setValue("urn:uuid:" + UUID.randomUUID().toString());
 		header.getUnknownXMLObjects().add(msgId);
 		
 		XSAny framework = new XSAnyBuilder().buildObject("urn:liberty:sb:2006-08", "Framework", "sbf");
