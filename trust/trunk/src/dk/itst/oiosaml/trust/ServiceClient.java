@@ -34,6 +34,8 @@ import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
  * Client interface for invoking identity based webservices according to the Liberty Basic SOAP Profile.
@@ -53,6 +55,17 @@ public class ServiceClient extends ClientBase {
 	private boolean endorsingToken;
 	private boolean protectTokens = true;
 	private boolean signRequests = true;
+
+	/**
+	 * Create a new service client using the default OIOSAML credentials.
+	 * 
+	 * This requires OIOSAML.java to be configured, and will use the credentials specified in oiosaml-sp.properties.
+	 */
+	public ServiceClient() {
+		this(credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
+				SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
+				SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)));
+	}
 
 	public ServiceClient(X509Credential credential) {
 		super(credential);
