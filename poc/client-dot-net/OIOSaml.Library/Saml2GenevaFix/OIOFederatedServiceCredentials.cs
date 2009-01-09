@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Selectors;
+using System.ServiceModel;
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
@@ -28,6 +29,18 @@ namespace OIOSaml.Serviceprovider.Saml2GenevaFix
         protected override ServiceCredentials CloneCore()
         {
             return new OIOFederatedServiceCredentials(this);
+        }
+
+        public static void Setup(ServiceHost serviceHost)
+        {
+            FederatedServiceCredentials.ConfigureServiceHost(serviceHost);
+
+            var federatedCredentials = (FederatedServiceCredentials)serviceHost.Credentials;
+
+            // Remove the default ServiceCredentials behavior.
+            serviceHost.Description.Behaviors.Remove<ServiceCredentials>();
+
+            serviceHost.Description.Behaviors.Add(new OIOFederatedServiceCredentials(federatedCredentials));
         }
 
     }

@@ -5,7 +5,7 @@ using System.ServiceModel.Security;
 namespace OIOSaml.Serviceprovider.Binding.Misc
 {
     /// <summary>
-    /// Disables dnsidentitychecks for services and the identity for the relying party service certificat.
+    /// Disables dnsidentitychecks for services and the DnsIdentity for the relying party service certificat.
     /// </summary>
     public class DisabledDnsIdentityCheck : IdentityVerifier
     {

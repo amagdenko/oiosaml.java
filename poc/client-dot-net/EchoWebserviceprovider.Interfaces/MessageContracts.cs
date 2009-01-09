@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Security;
+﻿using System.Net.Security;
 using System.ServiceModel;
-using System.Text;
 using OIOSaml.Serviceprovider.Headers;
 
 namespace EchoWebserviceprovider.Interfaces
 {
-    [MessageContract()]
+
+    /// <summary>
+    /// Libertyheader must always be included on WCP calls
+    /// </summary>
+    [MessageContract]
     public class echo
     {
         [MessageHeader(Namespace = "urn:liberty:sb:2006-08", MustUnderstand = true, Name = "Framework", ProtectionLevel = ProtectionLevel.Sign)]
@@ -17,7 +17,7 @@ namespace EchoWebserviceprovider.Interfaces
         public Structure structureToEcho;
     }
 
-    [MessageContract()]
+    [MessageContract]
     public class echoResponse
     {
         [MessageHeader(Namespace = "urn:liberty:sb:2006-08", MustUnderstand = true, Name = "Framework", ProtectionLevel = ProtectionLevel.Sign)]

@@ -32,33 +32,4 @@ namespace OIOSaml.Serviceprovider.Headers
             set { sbfprofile = value; }
         }
     }
-
-    //public class LibertyHeader : MessageHeader
-    //{
-    //    public override bool MustUnderstand
-    //    {
-    //        get
-    //        {
-    //            return true;
-    //        }
-    //    }
-
-
-    //    public override string Name
-    //    {
-    //        get { return "Framework"; }
-    //    }
-
-    //    public override string Namespace
-    //    {
-    //        get { return "urn:liberty:sb:2006-08"; }
-    //    }
-
-    //    protected override void OnWriteHeaderContents(XmlDictionaryWriter writer, MessageVersion messageVersion)
-    //    {
-    //        writer.WriteAttributeString("version", "2.0");
-
-    //        writer.WriteAttributeString("sbfprofile", "urn:liberty:sb:profile:basic", "urn:liberty:sb:profile");
-    //    }
-    //}
 }

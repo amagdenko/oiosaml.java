@@ -20,6 +20,11 @@ namespace Client
     {
         TestWSTrustClientInteroperability STSConnection;
 
+        X509Certificate2 clientCertifikat = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK", StoreLocation.LocalMachine, StoreName.My);
+
+        X509Certificate2 serviceCertifikat = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK", StoreLocation.LocalMachine, StoreName.My);
+        private const string DnsIdentityForServiceCertificates = "TDC TOTALLØSNINGER A/S - TDC Test";
+
        [TestFixtureSetUp]
         public void TestFixtureSetUp()
        {
@@ -27,11 +32,6 @@ namespace Client
            //Because i need a GenerixXmlSecurityToken, and i havent found a way to serialize/deserialize them properly yet.
            STSConnection = new TestWSTrustClientInteroperability();
        }
-
-        X509Certificate2 clientCertifikat = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK", StoreLocation.LocalMachine, StoreName.My);
-
-        X509Certificate2 serviceCertifikat = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK", StoreLocation.LocalMachine, StoreName.My);
-        private const string DnsIdentityForServiceCertificates = "TDC TOTALLØSNINGER A/S - TDC Test";
 
         [Test]
         public void CommunicationWithWebserviceProvider()

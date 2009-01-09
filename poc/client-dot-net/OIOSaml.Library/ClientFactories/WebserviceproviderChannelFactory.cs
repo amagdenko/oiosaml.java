@@ -2,7 +2,6 @@
 using System.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
-using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using OIOSaml.Serviceprovider.Binding;
 
@@ -25,24 +24,9 @@ namespace OIOSaml.Serviceprovider.ClientFactories
 
             echoServiceFactory.Credentials.ServiceCertificate.DefaultCertificate = serviceCertificate;
 
-            ExchangeClientCredentialsWithFederatedClientCredentials(echoServiceFactory);
+            FederatedClientCredentials.ConfigureChannelFactory(echoServiceFactory);
 
             return echoServiceFactory.CreateChannelWithIssuedToken(token);
-        }
-
-        private static void ExchangeClientCredentialsWithFederatedClientCredentials<T>(ChannelFactory<T> echoServiceFactory)
-        {
-            ClientCredentials other = echoServiceFactory.Endpoint.Behaviors.Find<ClientCredentials>();
-            if (other != null)
-            {
-                echoServiceFactory.Endpoint.Behaviors.Remove(other.GetType());
-            }
-            FederatedClientCredentials item = null;
-            if (other != null)
-            {
-                item = new FederatedClientCredentials(other);
-            }
-            echoServiceFactory.Endpoint.Behaviors.Add(item);
         }
     }
 }

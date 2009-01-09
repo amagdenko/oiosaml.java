@@ -3,6 +3,10 @@ using System.ServiceModel;
 
 namespace EchoWebserviceprovider.Interfaces
 {
+    /// <summary>
+    /// Uses xmlserializer instead of DataContractSerializer(DCS). Reason for this is, DCS serializes all datamembers as XMLElements. Attributes is desired in the LibertyFrameworkHeader
+    /// 
+    /// </summary>
     [ServiceContract(Name = "Provider", Namespace = "http://provider.poc.saml.itst.dk/", ProtectionLevel = ProtectionLevel.Sign)]
     [XmlSerializerFormat]
     public interface IEchoService
