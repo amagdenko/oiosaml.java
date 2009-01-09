@@ -56,6 +56,7 @@ import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
+import org.opensaml.ws.wstrust.Claims;
 import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
@@ -79,6 +80,7 @@ import org.w3c.dom.NodeList;
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.liberty.ClaimType;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -159,7 +161,7 @@ public class TokenService extends HttpServlet {
 		
 		RequestedSecurityToken requestedSecurityToken = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
 		rstr.setRequestedSecurityToken(requestedSecurityToken);
-		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential, expire);
+		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential, expire, rst.getClaims());
 		requestedSecurityToken.getUnknownXMLObjects().add(assertion);
 		
 		RequestedAttachedReference attached = SAMLUtil.buildXMLObject(RequestedAttachedReference.class);
@@ -216,7 +218,7 @@ public class TokenService extends HttpServlet {
 		return tokenReference;
 	}
 
-	private Assertion generateAssertion(HttpServletRequest req, OIOAssertion bootstrap, String to, String x509, BasicX509Credential credential, DateTime expire) {
+	private Assertion generateAssertion(HttpServletRequest req, OIOAssertion bootstrap, String to, String x509, BasicX509Credential credential, DateTime expire, Claims claims) {
 		Assertion a = SAMLUtil.buildXMLObject(Assertion.class);
 		a.setID(Utils.generateUUID());
 		a.setIssueInstant(new DateTime(DateTimeZone.UTC));
@@ -255,12 +257,12 @@ public class TokenService extends HttpServlet {
 		a.getConditions().setNotOnOrAfter(expire);
 		
 		
-		if (bootstrap != null) {
+		if (bootstrap != null && (claims == null || (claims != null && !claims.getUnknownXMLObjects().isEmpty()))) {
 			for (AttributeStatement as : bootstrap.getAssertion().getAttributeStatements()) {
 				AttributeStatement newAs = SAMLUtil.buildXMLObject(AttributeStatement.class);
-				a.getAttributeStatements().add(newAs);
 				
 				for (Attribute attr : as.getAttributes()) {
+					if (!hasClaim(attr.getName(), claims)) continue;
 					Attribute newAttr = SAMLUtil.buildXMLObject(Attribute.class);
 					newAs.getAttributes().add(newAttr);
 					
@@ -269,6 +271,9 @@ public class TokenService extends HttpServlet {
 					newAttr.setNameFormat(attr.getNameFormat());
 					
 					newAttr.getAttributeValues().add(AttributeUtil.createAttributeValue(AttributeUtil.extractAttributeValueValue(attr)));
+				}
+				if (!newAs.getAttributes().isEmpty()) {
+					a.getAttributeStatements().add(newAs);
 				}
 			}
 		}
@@ -345,6 +350,19 @@ public class TokenService extends HttpServlet {
         signature.sign(signContext);
 
         return element;
+	}
+	
+	private boolean hasClaim(String attribute, Claims claims) {
+		if (claims == null) return true;
+		
+		List<XMLObject> types = claims.getUnknownXMLObjects(ClaimType.ELEMENT_NAME);
+		for (XMLObject t : types) {
+			ClaimType type = (ClaimType) t;
+			if (attribute.equals(type.getUri())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void fixIdAttributes(Element env, XMLObject obj) {
