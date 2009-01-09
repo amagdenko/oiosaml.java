@@ -7,6 +7,7 @@
  xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"
  xmlns:wsa="http://www.w3.org/2005/08/addressing"
  xmlns:wst="http://schemas.xmlsoap.org/ws/2005/02/trust"
+ xmlns:i="http://schemas.xmlsoap.org/ws/2005/05/identity"
  xmlns="http://www.opensaml.org/xmltooling-config">
     
     <ObjectProviders>
@@ -73,6 +74,11 @@
         	<UnmarshallingClass className="org.opensaml.ws.wsaddressing.impl.MessageIDUnmarshaller" />
 		</ObjectProvider>
                         
+		<ObjectProvider qualifiedName="i:ClaimType">
+        	<BuilderClass className="dk.itst.oiosaml.liberty.ClaimTypeBuilder" />
+        	<MarshallingClass className="dk.itst.oiosaml.liberty.ClaimTypeMarshaller" />
+        	<UnmarshallingClass className="dk.itst.oiosaml.liberty.ClaimTypeUnmarshaller" />
+		</ObjectProvider>
     </ObjectProviders>
 
 </XMLTooling>

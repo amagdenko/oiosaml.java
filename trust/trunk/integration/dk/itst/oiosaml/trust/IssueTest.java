@@ -1,18 +1,18 @@
 package dk.itst.oiosaml.trust;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import javax.xml.namespace.QName;
+
 import org.junit.Test;
-import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.ws.wsaddressing.ReplyTo;
+import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
-import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
@@ -39,23 +39,22 @@ public class IssueTest extends AbstractTests {
 	
 	@Test
 	public void tokenMustBeAssertion() throws Exception {
-		Element token = client.getToken(null);
-		assertEquals(SAMLConstants.SAML20_NS, token.getNamespaceURI());
-		assertEquals("Assertion", token.getLocalName());
+		Assertion token = client.getToken(null);
+		assertNotNull(token);
 	}
 	
 	@Test
 	public void tokenMustBeHolderOfKey() throws Exception {
-		Element token = client.getToken(null);
-		OIOAssertion assertion = getAssertion(token);
+		Assertion token = client.getToken(null);
+		OIOAssertion assertion = new OIOAssertion(token);
 		
 		assertTrue(assertion.isHolderOfKey());
 	}
 	
 	@Test
 	public void assertionMustBeSignedCorrectly() throws Exception {
-		Element token = client.getToken(null);
-		OIOAssertion assertion = getAssertion(token);
+		Assertion token = client.getToken(null);
+		OIOAssertion assertion = new OIOAssertion(token);
 		
 		assertTrue(assertion.verifySignature(stsCredential.getPublicKey()));
 	}
@@ -78,13 +77,14 @@ public class IssueTest extends AbstractTests {
 			}
 			
 		}
-		
 		assertTrue(found);
-
-		
 	}
 	
-	private OIOAssertion getAssertion(Element e) {
-		return new OIOAssertion((Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(e)));
+	@Test
+	public void responseShouldNotContainFrameworkHeader() throws Exception {
+		client.getToken(null);
+		OIOSoapEnvelope res = client.getLastResponse();
+		Envelope env = (Envelope) res.getXMLObject();
+		assertEquals(0, env.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).size());
 	}
 }

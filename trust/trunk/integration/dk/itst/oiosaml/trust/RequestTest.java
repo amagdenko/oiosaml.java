@@ -40,13 +40,15 @@ import dk.itst.oiosaml.sp.service.util.SOAPClient;
 public class RequestTest extends AbstractTests {
 
 	private Element req;
-	private Element token;
+	private Assertion token;
 	private BasicX509Credential serviceCredential;
+	private ServiceClient serviceClient;
 	
 	@Before
 	public void setUp() {
 		client.setAppliesTo(getProperty("endpoint"));
 		token = client.getToken(null);
+		serviceClient = client.getServiceClient();
 
 		SigningPolicy sp = new SigningPolicy(true);
 		sp.addPolicy(To.ELEMENT_NAME, true);
@@ -55,37 +57,44 @@ public class RequestTest extends AbstractTests {
 		sp.addPolicy(Body.DEFAULT_ELEMENT_NAME, true);
 		sp.addPolicy(ReplyTo.ELEMENT_NAME, true);
 		sp.addPolicy(Timestamp.ELEMENT_NAME, true);
-		client.setSigningPolicy(sp);
+		serviceClient.setSigningPolicy(sp);
 
 		String xml = getProperty("request");
 		req = SAMLUtil.loadElementFromString(xml);
 		
-		client.setProtectTokens(Boolean.valueOf(getProperty("protectTokens")));
+		serviceClient.setProtectTokens(Boolean.valueOf(getProperty("protectTokens")));
 		serviceCredential = credentialRepository.getCredential(getProperty("wsp.certificate"), getProperty("wsp.certificate.password"));
 	}
 	
 	@Test
 	public void testRequest() throws Exception {
-		
-		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, new ResultHandler<Element>() {
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, new ResultHandler<Element>() {
 			public void handleResult(Element result) throws Exception {
 				assertEquals("echoResponse", result.getLocalName());
 				assertEquals(1, result.getChildNodes().getLength());
 				assertEquals("structure", result.getChildNodes().item(0).getLocalName());
 				
-				Action action = client.getLastResponse().getHeaderElement(Action.class);
+				Action action = serviceClient.getLastResponse().getHeaderElement(Action.class);
 				assertEquals("http://provider.poc.saml.itst.dk/Provider/echoResponse", action.getValue());
 			}
 		});
 	}
 	
+	@Test
+	public void responseMustHaveMessageID() throws Exception {
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, new ResultHandler<Element>() {
+			public void handleResult(Element result) throws Exception {
+				assertNotNull(serviceClient.getLastResponse().getMessageID());
+			}
+		});
+	}
 
 	@Test
 	public void unsignedTokenShouldFail() throws Exception {
-		client.setToken((Assertion)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml")));
+		serviceClient.setToken((Assertion)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml")));
 		
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 			fail();
 		} catch (TrustException e) {
 			if (!(e.getCause() instanceof SOAPException)) {
@@ -99,9 +108,9 @@ public class RequestTest extends AbstractTests {
 	
 	@Test
 	public void noTokenShouldFail() throws Exception {
-		client.setToken(null);
+		serviceClient.setToken(null);
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -111,10 +120,8 @@ public class RequestTest extends AbstractTests {
 	
 	@Test
 	public void mismatchingCertificatesShouldFail() throws Exception {
-		client = new TrustClient(epr, TestHelper.getCredential(), stsCredential.getPublicKey());
-		client.setAppliesTo(getProperty("endpoint"));
-		client.setUseReferenceForOnBehalfOf(false);
-		client.setToken((Assertion) SAMLUtil.unmarshallElement(token));
+		ServiceClient client = new ServiceClient(TestHelper.getCredential());
+		client.setToken(token);
 		
 		try {
 			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
@@ -128,9 +135,9 @@ public class RequestTest extends AbstractTests {
 	
 	@Test
 	public void missingSignatureShouldFail() throws Exception {
-		client.setSigningPolicy(new SigningPolicy(false));
+		serviceClient.setSigningPolicy(new SigningPolicy(false));
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -140,7 +147,7 @@ public class RequestTest extends AbstractTests {
 	
 	@Test
 	public void responseMustBeSigned() throws Exception {
-		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), serviceCredential.getPublicKey(), new ResultHandler<Element>() {
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), serviceCredential.getPublicKey(), new ResultHandler<Element>() {
 			public void handleResult(Element result) throws Exception {
 				assertEquals("echoResponse", result.getLocalName());
 			}
@@ -151,9 +158,10 @@ public class RequestTest extends AbstractTests {
 	public void tokenWithWrongAudienceMustBeRejected() throws Exception {
 		client.setAppliesTo("urn:testing");
 		token = client.getToken(null);
+		serviceClient.setToken(token);
 
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -165,9 +173,10 @@ public class RequestTest extends AbstractTests {
 	@Test
 	public void expiredTokenMustBeRejected() throws Exception {
 		token = client.getToken(null, new DateTime().minusDays(5));
+		serviceClient.setToken(token);
 
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -180,11 +189,10 @@ public class RequestTest extends AbstractTests {
 		SigningPolicy sp = new SigningPolicy(true);
 		sp.addPolicy(To.ELEMENT_NAME, false);
 		
-		client.setSigningPolicy(sp);
-		token = client.getToken(null);
+		serviceClient.setSigningPolicy(sp);
 
 		try {
-			client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+			serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 			fail();
 		} catch (TrustException e) {
 			SOAPException ex = (SOAPException) e.getCause();
@@ -194,22 +202,22 @@ public class RequestTest extends AbstractTests {
 
 	@Test
 	public void tokensCanBeReplacedWhenNotProtected() throws Exception {
-		client.getToken(null);
+		serviceClient.setToken(client.getToken(null));
 		
-		client.setProtectTokens(false);
+		serviceClient.setProtectTokens(false);
 		SOAPClientStub soapClient = new SOAPClientStub();
-		client.setSOAPClient(soapClient);
-		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		serviceClient.setSOAPClient(soapClient);
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 		
 		Element env = SAMLUtil.loadElementFromString(soapClient.xml);
 		NodeList nl = env.getElementsByTagNameNS(TrustConstants.WSSE_NS, "KeyIdentifier");
 		for (int i = 0; i < nl.getLength(); i++) {
 			Element item = (Element) nl.item(i);
-			item.setTextContent(token.getAttribute("ID"));
+			item.setTextContent(token.getID());
 		}
 		
 		Element a = (Element) env.getElementsByTagNameNS(Assertion.TYPE_NAME.getNamespaceURI(), "Assertion").item(0);
-		Node localToken = a.getOwnerDocument().adoptNode(token);
+		Node localToken = a.getOwnerDocument().adoptNode(token.getDOM());
 		a.getParentNode().replaceChild(localToken, a);
 		
 		new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(env), getProperty("action"));
@@ -217,20 +225,20 @@ public class RequestTest extends AbstractTests {
 	
 	@Test(expected=SOAPException.class)
 	public void securityTokenReferenceCannotBeReplaced() throws Exception {
-		client.getToken(null);
+		serviceClient.setToken(client.getToken(null));
 		
-		client.setProtectTokens(true);
+		serviceClient.setProtectTokens(true);
 		SOAPClientStub soapClient = new SOAPClientStub();
-		client.setSOAPClient(soapClient);
-		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		serviceClient.setSOAPClient(soapClient);
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 		
 		Element env = SAMLUtil.loadElementFromString(soapClient.xml);
 		NodeList nl = env.getElementsByTagNameNS(TrustConstants.WSSE_NS, "KeyIdentifier");
 		Element item = (Element) nl.item(nl.getLength() - 1);
-		item.setTextContent(token.getAttribute("ID"));
+		item.setTextContent(token.getID());
 		
 		Element a = (Element) env.getElementsByTagNameNS(Assertion.TYPE_NAME.getNamespaceURI(), "Assertion").item(0);
-		Node localToken = a.getOwnerDocument().adoptNode(token);
+		Node localToken = a.getOwnerDocument().adoptNode(token.getDOM());
 		a.getParentNode().insertBefore(localToken, a);
 		
 		new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(env), getProperty("action"));
@@ -239,8 +247,8 @@ public class RequestTest extends AbstractTests {
 	@Test
 	public void missingFrameworkHeaderShouldFail() throws Exception {
 		SOAPClientStub soapClient = new SOAPClientStub();
-		client.setSOAPClient(soapClient);
-		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		serviceClient.setSOAPClient(soapClient);
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 		
 		Envelope env = (Envelope) SAMLUtil.unmarshallElementFromString(soapClient.xml);
 		env.getHeader().getUnknownXMLObjects().remove(env.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).get(0));
@@ -248,7 +256,7 @@ public class RequestTest extends AbstractTests {
 		env.getHeader().getUnknownXMLObjects().remove(SAMLUtil.getFirstElement(env.getHeader(), Security.class));
 		
 		OIOSoapEnvelope e = new OIOSoapEnvelope(env, true, new SigningPolicy(true));
-		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), Boolean.valueOf(getProperty("protectTokens")));
+		e.addSecurityTokenReference(token, Boolean.valueOf(getProperty("protectTokens")));
 		e.setTimestamp(5);
 		try {
 			new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(e.sign(credential)), getProperty("action"));
@@ -262,8 +270,8 @@ public class RequestTest extends AbstractTests {
 	@Test
 	public void wrongFrameworkHeaderShouldFail() throws Exception {
 		SOAPClientStub soapClient = new SOAPClientStub();
-		client.setSOAPClient(soapClient);
-		client.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
+		serviceClient.setSOAPClient(soapClient);
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), null, null);
 		
 		Envelope env = (Envelope) SAMLUtil.unmarshallElementFromString(soapClient.xml);
 		XSAny framework = (XSAny) env.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).get(0);
@@ -272,7 +280,7 @@ public class RequestTest extends AbstractTests {
 		env.getHeader().getUnknownXMLObjects().remove(SAMLUtil.getFirstElement(env.getHeader(), Security.class));
 		
 		OIOSoapEnvelope e = new OIOSoapEnvelope(env, true, new SigningPolicy(true));
-		e.addSecurityTokenReference((Assertion) SAMLUtil.unmarshallElement(token), Boolean.valueOf(getProperty("protectTokens")));
+		e.addSecurityTokenReference(token, Boolean.valueOf(getProperty("protectTokens")));
 		e.setTimestamp(5);
 		try {
 			new HttpSOAPClient().wsCall(getProperty("endpoint"), null, null, true, XMLHelper.nodeToString(e.sign(credential)), getProperty("action"));
@@ -280,6 +288,8 @@ public class RequestTest extends AbstractTests {
 			assertEquals(new QName("urn:liberty:sb:2006-08", "FrameworkVersionMismatch"), ex.getFault().getCode().getValue());
 		}
 	}
+	
+	
 
 	private static class SOAPClientStub implements SOAPClient {
 		private String xml;

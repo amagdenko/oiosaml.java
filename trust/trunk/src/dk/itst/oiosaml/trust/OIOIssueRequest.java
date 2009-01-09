@@ -39,6 +39,7 @@ import org.opensaml.ws.wstrust.TokenType;
 import org.opensaml.xml.XMLObject;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.ClaimType;
 
 /**
  * Representation of a OIO WS-Trust Issue request.
@@ -131,6 +132,24 @@ public class OIOIssueRequest {
 			claims.getUnknownXMLObjects().add(co);
 		}
 		request.setClaims(claims);
+	}
+	
+	/**
+	 * Add Identity claims to the request.
+	 * 
+	 * @param dialect The dialect to use. Can be <code>null</code>.
+	 * @param claims The list of claims to include. These are included as ic:ClaimType elements with an Uri attribute.
+	 */
+	public void setClaims(String dialect, String ... claims) {
+		Claims c = SAMLUtil.buildXMLObject(Claims.class);
+		c.setDialect(dialect);
+		
+		for (String claim : claims) {
+			ClaimType ct = SAMLUtil.buildXMLObject(ClaimType.class);
+			ct.setUri(claim);
+			c.getUnknownXMLObjects().add(ct);
+		}
+		request.setClaims(c);
 	}
 	
 	public void setLifetime(DateTime expire) {

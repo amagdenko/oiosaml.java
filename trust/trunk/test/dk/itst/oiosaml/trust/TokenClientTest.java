@@ -73,7 +73,6 @@ import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.XMLHelper;
-import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
@@ -145,9 +144,9 @@ public class TokenClientTest extends TrustTests {
 			will(returnValue(SAMLUtil.unmarshallElementFromString(env.toXML())));
 		}});
 		
-		Element token = client.getToken(TrustConstants.DIALECT_OCES_PROFILE);
+		Assertion token = client.getToken(TrustConstants.DIALECT_OCES_PROFILE);
 		
-		assertEquals(XMLHelper.nodeToString(SAMLUtil.marshallObject(assertion)), XMLHelper.nodeToString(token));
+		assertEquals(XMLHelper.nodeToString(SAMLUtil.marshallObject(assertion)), XMLHelper.nodeToString(token.getDOM()));
 		
 		OIOSoapEnvelope request = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
 		assertTrue(request.isSigned());
@@ -191,7 +190,8 @@ public class TokenClientTest extends TrustTests {
 				}
 			});
 		}});
-		client.sendRequest(body, ADDRESS, "urn:action", null, new ResultHandler<XMLObject>() {
+		
+		client.getServiceClient().sendRequest(body, ADDRESS, "urn:action", null, new ResultHandler<XMLObject>() {
 			public void handleResult(XMLObject res) {
 				assertTrue(res instanceof Assertion);
 			}
@@ -212,6 +212,7 @@ public class TokenClientTest extends TrustTests {
 
 	@Test
 	public void sendRequestWithSenderVouchesToken() throws Exception {
+		ServiceClient client = this.client.getServiceClient();
 		client.setToken(assertion);
 		
 		final StringValueHolder holder = new StringValueHolder();
@@ -248,7 +249,7 @@ public class TokenClientTest extends TrustTests {
 			});
 		}});
 		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
-		client.sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey(), null);
+		client.getServiceClient().sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey(), null);
 	}
 	
 	
@@ -264,7 +265,7 @@ public class TokenClientTest extends TrustTests {
 			});
 		}});
 		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
-		client.sendRequest(body, ADDRESS, "urn:action", credential.getPublicKey(), null);
+		client.getServiceClient().sendRequest(body, ADDRESS, "urn:action", credential.getPublicKey(), null);
 	}
 
 	@Test
@@ -279,7 +280,7 @@ public class TokenClientTest extends TrustTests {
 			});
 		}});
 		Assertion body = SAMLUtil.buildXMLObject(Assertion.class);
-		client.sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey(), null);
+		client.getServiceClient().sendRequest(body, ADDRESS, "urn:action", stsCredential.getPublicKey(), null);
 	}
 	
 	@Test
@@ -295,7 +296,7 @@ public class TokenClientTest extends TrustTests {
 		}});
 		String xml = "<test:blah xmlns:test='urn:testing'><test:more>blah</test:more></test:blah>";
 		
-		client.sendRequest(SAMLUtil.loadElementFromString(xml), ADDRESS, "urn:action", stsCredential.getPublicKey(), null);
+		client.getServiceClient().sendRequest(SAMLUtil.loadElementFromString(xml), ADDRESS, "urn:action", stsCredential.getPublicKey(), null);
 	}
 	
 	@Test
@@ -313,6 +314,7 @@ public class TokenClientTest extends TrustTests {
 		String xml = "<test:blah xmlns:test='urn:testing'><test:more>blah</test:more></test:blah>";
 		
 		final StringValueHolder faultHolder = new StringValueHolder();
+		ServiceClient client = this.client.getServiceClient();
 		client.addFaultHander("urn:test", "fault", new FaultHandler() {
 			public void handleFault(QName faultCode, String faultMessage, XMLObject detail) {
 				assertEquals("test", faultMessage);
@@ -352,7 +354,7 @@ public class TokenClientTest extends TrustTests {
 			});
 		}});
 		
-		client.sendRequest(new TestBean(), JAXBContext.newInstance(TestBean.class), ADDRESS, "urn:action", null, null);
+		client.getServiceClient().sendRequest(new TestBean(), JAXBContext.newInstance(TestBean.class), ADDRESS, "urn:action", null, null);
 	}
 	
 	private Envelope buildResponse(String request, boolean sign) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {

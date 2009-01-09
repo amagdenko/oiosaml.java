@@ -24,61 +24,40 @@ package dk.itst.oiosaml.trust;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Fault;
-import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.EndpointReference;
-import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.io.UnmarshallingException;
-import org.opensaml.xml.schema.XSBooleanValue;
-import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
-import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
-import dk.itst.oiosaml.sp.service.util.SOAPClient;
 
 /**
- * Client interface for retrieving STS tokens and sending OIOIDWS-based SOAP requests.
+ * Client interface for retrieving STS tokens via WS-Trust 1.3.
  * 
  * <p>Call {@link #getToken()} to make an STS Issue request.</p>
  * 
@@ -87,42 +66,22 @@ import dk.itst.oiosaml.sp.service.util.SOAPClient;
  * @author Joakim Recht
  *
  */
-public class TrustClient {
-	static {
-		TrustBootstrap.bootstrap();
-	}
+public class TrustClient extends ClientBase {
 	
 	private static final Logger log = Logger.getLogger(TrustClient.class);
-	private static final CredentialRepository credentialRepository = new CredentialRepository();
 	
-	private SOAPClient soapClient = new HttpSOAPClient();
 	private String endpoint;
 	private final EndpointReference epr;
-	private final X509Credential credential;
 	private String appliesTo;
 
 	private String issuer;
 
 	private PublicKey stsKey;
 
-	private Assertion token;
 
-	private UserInteraction interact;
-
-	private boolean redirect;
-	
-	private Map<QName, FaultHandler> faultHandlers = new HashMap<QName, FaultHandler>();
-
-	private boolean signRequests = true;
-
-	private String requestXML;
-	private OIOSoapEnvelope lastResponse;
-
-	private String soapVersion = SOAPConstants.SOAP11_NS;
-	private SigningPolicy signingPolicy = new SigningPolicy(true);
 	private boolean useReferenceForOnBehalfOf = false;
-	private boolean endorsingToken;
-	private boolean protectTokens = true;
+
+	private Assertion token;
 	
 	/**
 	 * Create a new client using default settings.
@@ -154,6 +113,7 @@ public class TrustClient {
 	}
 	
 	public TrustClient(UserAttribute eprAttribute, X509Credential credential, PublicKey stsKey, boolean eprIsBase64) {
+		super(credential);
 		if (eprAttribute != null) {
 			log.debug("EPR Attribute: " + eprAttribute);
 			if (eprIsBase64) {
@@ -164,7 +124,6 @@ public class TrustClient {
 		} else {
 			this.epr = null;
 		}
-		this.credential = credential;
 		this.stsKey = stsKey;
 		if (this.epr != null) {
 			endpoint = this.epr.getAddress().getValue();
@@ -179,8 +138,8 @@ public class TrustClient {
 	 * @param stsKey The STS public key used for validating the response.
 	 */
 	public TrustClient(EndpointReference epr, X509Credential credential, PublicKey stsKey) {
+		super(credential);
 		this.epr = epr;
-		this.credential = credential;
 		this.stsKey = stsKey;
 		
 		if (epr != null) {
@@ -188,7 +147,7 @@ public class TrustClient {
 		}
 	}
 
-	public Element getToken(String dialect) {
+	public Assertion getToken(String dialect) {
 		return getToken(dialect, (DateTime)null);
 	}
 	
@@ -201,18 +160,19 @@ public class TrustClient {
 	 * @return A DOM element with the returned token.
 	 * @throws TrustException If any error occurred.
 	 */
-	public Element getToken(String dialect, DateTime lifetimeExpire) throws TrustException {
+	public Assertion getToken(String dialect, DateTime lifetimeExpire) throws TrustException {
 		try {
 			String xml = toXMLRequest(dialect, lifetimeExpire);
-			this.requestXML = xml;
+			setRequestXML(xml);
 			
 			log.debug(xml);
 			
 			OIOSoapEnvelope env = new OIOSoapEnvelope(soapClient.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"));
-			lastResponse = env;
+			setLastResponse(env);
 	
-			//TODO: finish validation when STS supports signatures in security header
-//			env.verifySignature(stsKey);
+			if (!env.verifySignature(stsKey)) {
+				throw new TrustException("Response was not signed correctly");
+			}
 			
 			//TODO: Support tokens in security header
 			
@@ -250,14 +210,15 @@ public class TrustClient {
 		}
 	}
 
-	private Element validateToken(Assertion token) {
+	private Assertion validateToken(Assertion token) {
 		OIOAssertion a = new OIOAssertion(token);
 		if (!a.verifySignature(stsKey)) {
 			log.error("Token is not signed correctly by the STS");
 			throw new TrustException("Token assertion does not contain a valid signature");
 		}
-		setToken(token);
-		return token.getDOM();
+		this.token = token;
+		token.detach();
+		return token;
 	}
 
 	/**
@@ -277,7 +238,7 @@ public class TrustClient {
         	req.setIssuer(issuer);
         }
         if (dialect != null) {
-        	req.setClaims(dialect);
+        	req.setClaims(dialect, new String[0]);
         }
         if (lifetimeExpire != null) {
         	req.setLifetime(lifetimeExpire);
@@ -301,7 +262,7 @@ public class TrustClient {
 			req.setOnBehalfOf(token.getAssertion());
 		}
 		
-		Element signed = env.sign(credential);
+		Element signed = env.sign(getCredential());
 		return XMLHelper.nodeToString(signed);
 	}
 
@@ -330,263 +291,7 @@ public class TrustClient {
 	}
 	
 	
-	/**
-	 * Set the security token used for webservice requests.
-	 * @param token
-	 */
-	public void setToken(Assertion token) {
-		this.token = token;
-	}
 	
-	public void setUseEndorsing(boolean endorsingToken) {
-		this.endorsingToken = endorsingToken;
-		
-	}
-	
-	/**
-	 * Execute a SOAP request.
-	 * 
-	 * <p>A SOAP header is added automatically to the request containing the client's security token.</p>
-	 * <p>If {@link #getToken()} has been called, the retrieved token is added to the request automatically.</p>
-	 * 
-	 * <p>SOAP Faults can be handled by adding {@link FaultHandler}s to the client.</p>
-	 * 
-	 * @see FaultHandler Handle SOAP Faults.
-	 * @param body The body of the request.
-	 * @param location Location to send request to.
-	 * @param action SOAP Action to invoke.
-	 * @param verificationKey Key to use for signature verification on the response. If <code>null</code>, the signature is not checked. If the signature is not valid, a {@link TrustException} is thrown.
-	 * @param resultHandler When the request has been completed, the response will be sent to this callback. The handler can be <code>null</code>, in which case the response is ignored.
-	 * @throws InvocationTargetException Thrown when an exception is thrown in a handler.
-	 * @throws TrustException If an unhandled SOAP Fault occurs, or if a transport error occurs.
-	 */
-	public void sendRequest(XMLObject body, String location, String action, PublicKey verificationKey, ResultHandler<XMLObject> resultHandler) throws InvocationTargetException {
-		if (log.isDebugEnabled()) log.debug("Invoking action " + action + " at service " + location);
-		
-		body.detach();
-		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion, signingPolicy);
-		env.setBody(body);
-		env.setAction(action);
-		env.setTo(location);
-		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
-		env.setTimestamp(5);
-		if (endorsingToken) {
-			env.addEndorsingToken(token, protectTokens);
-		} else {
-			env.addSecurityTokenReference(token, protectTokens);
-		}
-		
-		if (interact != null) {
-			if (log.isDebugEnabled()) log.debug("UserInteract set: " + interact + ", redirect: " + redirect);
-			env.setUserInteraction(interact, redirect);
-		}
-		
-		try {
-			Element request;
-			if (signRequests) {
-				request = env.sign(credential);
-			} else {
-				env.getHeaderElement(Security.class).setMustUnderstand(new XSBooleanValue(false, true));
-				request = SAMLUtil.marshallObject(env.getXMLObject());
-			}
-			
-			requestXML = XMLHelper.nodeToString(request);
-			if (log.isDebugEnabled()) log.debug("Signed request: " + requestXML);
-			
-			OIOSoapEnvelope res = new OIOSoapEnvelope(soapClient.wsCall(location, null, null, true, requestXML, action));
-			lastResponse = res;
-			if (!res.relatesTo(env.getMessageID())) {
-				log.error("Respose is not reply to " + env.getMessageID());
-				throw new TrustException("Respose is not reply to " + env.getMessageID());
-			}
-			if (verificationKey != null && signRequests) {
-				log.debug("Verifying signature on response");
-				if (!res.verifySignature(verificationKey)) {
-					throw new TrustException("Signature on response is not valid. Response contains signature: " + res.isSigned());
-				}
-			}
-			
-			if (resultHandler != null) {
-				try {
-					resultHandler.handleResult(res.getBody());
-				} catch (Exception e) {
-					throw new InvocationTargetException(e);
-				}
-			}
-		} catch (SOAPException e) {
-			Fault fault = e.getFault();
-			if (fault != null && fault.getDetail() != null) {
-				Detail detail = fault.getDetail();
-				
-				QName code = null;
-				if (fault.getCode() != null) code = fault.getCode().getValue();
-				
-				String message = null;
-				if (fault.getMessage() != null) message = fault.getMessage().getValue();
-				
-				if (log.isDebugEnabled()) log.debug("Finding fault handler for " + detail.getUnknownXMLObjects());
-				for (XMLObject el : detail.getUnknownXMLObjects()) {
-					FaultHandler handler = faultHandlers.get(el.getElementQName());
-					if (handler != null) {
-						if (log.isDebugEnabled()) log.debug("Found fault handler for " + el.getElementQName() + ": " + handler);
-						try {
-							handler.handleFault(code, message, el);
-						} catch (Exception ex) {
-							throw new InvocationTargetException(ex);
-						}
-						return;
-					}
-				}
-				throw new TrustException("Unhandled SOAP Fault", e);
-			} else {
-				if (log.isDebugEnabled()) log.debug("No handler for fault " + e);
-				throw new TrustException(e);
-			}
-		} catch (NoSuchAlgorithmException e) {
-			throw new TrustException(e);
-		} catch (InvalidAlgorithmParameterException e) {
-			throw new TrustException(e);
-		} catch (MarshalException e) {
-			throw new TrustException(e);
-		} catch (XMLSignatureException e) {
-			throw new TrustException(e);
-		} catch (IOException e) {
-			throw new TrustException(e);
-		}
-	}
-
-	public void sendRequest(Element body, String location, String action, PublicKey verificationKey, final ResultHandler<Element> resultHandler) throws InvocationTargetException {
-		try {
-			XMLObject any = new XSAnyUnmarshaller().unmarshall(body);
-			
-			sendRequest(any, location, action, verificationKey, new ResultHandler<XMLObject>() {
-				public void handleResult(XMLObject result) throws Exception {
-					if (resultHandler != null) {
-						resultHandler.handleResult(SAMLUtil.marshallObject(result));
-					}
-				}
-			});
-		} catch (UnmarshallingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Send a request using JAXB types.
-	 * @param <T> The response type. No type checking is performed, so if this type is not correct, a {@link ClassCastException} will occur.
-	 * @param body The request body. Must be a JAXB-mapped object.
-	 * @param context A JAXB context which recognized the body object.
-	 * @param location Location of the service. 
-	 * @param action SOAP Action to invoke.
-	 * @param verificationKey Key to use for signature validation.
-	 * @param resultHandler Handler for the result.
-	 */
-	public <T> void sendRequest(Object body, final JAXBContext context, String location, String action, PublicKey verificationKey, final ResultHandler<T> resultHandler) {
-		try {
-			Marshaller marshaller = context.createMarshaller();
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			dbf.setNamespaceAware(true);
-			Document doc = dbf.newDocumentBuilder().newDocument();
-
-			Object factory = Class.forName(body.getClass().getPackage().getName() + ".ObjectFactory").newInstance();
-			String name = body.getClass().getName();
-			Method m = factory.getClass().getDeclaredMethod("create" + name.substring(name.lastIndexOf('.') + 1), body.getClass());
-			Object jaxbElement = m.invoke(factory, body);
-			
-			marshaller.marshal(jaxbElement, doc);
-			
-			XMLObject any = new XSAnyUnmarshaller().unmarshall(doc.getDocumentElement());
-			
-			sendRequest(any, location, action, verificationKey, new ResultHandler<XMLObject>() {
-				@SuppressWarnings("unchecked")
-				public void handleResult(XMLObject result) throws Exception {
-					if (resultHandler != null) {
-						Unmarshaller unmarshaller = context.createUnmarshaller();
-						Object body = unmarshaller.unmarshal(SAMLUtil.marshallObject(result));
-						if (body instanceof JAXBElement) {
-							resultHandler.handleResult((T) ((JAXBElement<T>)body).getValue());
-						} else {
-							resultHandler.handleResult((T) body);
-						}
-					}
-				}
-			});
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-	
-	/**
-	 * Set the client to use when executing the request.
-	 */
-	public void setSOAPClient(SOAPClient client) {
-		this.soapClient = client;
-	}
-
-	/**
-	 * Set the UserInteract value for requests.
-	 */
-	public void setUserInteraction(UserInteraction interact, boolean redirect) {
-		this.interact = interact;
-		this.redirect = redirect;
-	}
-	
-	/**
-	 * Add a new fault handler.
-	 * @see #addFaultHandler(QName, FaultHandler)
-	 * @param namespace
-	 * @param localName
-	 * @param handler
-	 */
-	public void addFaultHander(String namespace, String localName, FaultHandler handler) {
-		addFaultHandler(new QName(namespace, localName), handler);
-	}
-	
-	/**
-	 * Add a fault handler for a specific soap fault type.
-	 * 
-	 * The registered type is matched against the types in Fault/Detail. If a matching QName element is found, the fault handler is invoked.
-	 * Only one handler is invoked for a Fault - the first matching element.
-	 * 
-	 * @param element Detail element to match.
-	 */
-	public void addFaultHandler(QName element, FaultHandler handler) {
-		faultHandlers.put(element, handler);
-	}
-	
-	/**
-	 * Configure  whether ws requests should be signed or not. Token requests are always signed.
-	 * 
-	 * Default is <code>true</code>.
-	 */
-	public void signRequests(boolean sign) {
-		this.signRequests = sign;
-		
-	}
-	
-	/**
-	 * Get the xml sent in the last webservice call, either from {@link #getToken(String)} or from {@link #sendRequest(Element, String, String, PublicKey, ResultHandler)}.
-	 */
-	public String getLastRequestXML() {
-		return requestXML;
-	}
-	
-	/**
-	 * Set the SOAP version to use.
-	 * @param soapVersion Namespace of the soap version to use. The client defaults to soap 1.1.
-	 */
-	public void setSoapVersion(String soapVersion) {
-		this.soapVersion = soapVersion;
-	}
-	
-	/**
-	 * Set the signing policy for ws requests.
-	 */
-	public void setSigningPolicy(SigningPolicy signingPolicy) {
-		this.signingPolicy = signingPolicy;
-	}
-
 	/**
 	 * Configure whether bootstrap tokens should be placed directly in OnBehalfOf or in the Security header using a SecurityTokenReference.
 	 * @param useReferenceForOnBehalfOf <code>true</code> to put the token in the security header.
@@ -595,16 +300,18 @@ public class TrustClient {
 		this.useReferenceForOnBehalfOf = useReferenceForOnBehalfOf;
 	}
 
-	public OIOSoapEnvelope getLastResponse() {
-		return lastResponse;
-	}
-	
 	/**
-	 * Set whether to protect security tokens with the message signature or not.
+	 * Get a client for invoking web services using the token retrieved with {@link TrustClient#getToken(String)}.
 	 * 
-	 * @param protectTokens Set token protection. Defaults to <code>true</code>.
+	 * The client will be configured with the same soapclient, soapversion, and credentials as the trustclient. 
 	 */
-	public void setProtectTokens(boolean protectTokens) {
-		this.protectTokens = protectTokens;
+	public ServiceClient getServiceClient() {
+		ServiceClient client = new ServiceClient(getCredential());
+		client.setSOAPClient(soapClient);
+		client.setSoapVersion(soapVersion);
+		client.setToken(token);
+		
+		return client;
 	}
+
 }
