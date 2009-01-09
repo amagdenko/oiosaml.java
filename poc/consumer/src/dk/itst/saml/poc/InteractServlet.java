@@ -21,9 +21,9 @@ import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.trust.FaultHandler;
 import dk.itst.oiosaml.trust.ResultHandler;
+import dk.itst.oiosaml.trust.ServiceClient;
 import dk.itst.oiosaml.trust.TrustBootstrap;
 import dk.itst.oiosaml.trust.TrustClient;
-import dk.itst.oiosaml.trust.TrustConstants;
 import dk.itst.saml.poc.provider.RequestInteract;
 import dk.itst.saml.poc.provider.RequestInteractResponse;
 
@@ -42,16 +42,17 @@ public class InteractServlet extends HttpServlet {
 		final String user = UserAssertionHolder.get().getSubject();
 
 		TrustClient tokenClient = new TrustClient();
-		tokenClient.setUserInteraction(dk.itst.oiosaml.trust.UserInteraction.IF_NEEDED, true);
 		tokenClient.setAppliesTo(endpoint);
 		tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
-		tokenClient.getToken(TrustConstants.DIALECT_OCES_PROFILE);
+		tokenClient.getToken();
+		ServiceClient serviceClient = tokenClient.getServiceClient();
 
+		serviceClient.setUserInteraction(dk.itst.oiosaml.trust.UserInteraction.IF_NEEDED, true);
 		try {
 			RequestInteract requestInteract = new RequestInteract();
 			requestInteract.setUser(user);
 
-			tokenClient.addFaultHander(LibertyConstants.SB_NS, "RedirectRequest", new FaultHandler() {
+			serviceClient.addFaultHander(LibertyConstants.SB_NS, "RedirectRequest", new FaultHandler() {
 				public void handleFault(QName code, String msg, XMLObject fault) throws Exception {
 					RedirectRequest rr = (RedirectRequest) Utils.unmarshall(fault);
 					String redirectURL = rr.getRedirectURL();
@@ -82,7 +83,7 @@ public class InteractServlet extends HttpServlet {
 //					resp.sendRedirect(redirectURL);
 				}
 			});
-			tokenClient.sendRequest(requestInteract, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
+			serviceClient.sendRequest(requestInteract, Utils.getJAXBContext(), endpoint, "http://provider.poc.saml.itst.dk/Provider/requestInteractRequest", null, new ResultHandler<RequestInteractResponse>() {
 				public void handleResult(RequestInteractResponse res) throws ServletException, IOException {
 					String info = res.getReturn();
 					log.debug("Info for user " + user + ": " + info);

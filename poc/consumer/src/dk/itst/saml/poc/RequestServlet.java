@@ -12,10 +12,9 @@ import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
-import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.trust.ResultHandler;
+import dk.itst.oiosaml.trust.ServiceClient;
 import dk.itst.oiosaml.trust.TrustBootstrap;
-import dk.itst.oiosaml.trust.TrustClient;
 import dk.itst.saml.poc.provider.Echo;
 import dk.itst.saml.poc.provider.EchoResponse;
 import dk.itst.saml.poc.provider.Structure;
@@ -33,11 +32,9 @@ public class RequestServlet extends HttpServlet {
 				resp.sendRedirect("token");
 				return;
 			}
-			final TrustClient tokenClient = new TrustClient();
+			final ServiceClient tokenClient = new ServiceClient();
 			
 			String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
-			tokenClient.setAppliesTo(endpoint);
-			tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 	
 			boolean simple = req.getParameter("simple") != null;
 			tokenClient.signRequests(!simple);

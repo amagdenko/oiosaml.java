@@ -40,10 +40,6 @@ public class TokenServlet extends HttpServlet {
 			tokenClient.setIssuer(null);
 
 			SigningPolicy policy = new SigningPolicy(true);
-			//		policy.addPolicy(Timestamp.ELEMENT_NAME, true);
-			//		policy.addPolicy(To.ELEMENT_NAME, true);
-			//		policy.addPolicy(ReplyTo.ELEMENT_NAME, true);
-			//		policy.addPolicy(MessageID.ELEMENT_NAME, true);
 			tokenClient.setSigningPolicy(policy);
 
 			UserAttribute bootstrap = UserAssertionHolder.get().getAttribute(TrustConstants.DISCOVERY_EPR_ATTRIBUTE);
@@ -56,7 +52,7 @@ public class TokenServlet extends HttpServlet {
 			try {
 				String endpoint = SAMLConfiguration.getSystemConfiguration().getString("poc.provider");
 				tokenClient.setAppliesTo(endpoint);
-				Element stsToken = tokenClient.getToken(TrustConstants.DIALECT_OCES_PROFILE);
+				Element stsToken = tokenClient.getToken().getDOM();
 
 				String stsXml = XMLHelper.nodeToString(stsToken);
 				req.getSession().setAttribute("token", stsXml);
