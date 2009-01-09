@@ -54,6 +54,5 @@ public class TrustConstants {
 	
 	public static final String DISCOVERY_EPR_ATTRIBUTE = "urn:liberty:disco:2006-08:DiscoveryEPR";
 	
-	public static final String DIALECT_OCES_PROFILE = "dk:gov:saml:OCESAttributeProfile";
-	public static final String DIALECT_PSEUDONYM_PROFILE = "dk:gov:saml:PseudonymAttributeProfile";
+	public static final String CLAIMS_DIALECT_IDENTITY = "http://schemas.xmlsoap.org/ws/2005/05/identity";
 }

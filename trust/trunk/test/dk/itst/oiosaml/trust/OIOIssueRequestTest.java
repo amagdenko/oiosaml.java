@@ -10,6 +10,9 @@ import org.junit.Test;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 
+import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.ClaimType;
+
 
 public class OIOIssueRequestTest extends TrustTests {
 	
@@ -58,5 +61,19 @@ public class OIOIssueRequestTest extends TrustTests {
 		assertNull(rst.getOnBehalfOf().getEndpointReference());
 		assertEquals(TrustConstants.TOKEN_TYPE_SAML_20, rst.getOnBehalfOf().getSecurityTokenReference().getTokenType());
 		assertEquals("id", rst.getOnBehalfOf().getSecurityTokenReference().getKeyIdentifier().getValue());
+	}
+	
+	@Test
+	public void testClaims() {
+		RequestSecurityToken rst = (RequestSecurityToken) req.getXMLObject();
+		assertNull(rst.getClaims());
+		
+		req.setClaims("urn:dialect", "urn:claim1", "urn:claim2");
+		
+		assertNotNull(rst.getClaims());
+		assertEquals("urn:dialect", rst.getClaims().getDialect());
+		assertEquals(2, rst.getClaims().getUnknownXMLObjects().size());
+		
+		assertEquals("urn:claim1", SAMLUtil.getFirstElement(rst.getClaims(), ClaimType.class).getUri());
 	}
 }

@@ -47,7 +47,7 @@ public class RequestTest extends AbstractTests {
 	@Before
 	public void setUp() {
 		client.setAppliesTo(getProperty("endpoint"));
-		token = client.getToken(null);
+		token = client.getToken();
 		serviceClient = client.getServiceClient();
 
 		SigningPolicy sp = new SigningPolicy(true);
@@ -157,7 +157,7 @@ public class RequestTest extends AbstractTests {
 	@Test
 	public void tokenWithWrongAudienceMustBeRejected() throws Exception {
 		client.setAppliesTo("urn:testing");
-		token = client.getToken(null);
+		token = client.getToken();
 		serviceClient.setToken(token);
 
 		try {
@@ -172,7 +172,7 @@ public class RequestTest extends AbstractTests {
 
 	@Test
 	public void expiredTokenMustBeRejected() throws Exception {
-		token = client.getToken(null, new DateTime().minusDays(5));
+		token = client.getToken(new DateTime().minusDays(5));
 		serviceClient.setToken(token);
 
 		try {
@@ -202,7 +202,7 @@ public class RequestTest extends AbstractTests {
 
 	@Test
 	public void tokensCanBeReplacedWhenNotProtected() throws Exception {
-		serviceClient.setToken(client.getToken(null));
+		serviceClient.setToken(client.getToken());
 		
 		serviceClient.setProtectTokens(false);
 		SOAPClientStub soapClient = new SOAPClientStub();

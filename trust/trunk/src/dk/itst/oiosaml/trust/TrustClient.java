@@ -28,6 +28,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -82,6 +83,9 @@ public class TrustClient extends ClientBase {
 	private boolean useReferenceForOnBehalfOf = false;
 
 	private Assertion token;
+	
+	private String claimsDialect;
+	private List<String> claims = new ArrayList<String>();
 	
 	/**
 	 * Create a new client using default settings.
@@ -147,8 +151,8 @@ public class TrustClient extends ClientBase {
 		}
 	}
 
-	public Assertion getToken(String dialect) {
-		return getToken(dialect, (DateTime)null);
+	public Assertion getToken() {
+		return getToken(null);
 	}
 	
 	/**
@@ -160,9 +164,9 @@ public class TrustClient extends ClientBase {
 	 * @return A DOM element with the returned token.
 	 * @throws TrustException If any error occurred.
 	 */
-	public Assertion getToken(String dialect, DateTime lifetimeExpire) throws TrustException {
+	public Assertion getToken(DateTime lifetimeExpire) throws TrustException {
 		try {
-			String xml = toXMLRequest(dialect, lifetimeExpire);
+			String xml = toXMLRequest(lifetimeExpire);
 			setRequestXML(xml);
 			
 			log.debug(xml);
@@ -229,7 +233,7 @@ public class TrustClient extends ClientBase {
 		return new OIOAssertion((Assertion) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(SAMLUtil.marshallObject(token.getAssertion()))));
 	}
 	
-	private String toXMLRequest(String dialect, DateTime lifetimeExpire) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
+	private String toXMLRequest(DateTime lifetimeExpire) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
 		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
 		
         OIOIssueRequest req = OIOIssueRequest.buildRequest();
@@ -237,8 +241,8 @@ public class TrustClient extends ClientBase {
         if (issuer != null) {
         	req.setIssuer(issuer);
         }
-        if (dialect != null) {
-        	req.setClaims(dialect, new String[0]);
+        if (claimsDialect != null || claims.size() > 0) {
+        	req.setClaims(claimsDialect, claims.toArray(new String[0]));
         }
         if (lifetimeExpire != null) {
         	req.setLifetime(lifetimeExpire);
@@ -314,4 +318,11 @@ public class TrustClient extends ClientBase {
 		return client;
 	}
 
+	public void setClaimsDialect(String dialect) {
+		claimsDialect = dialect;
+	}
+	
+	public void addClaim(String claim) {
+		claims.add(claim);
+	}
 }

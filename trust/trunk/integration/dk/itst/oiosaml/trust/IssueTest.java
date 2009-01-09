@@ -13,18 +13,19 @@ import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
 public class IssueTest extends AbstractTests {
 	@Test
 	public void testIssue() throws Exception {
-		client.getToken(null);
+		client.getToken();
 	}
 	
 	@Test
 	public void responseMustBeSigned() throws Exception {
-		client.getToken(null);
+		client.getToken();
 
 		assertTrue(client.getLastResponse().isSigned());
 		assertTrue(client.getLastResponse().verifySignature(stsCredential.getPublicKey()));
@@ -32,20 +33,20 @@ public class IssueTest extends AbstractTests {
 	
 	@Test
 	public void RSTRMustBeCollection() throws Exception {
-		client.getToken(null);
+		client.getToken();
 		OIOSoapEnvelope env = client.getLastResponse();
 		assertTrue(env.getBody().getClass().toString(), env.getBody() instanceof RequestSecurityTokenResponseCollection);
 	}
 	
 	@Test
 	public void tokenMustBeAssertion() throws Exception {
-		Assertion token = client.getToken(null);
+		Assertion token = client.getToken();
 		assertNotNull(token);
 	}
 	
 	@Test
 	public void tokenMustBeHolderOfKey() throws Exception {
-		Assertion token = client.getToken(null);
+		Assertion token = client.getToken();
 		OIOAssertion assertion = new OIOAssertion(token);
 		
 		assertTrue(assertion.isHolderOfKey());
@@ -53,7 +54,7 @@ public class IssueTest extends AbstractTests {
 	
 	@Test
 	public void assertionMustBeSignedCorrectly() throws Exception {
-		Assertion token = client.getToken(null);
+		Assertion token = client.getToken();
 		OIOAssertion assertion = new OIOAssertion(token);
 		
 		assertTrue(assertion.verifySignature(stsCredential.getPublicKey()));
@@ -61,7 +62,7 @@ public class IssueTest extends AbstractTests {
 	
 	@Test
 	public void relatesToMustBeSigned() throws Exception {
-		client.getToken(null);
+		client.getToken();
 		OIOSoapEnvelope res = client.getLastResponse();
 		
 		RelatesTo rt = res.getHeaderElement(RelatesTo.class);
@@ -82,9 +83,20 @@ public class IssueTest extends AbstractTests {
 	
 	@Test
 	public void responseShouldNotContainFrameworkHeader() throws Exception {
-		client.getToken(null);
+		client.getToken();
 		OIOSoapEnvelope res = client.getLastResponse();
 		Envelope env = (Envelope) res.getXMLObject();
 		assertEquals(0, env.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).size());
+	}
+	
+	@Test
+	public void testClaims() throws Exception {
+		client.setClaimsDialect(TrustConstants.CLAIMS_DIALECT_IDENTITY);
+		
+		client.getToken();
+		
+		client.addClaim(OIOSAMLConstants.ATTRIBUTE_MAIL_NAME);
+		
+		client.getToken();
 	}
 }

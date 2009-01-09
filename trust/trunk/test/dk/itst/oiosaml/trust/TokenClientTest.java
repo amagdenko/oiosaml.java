@@ -141,10 +141,11 @@ public class TokenClientTest extends TrustTests {
 		final StringValueHolder holder = new StringValueHolder();
 		context.checking(new Expectations() {{
 			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")));
-			will(returnValue(SAMLUtil.unmarshallElementFromString(env.toXML())));
+			will(returnValue(SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(env.sign(stsCredential)))));
 		}});
 		
-		Assertion token = client.getToken(TrustConstants.DIALECT_OCES_PROFILE);
+		client.setClaimsDialect("urn:testing");
+		Assertion token = client.getToken();
 		
 		assertEquals(XMLHelper.nodeToString(SAMLUtil.marshallObject(assertion)), XMLHelper.nodeToString(token.getDOM()));
 		
@@ -157,7 +158,7 @@ public class TokenClientTest extends TrustTests {
 		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", SAMLUtil.getFirstElement(rst.getOnBehalfOf(), Assertion.class).getID());
 
 		assertNotNull(rst.getClaims());
-		assertEquals(TrustConstants.DIALECT_OCES_PROFILE, rst.getClaims().getDialect());
+		assertEquals("urn:testing", rst.getClaims().getDialect());
 	}
 	
 	@Test(expected=TrustException.class)
@@ -174,7 +175,7 @@ public class TokenClientTest extends TrustTests {
 			will(returnValue(response));
 		}});
 		
-		client.getToken(TrustConstants.DIALECT_OCES_PROFILE);
+		client.getToken();
 	}
 	
 	@Test
