@@ -13,6 +13,9 @@ servicebinding with Saml2SecurityToken.
 
 Headers - LibertyFrameworkHeader for goverment services.
 
-ClientFactories -	WebserviceProviderChannelFactory 
+ClientFactories -	WebserviceProviderChannelFactory for setting up communication with a webserviceprovider
+					WSTrustClientFactory for communication with a STS that conforms to the OIOWS-Trust spec.
+
+Binding -			Contains bindings for STS and Webserviceproviders.					
 
 -----------------------------------------------------------------------------------

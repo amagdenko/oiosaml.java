@@ -6,6 +6,7 @@ namespace OIOSaml.Serviceprovider.Binding.Misc
     /// <summary>
     /// ASymmetricSecurityBindingElement and HttpsTransportbindingelement is not supported, and disables wsdl generation for the service. 
     /// As well as excludes the possibility to have multiple endpoints listening for the same  service.
+    /// This overwrites the above behaviour and enables ssl and wdsl generation.
     /// </summary>
     public class TransportSSLBindingWithAnonomousAuthenticationAndWsdlGenereration : HttpTransportBindingElement
     {
