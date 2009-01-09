@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
-using EchoWebserviceProvider;
 using EchoWebserviceprovider.Interfaces;
 using Microsoft.IdentityModel.Samples.TrustClient;
 using Microsoft.IdentityModel.SecurityTokenService;
@@ -45,7 +44,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
             
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
             ICommunicationObject channel = (ICommunicationObject)echoService;
 
             var req = new echo();
@@ -72,7 +71,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
 
             var req = new echo();
             req.structureToEcho = new Structure();
@@ -95,7 +94,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
 
             var req = new echo();
             req.structureToEcho = new Structure();
@@ -118,7 +117,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo"), new DnsEndpointIdentity(DnsIdentityForServiceCertificates)));
 
             var req = new echo();
             req.structureToEcho = new Structure();
@@ -141,7 +140,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("https://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo")));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("https://lh-z3jyrnwtj9d7/EchoWebserviceProvider/service.svc/Echo")));
 
             var req = new echo();
             req.structureToEcho = new Structure();
@@ -164,7 +163,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("https://oiosaml.trifork.com:8082/poc-provider/GenevaProviderService")));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("https://oiosaml.trifork.com:8082/poc-provider/GenevaProviderService")));
 
             var req = new echo();
             req.structureToEcho = new Structure();
@@ -187,7 +186,7 @@ namespace Client
 
             var token = STSConnection.GetIssuedToken(rst);
 
-            IEchoService2 echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService2>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://jre-mac.trifork.com:8880/poc-provider/GenevaProviderService")));
+            IEchoService echoService = WebserviceproviderChannelFactory.CreateChannelWithIssuedToken<IEchoService>(token, clientCertifikat, serviceCertifikat, new EndpointAddress(new Uri("http://jre-mac.trifork.com:8880/poc-provider/GenevaProviderService")));
 
             var req = new echo();
             req.structureToEcho = new Structure();

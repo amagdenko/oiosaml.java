@@ -17,8 +17,10 @@ namespace Client
 
         X509Certificate2 serviceCertifikat = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK", StoreLocation.LocalMachine, StoreName.My);
         private const string DnsIdentityForServiceCertificates = "TDC TOTALLØSNINGER A/S - TDC Test";
-             
-        Uri STSAddress = new Uri("http://213.237.161.81:8082/sts/TokenService");
+
+        Uri STSAddress = new Uri("http://10.1.1.101:8081/sts/TokenService"); //Joakims Ip
+   //     Uri STSAddress = new Uri("http://213.237.161.81:8082/sts/TokenService");
+
 
         [Test]
         public void GetSaml2SecurityTokenFromJavaSTS()

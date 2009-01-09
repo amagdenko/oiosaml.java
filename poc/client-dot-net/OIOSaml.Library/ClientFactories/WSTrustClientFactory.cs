@@ -18,7 +18,6 @@ namespace OIOSaml.Serviceprovider.ClientFactories
             var clientCredentials = new ClientCredentials();
             clientCredentials.ClientCertificate.Certificate = clientCertificate;
 
-
             WSTrustClient trustClient = new WSTrustClient(new SecurityTokenServiceBinding(), endpointAddress, TrustVersion.WSTrust13, clientCredentials);
             trustClient.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
             trustClient.ClientCredentials.ServiceCertificate.DefaultCertificate = securityTokenServiceCertificate;
@@ -35,9 +34,10 @@ namespace OIOSaml.Serviceprovider.ClientFactories
             requestSecurityToken.OnBehalfOf = new SecurityTokenElement(bootstrapSecurityToken);
             SecurityKeyIdentifierClause clause = new X509RawDataKeyIdentifierClause(clientCertificate);
             requestSecurityToken.UseKey = new UseKey(new SecurityKeyIdentifier(clause), new X509SecurityToken(clientCertificate));
+
+            requestSecurityToken.Claims.Add(new RequestClaim("dk:gov:saml:attribute:CprNumberIdentifier", false));
+            requestSecurityToken.Claims.Add(new RequestClaim("dk:gov:saml:attribute:PidNumberIdentifier", true));
             return requestSecurityToken;
         }
-
-        
     }
 }

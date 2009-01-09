@@ -19,10 +19,10 @@ namespace EchoWebserviceProvider
         {
             ServiceHost serviceHost = new EchoServiceHost(baseAddresses);
             Binding sslOioBinding = new ServiceproviderBinding(true);
-            serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService2", sslOioBinding, "Echo");
+            serviceHost.AddServiceEndpoint("EchoWebserviceprovider.Interfaces.IEchoService", sslOioBinding, "Echo");
 
             Binding oioBinding = new ServiceproviderBinding(false);
-            serviceHost.AddServiceEndpoint("EchoWebserviceProvider.IEchoService2", oioBinding, "Echo");
+            serviceHost.AddServiceEndpoint("EchoWebserviceprovider.Interfaces.IEchoService", oioBinding, "Echo");
             
             ServicePointManager.ServerCertificateValidationCallback = delegate { return (true); };
             
