@@ -91,12 +91,16 @@ public class IssueTest extends AbstractTests {
 	
 	@Test
 	public void testClaims() throws Exception {
+		Assertion token = client.getToken();
+		assertEquals(assertion.getAttributeStatements().get(0).getAttributes().size(), token.getAttributeStatements().get(0).getAttributes().size());
+		
 		client.setClaimsDialect(TrustConstants.CLAIMS_DIALECT_IDENTITY);
+		token = client.getToken();
+		assertEquals(0, token.getAttributeStatements().size());
 		
-		client.getToken();
+		client.addClaim(OIOSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME);
 		
-		client.addClaim(OIOSAMLConstants.ATTRIBUTE_MAIL_NAME);
-		
-		client.getToken();
+		token = client.getToken();
+		assertEquals(1, token.getAttributeStatements().get(0).getAttributes().size());
 	}
 }

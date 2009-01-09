@@ -20,7 +20,7 @@ public class AbstractTests extends TrustTests {
 
 	protected EndpointReference epr;
 	protected BasicX509Credential credential;
-	private Assertion assertion;
+	protected Assertion assertion;
 	protected BasicX509Credential stsCredential;
 	protected TrustClient client;
 	
