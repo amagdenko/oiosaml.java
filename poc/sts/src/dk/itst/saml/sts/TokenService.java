@@ -134,6 +134,9 @@ public class TokenService extends HttpServlet {
 		}
 		
 		OIOSoapEnvelope res = OIOSoapEnvelope.buildResponse(new SigningPolicy(true), env);
+		Envelope tmp = (Envelope) SAMLUtil.unmarshallElementFromString(res.toXML());
+		tmp.getHeader().getUnknownXMLObjects().remove(tmp.getHeader().getUnknownXMLObjects(new QName("urn:liberty:sb:2006-08", "Framework")).get(0));
+		res = new OIOSoapEnvelope(tmp, true, new SigningPolicy(true));
 		
 		RequestSecurityTokenResponseCollection rstrc = SAMLUtil.buildXMLObject(RequestSecurityTokenResponseCollection.class);
 		RequestSecurityTokenResponse rstr = SAMLUtil.buildXMLObject(RequestSecurityTokenResponse.class);
