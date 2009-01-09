@@ -9,6 +9,15 @@ namespace OIOSaml.Serviceprovider.ClientFactories
 {
     public class WebserviceproviderChannelFactory
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">T is the interface the service provider exposes.</typeparam>
+        /// <param name="token">GenericXmlSecurityToken containing a saml2SecurityToken</param>
+        /// <param name="clientCertificate"></param>
+        /// <param name="serviceCertificate"></param>
+        /// <param name="serviceEndpointAddress"></param>
+        /// <returns></returns>
         public static T CreateChannelWithIssuedToken<T>(SecurityToken token, X509Certificate2 clientCertificate, X509Certificate2 serviceCertificate, EndpointAddress serviceEndpointAddress)
         {
             bool sslEnabled = serviceEndpointAddress.Uri.Scheme.ToLowerInvariant() == "https";

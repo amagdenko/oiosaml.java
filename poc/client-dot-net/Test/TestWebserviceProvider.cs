@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -25,6 +26,8 @@ namespace Client
         X509Certificate2 serviceCertifikat = CertificateUtil.GetCertificate("SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK", StoreLocation.LocalMachine, StoreName.My);
         private const string DnsIdentityForServiceCertificates = "TDC TOTALLØSNINGER A/S - TDC Test";
 
+        List<RequestClaim> requestClaims = new List<RequestClaim>();
+
        [TestFixtureSetUp]
         public void TestFixtureSetUp()
        {
@@ -40,7 +43,7 @@ namespace Client
 
             Uri audience = new Uri("http://localhost/Echo/service.svc/Echo");
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
             
@@ -67,7 +70,7 @@ namespace Client
 
             Uri audience = new Uri("http://NotValidEndPoint/Echo");//Failure
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
 
@@ -90,7 +93,7 @@ namespace Client
 
             Uri audience = new Uri("http://localhost/Echo/service.svc/Echo");
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
 
@@ -113,7 +116,7 @@ namespace Client
 
             Uri audience = new Uri("http://localhost/Echo/service.svc/Echo");
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
 
@@ -136,7 +139,7 @@ namespace Client
 
             Uri audience = new Uri("http://localhost/Echo/service.svc/Echo");
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
 
@@ -159,7 +162,7 @@ namespace Client
 
             Uri audience = new Uri("https://oiosaml.trifork.com:8082/poc-provider/GenevaProviderService");
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
 
@@ -182,7 +185,7 @@ namespace Client
 
             Uri audience = new Uri("http://jre-mac.trifork.com:8880/poc-provider/GenevaProviderService");
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience);
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, audience, requestClaims);
 
             var token = STSConnection.GetIssuedToken(rst);
 

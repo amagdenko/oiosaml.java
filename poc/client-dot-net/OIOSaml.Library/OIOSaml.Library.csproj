@@ -64,7 +64,6 @@
     <Compile Include="ClientFactories\WSTrustClientFactory.cs" />
     <Compile Include="ClientFactories\WebserviceproviderChannelFactory.cs" />
     <Compile Include="Headers\LibertyHeader.cs" />
-    <Compile Include="Headers\ProtectionlevelEndpointBehaviour.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saml2GenevaFix\OIOFederatedSecurityTokenManger.cs">
       <SubType>Code</SubType>

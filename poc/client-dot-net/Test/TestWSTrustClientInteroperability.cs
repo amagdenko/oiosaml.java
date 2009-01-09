@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
@@ -21,13 +22,14 @@ namespace Client
         Uri STSAddress = new Uri("http://10.1.1.101:8081/sts/TokenService"); //Joakims Ip
    //     Uri STSAddress = new Uri("http://213.237.161.81:8082/sts/TokenService");
 
+        List<RequestClaim> requestClaims = new List<RequestClaim>();
 
         [Test]
         public void GetSaml2SecurityTokenFromJavaSTS()
         {
             SecurityToken bootstrapSecurityToken = BootstrapSecurityTokenGenerator.MakeBootstrapSecurityToken();
 
-            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, new Uri("http://localhost/Echo/service.svc/Echo"));
+            RequestSecurityToken rst = WSTrustClientFactory.MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, clientCertifikat, new Uri("http://localhost/Echo/service.svc/Echo"), requestClaims);
 
             GenericXmlSecurityToken token = GetIssuedToken(rst);
 
