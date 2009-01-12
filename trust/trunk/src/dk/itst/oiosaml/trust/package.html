@@ -44,7 +44,7 @@ tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 tokenClient.setAppliesTo(serviceEndpointAddress);
 
 // retrieve token from sts
-Element stsToken = tokenClient.getToken(null);
+Assertion stsToken = tokenClient.getToken(null);
 String stsXml = XMLHelper.nodeToString(stsToken);
 System.out.println("Received token from STS: " + stsXml);
 
@@ -54,7 +54,7 @@ System.out.println("Received token from STS: " + stsXml);
 // jaxb generated class
 Echo request = new Echo();
 
-tokenClient.sendRequest(request, 
+tokenClient.getServiceClient().sendRequest(request, 
 		JAXBContext.newInstance(Echo.class, EchoResponse.class), 
 		serviceEndpointAddress, 
 		"http://provider.poc.saml.itst.dk/EchoService/echoRequest", 
