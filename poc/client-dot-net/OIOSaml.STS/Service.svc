@@ -1,4 +1,0 @@
-﻿<%@ServiceHost 
-    language="c#"
-    Factory="SecureTokenServiceHostFactory" 
-    Service="SecureTokenServiceConfig" %>

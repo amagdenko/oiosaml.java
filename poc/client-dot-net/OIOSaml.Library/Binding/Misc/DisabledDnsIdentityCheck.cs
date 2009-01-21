@@ -6,6 +6,7 @@ namespace OIOSaml.Serviceprovider.Binding.Misc
 {
     /// <summary>
     /// Disables dnsidentitychecks for services and the DnsIdentity for the relying party service certificat.
+    /// OCES certificate identitys will never match actually service endpoints dnsIdentities.
     /// </summary>
     public class DisabledDnsIdentityCheck : IdentityVerifier
     {
