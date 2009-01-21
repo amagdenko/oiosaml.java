@@ -13,9 +13,11 @@ Saml2GenevaFix - 	Fix for WCF/Geneva when using IssuedSecurityTokenParameters in
 
 Headers - 		LibertyFrameworkHeader for goverment services.
 
-ClientFactories -	WebserviceProviderChannelFactory for setting up communication with a webserviceprovider
+ClientFactories -	Setup methods for clients.
+			WebserviceProviderChannelFactory for setting up communication with a webserviceprovider.
 			WSTrustClientFactory for communication with a STS that conforms to the OIOWS-Trust spec.
 
-Binding -		Contains bindings for STS and Webserviceproviders.					
+Binding -		Contains the implementation of the messageprotokol to use.
+			Contains bindings for STS and Webserviceproviders.					
 
 -----------------------------------------------------------------------------------
