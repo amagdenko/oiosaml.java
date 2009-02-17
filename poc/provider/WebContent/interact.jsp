@@ -6,11 +6,10 @@
 
 <p>To process further requests, you need to provide additional information.</p>
 
-<p>Please enter info below: <br />
+<p>Please enter info below: </p>
 <form method="post" action="interact">
 <input type="text" name="info" /><br />
 <input type="submit" value="Send" />
 
 <input type="hidden" name="ReturnToURL" value="<%= request.getParameter("ReturnToURL") %>" />
 </form>
-</p>
