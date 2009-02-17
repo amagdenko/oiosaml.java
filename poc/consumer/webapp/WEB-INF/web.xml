@@ -6,6 +6,12 @@
 	
 	<display-name>POC</display-name>
 
+	<context-param>
+		<description>Name of the configuration dir for oiosaml</description>
+		<param-name>oiosaml-j.name</param-name>
+		<param-value>poc-consumer</param-value>
+	</context-param>
+	
 	<servlet>
 		<servlet-name>SAMLDispatcherServlet</servlet-name>
 		<servlet-class>
