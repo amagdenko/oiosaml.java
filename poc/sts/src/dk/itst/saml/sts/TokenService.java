@@ -181,8 +181,8 @@ public class TokenService extends HttpServlet {
 		try {
 			xml = XMLHelper.nodeToString(res.sign(credential));
 			resp.setContentType("text/xml; charset=utf-8");
-			resp.setContentLength(xml.length());
-			IOUtils.write(xml, resp.getOutputStream());
+			resp.setContentLength(xml.getBytes("UTF-8").length);
+			IOUtils.write(xml, resp.getOutputStream(), "UTF-8");
 			
 			log.debug("Response: " + xml);
 		} catch (Exception e) {
