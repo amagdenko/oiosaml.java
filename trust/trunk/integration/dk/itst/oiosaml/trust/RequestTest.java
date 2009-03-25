@@ -31,7 +31,6 @@ import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
@@ -294,11 +293,11 @@ public class RequestTest extends AbstractTests {
 	private static class SOAPClientStub implements SOAPClient {
 		private String xml;
 
-		public Envelope wsCall(XMLObject arg0, LogUtil arg1, String arg2, String arg3, String arg4, boolean arg5) throws IOException {
+		public Envelope wsCall(XMLObject arg0, String arg2, String arg3, String arg4, boolean arg5) throws IOException {
 			return null;
 		}
 
-		public XMLObject wsCall(OIOSamlObject arg0, LogUtil arg1, String arg2, String arg3, String arg4, boolean arg5) throws IOException {
+		public XMLObject wsCall(OIOSamlObject arg0, String arg2, String arg3, String arg4, boolean arg5) throws IOException {
 			return null;
 		}
 
