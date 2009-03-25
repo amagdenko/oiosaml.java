@@ -46,7 +46,6 @@
 			    <resolver ref="shared"/>
 				<resolver ref="contix-maven2"/>
 				<resolver ref="ibiblio-maven2"/>
-	            <resolver ref="dev-java-net-maven"/>
 	            <resolver ref="java-net-maven2"/>
 				<resolver ref="codehaus"/>
 			</chain>
