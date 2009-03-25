@@ -1,0 +1,60 @@
+<ivysettings>
+	<property name="trifork-common" override="false" value="" />
+	
+	<!-- cacheDefaults resolutionDir="resolution" repositoryDir="repository" /> -->
+	<caches checkUpToDate="false">
+		<cache name="mycache" basedir="${ivy.default.ivy.user.dir}/cache" />
+	</caches>
+	<settings defaultResolver="default" />
+	
+
+	<ivysettings>
+		<property name="ivy.local.default.root"             value="${ivy.default.ivy.user.dir}/local" override="false"/>
+		<property name="ivy.local.default.ivy.pattern"      value="[organisation]/[module]/[revision]/[type]s/[artifact].[ext]" override="false"/>
+		<property name="ivy.local.default.artifact.pattern" value="[organisation]/[module]/[revision]/[type]s/[artifact].[ext]" override="false"/>
+		<property name="ivy.shared.default.root"             value="${ivy.default.ivy.user.dir}/shared" override="false"/>
+		<property name="ivy.shared.default.ivy.pattern"      value="[organisation]/[module]/[revision]/[artifact].[ext]" override="false"/>
+		<property name="ivy.shared.default.artifact.pattern" value="[organisation]/[module]/[revision]/[artifact].[ext]" override="false"/>
+	<property name="ibiblio-maven2-root" value="http://repo1.maven.org/maven2/" override="false"/>
+	<property name="ibiblio-maven2-pattern" value="[organisation]/[module]/[revision]/[module]-[revision].[ext]" override="false" />
+    <property name="dev-java-net-maven-pattern" value="[organisation]/[ext]s/[module]-[revision].[ext]" override="false" />
+    
+		<resolvers>
+			<filesystem name="local">
+				<ivy pattern="${ivy.local.default.root}/${ivy.local.default.ivy.pattern}" />
+				<artifact pattern="${ivy.local.default.root}/${ivy.local.default.artifact.pattern}" />
+			</filesystem>
+			<filesystem name="shared">
+				<ivy pattern="${ivy.shared.default.root}/${ivy.shared.default.ivy.pattern}" />
+				<artifact pattern="${ivy.shared.default.root}/${ivy.shared.default.artifact.pattern}" />
+			</filesystem>
+
+			<ibiblio	name="ibiblio-maven2" 
+						root="${ibiblio-maven2-root}" 
+						pattern="${ibiblio-maven2-pattern}"
+						m2compatible="true"
+			/>
+			
+	
+			<ibiblio name="contix-maven2" root="http://contix.dk/maven2" pattern="${ibiblio-maven2-pattern}" m2compatible="true" checkmodified="false" />
+	
+	        <ibiblio name="dev-java-net-maven" root="https://maven-repository.dev.java.net/nonav/repository" pattern="${dev-java-net-maven-pattern}" m2compatible="false" checkmodified="false" />
+			<ibiblio name="java-net-maven2" root="http://download.java.net/maven/2" pattern="${ibiblio-maven2-pattern}" m2compatible="true" checkmodified="false" />
+			<ibiblio name="codehaus" root="http://dist.codehaus.org/mule/dependencies/maven2" pattern="${ibiblio-maven2-pattern}" m2compatible="true" checkmodified="false" />
+			
+			<chain name="main" dual="true" returnFirst="true">
+			    <resolver ref="shared"/>
+				<resolver ref="contix-maven2"/>
+				<resolver ref="ibiblio-maven2"/>
+	            <resolver ref="dev-java-net-maven"/>
+	            <resolver ref="java-net-maven2"/>
+				<resolver ref="codehaus"/>
+			</chain>
+			
+			<chain name="default" returnFirst="true">
+				<resolver ref="local"/>
+				<resolver ref="main"/>
+			</chain>
+		</resolvers>
+	</ivysettings>	
+</ivysettings>

@@ -16,9 +16,7 @@ cleanDirectory << ['target', 'lib/build', 'lib/test', 'lib/dist']
 cleanPattern << [ '**/*~' , '**/*.bak' ]
 
 ant.property(file: 'build.properties')
-ant.property(name: 'trifork-common', value: new File('../trifork-common').absolutePath)
-ant.property(name: 'ivy.default.conf.dir', value: '${trifork-common}/etc/ivy')
-ant.property(name: 'ivy.settings.file', value: '${trifork-common}/ivyconf.xml')
+ant.property(name: 'ivy.settings.file', value: 'ivyconf.xml')
 
 
 includeTool << gant.tools.Ivy
