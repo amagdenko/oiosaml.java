@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="target/gensrc"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-1.5.0-sun-1.5.0.16"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/build/avalon-framework-avalon-framework.jar"/>
 	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
 	<classpathentry kind="lib" path="lib/build/com.sun.tools.ws-webservices-tools.jar"/>
