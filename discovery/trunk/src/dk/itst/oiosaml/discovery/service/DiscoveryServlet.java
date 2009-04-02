@@ -78,6 +78,8 @@ public class DiscoveryServlet extends HttpServlet {
 	}
 	
 	private Cookie findCookie(Cookie[] cookies) {
+		if (cookies == null) return null;
+		
 		for (Cookie cookie : cookies) {
 			if (SAML_IDP_COOKIE.equalsIgnoreCase(cookie.getName())) {
 				return cookie;
