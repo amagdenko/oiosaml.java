@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="http://localhost:8888/">
+   <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="http://schemas.xmlsoap.org/ws/2006/12/federation">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARokMqz+MA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwNTI2MDc0NzU4WhcNMTgwNTI0MDc0NzU4WjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIG3cZgoBin/rYib5W6yTWV8wrXGLKNah+vX29iq
+67l77g3S3fRQhjobvNQEbSatr5VQFI4ueepIeZs4qa8EZyUz49t1G6yPGXWiMcG/x877f3eAmRNn
+sUXAZGWDuJt2AIdFxduMutikJwiK2tkLKyw827AnrESl8n5vcpoIF0RbAgMBAAGjQjBAMB0GA1Ud
+DgQWBBQhx7mcHW2fZVKJWkMMr6NEUKb30TAfBgNVHSMEGDAWgBQhx7mcHW2fZVKJWkMMr6NEUKb3
+0TANBgkqhkiG9w0BAQUFAAOBgQAU1kF+wKaGCks8ZBVV1251kz9b0G0aeHcvSb+1ZrcUethf+/De
+qRQH9R9lVvzkHKdT9P2VjGHTIjmX3teXUXm3gGLdNamQ7OlihcpLjQf5tDhbne+pxsU2KkC+AKwM
+NUbndhUlY3mGmzmnIU7wAHox4zPoW2gU421+76vVBau8Mw==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:KeyDescriptor use="encryption">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIICHzCCAYigAwIBAgIGARokMqz+MA0GCSqGSIb3DQEBBQUAMCoxEzARBgNVBAoMCmtleW1hbmFn
+ZXIxEzARBgNVBAsMCm9pb3NhbWwtc3AwHhcNMDgwNTI2MDc0NzU4WhcNMTgwNTI0MDc0NzU4WjA4
+MSEwHwYDVQQDDBhzYW1sLmpyZS1tYWMudHJpZm9yay5jb20xEzARBgNVBAsMCm9pb3NhbWwtc3Aw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIG3cZgoBin/rYib5W6yTWV8wrXGLKNah+vX29iq
+67l77g3S3fRQhjobvNQEbSatr5VQFI4ueepIeZs4qa8EZyUz49t1G6yPGXWiMcG/x877f3eAmRNn
+sUXAZGWDuJt2AIdFxduMutikJwiK2tkLKyw827AnrESl8n5vcpoIF0RbAgMBAAGjQjBAMB0GA1Ud
+DgQWBBQhx7mcHW2fZVKJWkMMr6NEUKb30TAfBgNVHSMEGDAWgBQhx7mcHW2fZVKJWkMMr6NEUKb3
+0TANBgkqhkiG9w0BAQUFAAOBgQAU1kF+wKaGCks8ZBVV1251kz9b0G0aeHcvSb+1ZrcUethf+/De
+qRQH9R9lVvzkHKdT9P2VjGHTIjmX3teXUXm3gGLdNamQ7OlihcpLjQf5tDhbne+pxsU2KkC+AKwM
+NUbndhUlY3mGmzmnIU7wAHox4zPoW2gU421+76vVBau8Mw==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:Organization>
+         <md:OrganizationName xml:lang="">Trifork</md:OrganizationName>
+         <md:OrganizationDisplayName xml:lang="">Trifork</md:OrganizationDisplayName>
+         <md:OrganizationURL xml:lang="">http://trifork.com</md:OrganizationURL>
+      </md:Organization>
+      <md:ContactPerson>
+         <md:EmailAddress>jre@trifork.com</md:EmailAddress>
+      </md:ContactPerson>
+      <md:SingleLogoutService Binding="http://schemas.xmlsoap.org/ws/2006/12/federation" Location="https://jre-mac.trifork.com:8443/wsfed/saml/WSFedLogoutService" ResponseLocation="http://jre-mac.trifork.com:8080/wsfed/saml/WSFedLogoutServiceResponse"/>
+      <md:AssertionConsumerService Binding="http://schemas.xmlsoap.org/ws/2006/12/federation" Location="https://jre-mac.trifork.com:8443/wsfed/saml/WSFedConsumer" index="0" isDefault="true"/>
+   </md:SPSSODescriptor>
+</md:EntityDescriptor>

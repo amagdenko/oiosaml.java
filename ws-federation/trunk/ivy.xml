@@ -1,0 +1,24 @@
+<ivy-module version="1.0">
+    <info module="oiosaml-wsfed" organisation="dk.itst.oiosaml" status="integration"/>
+    <configurations>
+      <conf name="dist"/>
+      <conf name="build" extends="dist"/>
+      <conf name="test" extends="build"/>
+    </configurations>
+    <publications>
+    	<artifact />
+    	<artifact name="opensaml-2.1.0" type="jar" conf="*" />
+    	<artifact name="openws-wstrust" type="jar" conf="*" />
+    	<artifact name="xmltooling-1.1.0" type="jar" conf="*" />
+    	<artifact name="not-yet-commons-ssl-0.3.9" type="jar" conf="*" />
+    </publications>
+    <dependencies>
+        <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="latest.integration" conf="*->@" />
+        <dependency org="dk.itst.oiosaml" name="oiosaml-trust" rev="latest.integration" conf="*->@" />
+        
+        <dependency org="junit" name="junit" rev="4.6" /> 
+        <dependency org="org.mockito" name="mockito-all" rev="1.7" />
+        
+    </dependencies>
+</ivy-module>
+

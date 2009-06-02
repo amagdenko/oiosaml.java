@@ -1,0 +1,90 @@
+<Assertion ID="_9e3fb9d6-0cd7-46e4-8463-afff226a9e8c" IssueInstant="2009-05-18T10:01:58.094Z" Version="2.0"
+	xmlns="urn:oasis:names:tc:SAML:2.0:assertion">
+	<Issuer>urn:federation:sstpassive</Issuer>
+	<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+		<ds:SignedInfo>
+			<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+			<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			<ds:Reference URI="#_9e3fb9d6-0cd7-46e4-8463-afff226a9e8c">
+				<ds:Transforms>
+					<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</ds:Transforms>
+				<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+				<ds:DigestValue>KMfYvJMsLtRibjP3lrUzbYX8jnA=</ds:DigestValue>
+			</ds:Reference>
+		</ds:SignedInfo>
+		<ds:SignatureValue>
+			xdNNLtRKNLTiQ8Greh7T9ye0Wph4oaQwhGflrVqI/jqoIIsRN+gqzHgYdJPcQj4y2iPprI7/l/5XY56EZkMOQaGzIzges9SoTu49n1AB+B4FoCAJvWoU04ybUNZ/BCiwu6Cc2SGhQYT7vtPSnGNn25QdYY7j9pL2Wc1jit8a+3o=
+		</ds:SignatureValue>
+		<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+			<X509Data>
+				<X509Certificate>
+					MIIBtjCCAWSgAwIBAgIQKtvWd3zirZdE7UcBSPSIPjAJBgUrDgMCHQUAMBYxFDASBgNVBAMTC1Jvb3QgQWdlbmN5MB4XDTA4MTEwNzEwMzUwOFoXDTM5MTIzMTIzNTk1OVowGTEXMBUGA1UEAxMOU1NUUGFzc2l2ZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANdcW7RSFUm3DwJ835kTxm6wDFz6OlUizdBJDLfu/b/ukmaCLQ/Y+XQhy8kf43Vnfgw8RFlT2hjnEcehLWtVoKNgv2Mrk6G3P29qs3fOOZc3WYzKzsD7RZm3/vEXE7xT9jh0aRJI4syxC/5FOqiBQx/ufRy6hyx7bZq1BQUOHEKnAgMBAAGjSzBJMEcGA1UdAQRAMD6AEBLkCS0GHR1PAI1hIdwWZGOhGDAWMRQwEgYDVQQDEwtSb290IEFnZW5jeYIQBjdsAKoAZIoRz7jUqlw19DAJBgUrDgMCHQUAA0EACzpx6dprFQpMWzBz5VBOVQk3XGS8CTcgQleN3RWw34BjcoP1Yf4/RpwlnaDamfQ2nm54HEIY9oJaDft1T6qiFw==
+				</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</ds:Signature>
+	<Subject>
+		<NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">C=DK,O=Contix Technologies v/J Recht m fl // CVR:27585728,CN=Joakim Recht +
+			SERIALNUMBER=CVR:27585728-RID:1106729210322</NameID>
+		<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer" />
+	</Subject>
+	<Conditions NotBefore="2009-05-18T10:01:58.063Z" NotOnOrAfter="2009-05-18T11:01:58.063Z">
+		<AudienceRestriction>
+			<Audience>http://localhost:8888/</Audience>
+		</AudienceRestriction>
+	</Conditions>
+	<AttributeStatement>
+		<Attribute Name="http://schemas.microsoft.com/ws/2008/06/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">cixRolle1_X0000_3</AttributeValue>
+		</Attribute>
+		<Attribute FriendlyName="surName" Name="urn:oid:2.5.4.4" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">Recht</AttributeValue>
+		</Attribute>
+		<Attribute FriendlyName="CommonName" Name="urn:oid:2.5.4.3" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">Joakim Recht</AttributeValue>
+		</Attribute>
+		<Attribute Name="urn:oid:0.9.2342.19200300.100.1.1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">cixJoaRec</AttributeValue>
+		</Attribute>
+		<Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">cixJoaRec@t-seb.sst.dk</AttributeValue>
+		</Attribute>
+		<Attribute FriendlyName="email" Name="urn:oid:0.9.2342.19200300.100.1.3" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">jre@trifork.com</AttributeValue>
+		</Attribute>
+		<Attribute Name="dk:gov:saml:attribute:CvrNumberIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">27585728</AttributeValue>
+		</Attribute>
+		<Attribute Name="dk:gov:saml:attribute:RidNumberIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">1106729210322</AttributeValue>
+		</Attribute>
+		<Attribute FriendlyName="organizationName" Name="urn:oid:2.5.4.10" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">Contix</AttributeValue>
+		</Attribute>
+		<Attribute FriendlyName="postalAddress" Name="urn:oid:2.5.4.16" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue />
+		</Attribute>
+		<Attribute Name="dk:gov:saml:attribute:UniqueAccountKey" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">xri://@t-seb.sst.dk/(e6cea901-5347-4a21-808d-b1fe72c937a7)</AttributeValue>
+		</Attribute>
+		<Attribute Name="dk:gov:saml:attribute:AssuranceLevel" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">3</AttributeValue>
+		</Attribute>
+		<Attribute Name="dk:gov:saml:attribute:SpecVer" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">DK-SAML-2.0</AttributeValue>
+		</Attribute>
+		<Attribute Name="dk:gov:saml:attribute:IsYouthCert" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">false</AttributeValue>
+		</Attribute>
+		<Attribute FriendlyName="serialNumber" Name="urn:oid:2.5.4.5" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue a:type="tn:string" xmlns:a="http://www.w3.org/2001/XMLSchema-instance" xmlns:tn="http://www.w3.org/2001/XMLSchema">45818C66</AttributeValue>
+		</Attribute>
+	</AttributeStatement>
+	<AuthnStatement AuthnInstant="2009-05-18T10:01:58.109Z">
+		<AuthnContext>
+			<AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</AuthnContextClassRef>
+		</AuthnContext>
+	</AuthnStatement>
+</Assertion>
