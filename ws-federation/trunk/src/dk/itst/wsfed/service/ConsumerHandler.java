@@ -24,9 +24,11 @@ import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.UserAssertion;
+import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOEncryptedAssertion;
 import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
+import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.SAMLHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -118,7 +120,13 @@ public class ConsumerHandler implements SAMLHandler {
 		if (assertion == null) {
 			throw new RuntimeException("No SAML2 assertion received in response " + r);
 		}
+
+		Metadata metadata = context.getIdpMetadata().getMetadata(assertion.getIssuer());
 		
+		if (!assertion.verifySignature(metadata.getCertificate().getPublicKey())) {
+			log.error("Invalid signature on assertion " + assertion);
+			throw new ValidationException("The assertion is not signed correctly");
+		}
 		assertion.validateAssertion(validator, context.getSpMetadata().getEntityID(), context.getSpMetadata().getAssertionConsumerServiceLocation(0));
 
 		UserAssertion userAssertion = new FederationUserAssertionImpl(assertion);

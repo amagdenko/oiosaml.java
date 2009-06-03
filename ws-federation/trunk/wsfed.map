@@ -5,6 +5,6 @@
     <dir path="WEB-INF/classes" from="bin"/>
     <dir path="WEB-INF/classes/dk/itst/oiosaml/" from="../oiosaml/bin/dk/itst/oiosaml/" />
     <dir path="WEB-INF/lib" from="lib/dist"/>
-    <file path="WEB-INF/classes/oiosaml-common.properties" from="../oiosaml/bin/oiosaml-common.properties" />
+    <!--file path="WEB-INF/classes/oiosaml-common.properties" from="../oiosaml/bin/oiosaml-common.properties" /-->
 
 </jar>

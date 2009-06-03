@@ -1,0 +1,65 @@
+<script>
+function toggleKeystore() {
+	elem = document.getElementById('keystore');
+	if(elem.disabled == true) {
+		elem.disabled = false;
+	} else {
+		elem.disabled = true;
+	}
+}
+</script>
+<h1>Configure OIOSaml.java/WS-Federation</h1>
+<p>This page allows you to configure OIOSaml.java/WS-Federation for your system. For security reasons, this configuration can be run
+only once. If possible, the configuration files will be written automatically to '$home' (oiosaml-j.home).</p>
+
+<form method="post" enctype="multipart/form-data" name="configure" id="configure">
+
+<h3>Entity ID</h3>
+<p><input type="text" name="entityId" value="$entityId" /></p>
+
+<h3>Protocol locations:</h3>
+<span class="emphasis">These are autodiscovered based on the url you've used for this page. Make sure you're using the official url.</span>
+<table border="0">
+<tr><td>Receive WS-Federation Login response</td><td class="monospace">$wsfedUrl</td></tr>
+<tr><td>Initiate Logout</td><td class="monospace">$logoutUrl</td></tr>
+<tr><td>Receive single logout request</td><td class="monospace">$wsfedUrl</td></tr>
+</table>
+
+#if ($error != "") 
+	<div class="error">Error occurred</div>
+	<div class="errorText">$error</div>
+#end
+
+
+	<fieldset><legend>Configuration and metadata for this service provider</legend><label for="keystore">Keystore with private key for signing requests and responses. Either a pkcs12 file or a Java keystore.</label><br />
+	<input type="file" name="keystore" id="keystore" />
+	</p>
+	
+	<p><input type="checkbox" name="createkeystore" id="createkeystore" value="true" onChange="toggleKeystore();"/> &nbsp; <label for="createkeystore">Create new self-signed keystore? (only for testing, and only when not uploading a keystore above)</label>
+	</p> 
+	
+	<table>
+	<tr>
+		<td><label for="keystorePassword">Keystore password</label></td>
+		<td><input type="text" name="keystorePassword" id="keystorePassword" value="$!keystorePassword" />	</td>
+	</tr>
+	
+	<tr>
+		<td><label for="stsEntityId">STS Entity ID</label></td>
+		<td><input type="text" name="stsEntityId" id="stsEntityId" value="$!stsEntityId" /></td>
+	</tr>
+	<tr>
+		<td><label for="stsLocation">STS WS-Federation endpoint URL</label></td>
+		<td><input type="text" name="stsLocation" id="stsLocation" value="$!stsLocation" /></td>
+	</tr>
+	<tr>
+		<td><label for="stsKeystore">STS Certificate (X.509 Base64-encoded)</label></td>
+		<td><input type="file" name="stsKeystore" id="stsKeystore" /></td> 
+	</tr>
+	
+</table>	
+	
+	
+	</fieldset>
+	<input type="submit" value="Configure system"/>
+</form>

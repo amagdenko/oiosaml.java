@@ -1,0 +1,17 @@
+# Properties used by oiosaml-j
+
+# Reference to the location of the certificate used for signing SAML documents with - relative to ${oiosaml.home}
+oiosaml-sp.certificate.location=./certificate/keystore
+
+# Opaque/encrypted password to the certificate used for signing SAML documents
+oiosaml-sp.certificate.password=$password
+
+# Name of the meta data file for the current service provider - overrides setting in brs-common.properties
+common.saml2.metadata.sp.filename=SPMetadata.xml
+
+# URI References to the current service provider
+$homename=$servletPath
+
+oiosaml-sp.protocol=http://schemas.xmlsoap.org/ws/2006/12/federation
+
+oiosaml-sp.assertion.validator=dk.itst.wsfed.service.WSFedAssertionValidator
