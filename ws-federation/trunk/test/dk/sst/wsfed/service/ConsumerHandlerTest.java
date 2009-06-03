@@ -39,8 +39,8 @@ import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.trust.TrustBootstrap;
-import dk.itst.wsfed.service.ConsumerHandler;
-import dk.itst.wsfed.service.FederationUserAssertion;
+import dk.sst.oiosaml.wsfed.service.ConsumerHandler;
+import dk.sst.oiosaml.wsfed.service.FederationUserAssertion;
 
 public class ConsumerHandlerTest {
 	

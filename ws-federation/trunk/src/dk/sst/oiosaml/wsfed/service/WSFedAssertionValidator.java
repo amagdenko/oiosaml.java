@@ -1,4 +1,4 @@
-package dk.itst.wsfed.service;
+package dk.sst.oiosaml.wsfed.service;
 
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
