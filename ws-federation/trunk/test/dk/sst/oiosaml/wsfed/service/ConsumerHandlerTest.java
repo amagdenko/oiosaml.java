@@ -1,4 +1,4 @@
-package dk.sst.wsfed.service;
+package dk.sst.oiosaml.wsfed.service;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
