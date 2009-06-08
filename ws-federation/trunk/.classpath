@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="integration"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-1.5.0"/>
 	<classpathentry kind="lib" path="lib/build/avalon-framework-avalon-framework.jar"/>
 	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
@@ -35,6 +36,18 @@
 	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-oiosaml-trust.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.mockito-mockito-all.jar"/>
 	<classpathentry kind="lib" path="lib/build/dk.itst.oiosaml-oiosaml.java.jar"/>
+	<classpathentry kind="lib" path="lib/cssparser-0.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-all-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/htmlunit-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/htmlunit-core-js-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/jmock-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jmock-junit3-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jna.jar"/>
+	<classpathentry kind="lib" path="lib/json-20080701.jar"/>
+	<classpathentry kind="lib" path="lib/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/nekohtml-1.9.11.jar"/>
+	<classpathentry kind="lib" path="lib/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/webdriver-all.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

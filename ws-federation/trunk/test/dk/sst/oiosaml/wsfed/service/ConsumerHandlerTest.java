@@ -30,7 +30,6 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.security.CredentialRepository;
-import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
@@ -39,8 +38,6 @@ import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.trust.TrustBootstrap;
-import dk.sst.oiosaml.wsfed.service.ConsumerHandler;
-import dk.sst.oiosaml.wsfed.service.FederationUserAssertion;
 
 public class ConsumerHandlerTest {
 	
