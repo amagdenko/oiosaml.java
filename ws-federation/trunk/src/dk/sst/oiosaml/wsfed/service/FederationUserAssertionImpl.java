@@ -6,6 +6,7 @@ import java.util.List;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
+import dk.sst.oiosaml.wsfed.FederationUserAssertion;
 
 public class FederationUserAssertionImpl extends UserAssertionImpl implements FederationUserAssertion {
 

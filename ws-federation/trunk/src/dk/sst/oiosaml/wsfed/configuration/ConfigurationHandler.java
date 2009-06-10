@@ -74,6 +74,10 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 		List<?> parameters = extractParameterList(request);
 		
 		String stsLocation = extractParameter("stsLocation", parameters);
+		String stsLogoutLocation = extractParameter("stsLogoutLocation", parameters);
+		if (stsLogoutLocation == null) {
+			stsLogoutLocation = stsLocation;
+		}
 		String stsEntityId = extractParameter("stsEntityId", parameters);
 		String entityId = extractParameter("entityId", parameters);
 		final String password = extractParameter("keystorePassword", parameters);
@@ -93,6 +97,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 			params.put("keystorePassword", password);
 			params.put("entityId", entityId);
 			params.put("stsEntityId", stsEntityId);
+			params.put("stsLogoutLocation", stsLogoutLocation);
 			log.info("Parameters not correct: " + params);
 			
 			String res = renderTemplate("configure.vm", params, true);
@@ -130,7 +135,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 		}
 		
 		EntityDescriptor descriptor = generateSPDescriptor(getBaseUrl(request), entityId, credential, parameters);
-		EntityDescriptor idpDescriptor = generateIdPDescriptor(stsEntityId, stsLocation, stsKeystore);
+		EntityDescriptor idpDescriptor = generateIdPDescriptor(stsEntityId, stsLocation, stsLogoutLocation, stsKeystore);
 		File zipFile = generateZipFile(request.getContextPath(), password, keystore, idpDescriptor, descriptor);
 		
 		byte[] configurationContents = saveConfigurationInSession(request, zipFile);
@@ -143,7 +148,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 	}
 
 
-	private EntityDescriptor generateIdPDescriptor(String stsEntityId, String stsLocation, byte[] stsKeystore) {
+	private EntityDescriptor generateIdPDescriptor(String stsEntityId, String stsLocation, String stsLogoutLocation, byte[] stsKeystore) {
 		EntityDescriptor descriptor = SAMLUtil.buildXMLObject(EntityDescriptor.class);
 		descriptor.setEntityID(stsEntityId);
 
@@ -180,7 +185,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 		//TODO: Check that the location should be the same
 		SingleLogoutService slo = SAMLUtil.buildXMLObject(SingleLogoutService.class);
 		slo.setBinding("http://schemas.xmlsoap.org/ws/2006/12/federation");
-		slo.setLocation(stsLocation);
+		slo.setLocation(stsLogoutLocation);
 		desc.getSingleLogoutServices().add(slo);
 		
 		descriptor.getRoleDescriptors().add(desc);

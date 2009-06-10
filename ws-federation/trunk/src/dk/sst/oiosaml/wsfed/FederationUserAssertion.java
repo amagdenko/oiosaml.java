@@ -1,4 +1,4 @@
-package dk.sst.oiosaml.wsfed.service;
+package dk.sst.oiosaml.wsfed;
 
 import java.util.List;
 

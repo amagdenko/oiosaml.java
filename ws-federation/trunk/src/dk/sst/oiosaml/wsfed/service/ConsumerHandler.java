@@ -60,7 +60,7 @@ public class ConsumerHandler implements SAMLHandler {
 			}
 			log.debug(r);
 			handleSignin(relayState, r, context);
-		} else if ("wsignout1.0".equals(op)) {
+		} else if ("wsignout1.0".equals(op) || "wsignoutcleanup1.0".equals(op)) {
 			String replyTo = context.getRequest().getParameter("wreply");
 			handleSignout(context, replyTo);
 		} else {

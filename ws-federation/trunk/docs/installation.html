@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>WS-Federation extension for OIOSAML.java - Installation</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h1>Installing the WS-Federation Extension</h1>
+
+<p>The WS-Federation extension works as a simple servlet filter in an existing web application. The main steps for installing is:</p>
+<ul>
+	<li>Prepare JDK for unlimited crypto</li>
+	<li>Configure Xerces parser</li>
+	<li>Download and unzip the distribution package</li>
+	<li>Copy jar files to WEB-INF/lib</li>
+	<li>Edit web.xml to add a servlet and a filter</li>
+	<li>Use the extension from application code to read attributes</li>
+</ul>
+
+<p>To prepare for installation, check <a href="prereqs.hrml">the prerequisites</a>.</p>
+
+<h2>Copy files</h2>
+<ul>
+	<li>Copy all the jar files from the distribution lib/ directory to your application's WEB/lib application</li>
+	<li>Copy META-INF to WEB-INF/classes</li>
+</ul>
+
+<h2>Edit web.xml</h2>
+<p>The extension consists of two main parts: A servlet which handles all protocol messages, and a filter which enforces login requirements. These two must be
+declared in web.xml, together with an application name, which defines where configuration is stored.</p>
+
+<p>Add the following fragment:</p>
+
+<pre>
+&lt;context-param&gt;
+	&lt;param-name&gt;oiosaml-j.name&lt;/param-name&gt;
+	&lt;param-value&gt;appname&lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;listener&gt;
+	%lt;listener-class&gt;dk.itst.oiosaml.sp.service.session.SessionDestroyListener&lt;/listener-class&gt;
+&lt;/listener&gt;
+
+&lt;servlet&gt;
+	&lt;servlet-name&gt;SAMLDispatcherServlet&lt;/servlet-name&gt;
+	&lt;servlet-class&gt;dk.itst.oiosaml.sp.service.DispatcherServlet&lt;/servlet-class&gt;
+&lt;/servlet&gt;
+
+&lt;servlet-mapping&gt;
+	&lt;servlet-name&gt;SAMLDispatcherServlet&lt;/servlet-name&gt;
+	&lt;url-pattern&gt;/saml/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+
+&lt;filter&gt;
+	&lt;filter-name&gt;LoginFilter&lt;/filter-name&gt;
+	&lt;filter-class&gt;dk.itst.oiosaml.sp.service.SPFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+	&lt;filter-name&gt;LoginFilter&lt;/filter-name&gt;
+	&lt;url-pattern&gt;/protected/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</pre>
+
+<p>The oiosaml-j.name context-param defines an application name for this application. This is used for storing the necessary configuration files on disk. The files
+are stored in ~/.oiosaml-&lt;name&gt; where ~ is the user directory. If the parameter is not specified, ~/.oiosaml is used.</p>
+
+<p>The LoginFilter is the filter which makes sure all requests are authenticated. In the example above, it protects anything in the /protected/ path. Make
+sure the filter actually protects everything which should be protected. The filter can protect the servlet without doing any harm.</p>
+
+<p>Finally, the DispatcherServlet, which handles all SAML protocol communication, is mapped to /saml/. It is possible to change this, but it is not recommended,
+as it does require additional configuration changes.</p>
+
+<p>When OIOSAML.java is started, it will check if it is configured correctly. If not, autoconfig is enabled, and you can visit saml/WSFedConfigure to configure the system - see the <a href="demo.html">configuration section here</a>.</p>
+
+<p>When the system has been configured, the SP metadata can be downloaded from saml/metadata. The metadata is automatically signed when downloading it.</p>
+
+<p>The system supports numerous configuration parameters for tweaking the installation. For the complete list, refer to the OIOSAML.java documentation.</p>
+
+<h2>Using</h2>
+<p>When the filter is active, application code can access the information about the user currently signed in. This can be done in 3 ways:</p>
+<ul>
+<li>request.getSession.getAttribute("dk.itst.oiosaml.userassertion") - returns a dk.sst.oiosaml.wsfed.FederationUserAssertion</li>
+<li>dk.itst.oiosaml.sp.UserAssertionHolder.get() - returns a dk.sst.oiosaml.wsfed.FederationUserAssertion</li>
+<li>request.getUserPrincial() - this will return a dk.itst.oiosaml.sp.OIOPrincipal with a reference to a dk.sst.oiosaml.wsfed.FederationUserAssertion</li>
+</ul>
+
+<p>Finally, request.getRemoteUser() will return the subject name identifier. Please note that these methods only work is the application code is located beneath
+the protection filter.</p>
+
+</body>
+</html>

@@ -161,9 +161,9 @@ target (instrument: 'Instrument test code') {
 target (javadoc: 'Generate javadocs') {
 	depends(compile)
 	ant.javadoc (packagenames: "dk.*", sourcepath: sourceDirectory, defaultexcludes: true, destdir: javadocsDir, 
-		author: true, version: true, use: true, windowtitle: "OIOSAML-J", classpathref: 'classpath', charset: "UTF-8", 
-		doctitle: '<h1>OIOSAML.java. Service Provider. </h1>', 
-		bottom: '<i><p><small>The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/<br />Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governingrights and limitations under the License.<br />The Original Code is OIOSAML.java Service Provider.<br />The Initial Developer of the Original Code is <a href="http://trifork.com">Trifork A/S</a>. Portions created by <a href="http://trifork.com">Trifork A/S</a> are Copyright (C) 2008 <a href="http://itst.dk">Danish National IT and Telecom Agency (http://www.itst.dk)</a>. All Rights Reserved.</small></p></i>',
+		author: true, version: true, use: true, windowtitle: "WS-Federation extension for OIOSAML-J", classpathref: 'classpath', charset: "UTF-8", 
+		doctitle: '<h1>WS-Federation Service Provider. </h1>', 
+		bottom: '<i><p><small>The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/<br />Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governingrights and limitations under the License.<br />The Original Code is WS-Federation extension for OIOSAML.java.<br />The Initial Developer of the Original Code is <a href="http://trifork.com">Trifork A/S</a>. Portions created by <a href="http://trifork.com">Trifork A/S</a> are Copyright (C) 2009 <a href="http://sst.dk">Danish National Board of Health (http://www.sst.dk)</a>. All Rights Reserved.</small></p></i>',
 		linksource: true		
 	) {
 		link (href: 'http://www.opensaml.org/docs/opensaml/2.1.0/apidocs/')
@@ -179,7 +179,6 @@ target (war: 'Build war file') {
 		fileset (dir: webDir)
 		zipfileset (dir: 'docs', prefix: 'docs')
 		lib (dir: 'lib/dist', includes: '*.jar')
-		lib (dir: 'lib', includes: '*.jar')
 		lib (dir: distDir, includes: "${system}-${version}.jar")
 	}
 }
@@ -192,15 +191,14 @@ target (zipdist: 'Build distributable zip file') {
 	execute.shell ("svn export . ${exportDir}", outProcessing: {})
 
 	zip (destfile: "${distDir}/${system}-${version}.zip") {
-		zipfileset (dir: 'lib', includes: '*.jar', prefix: 'lib')
 		zipfileset (dir: 'lib/dist', includes: '*.jar', prefix: 'lib')
 		zipfileset (dir: exportDir, prefix: 'src')
 		zipfileset (dir: 'docs', prefix: 'doc')
 		zipfileset (dir: javadocsDir, prefix: 'doc/javadoc')
 		zipfileset (dir: 'lib/endorsed', prefix: 'endorsed')
+		zipfileset (dir: 'src/META-INF', prefix: 'META-INF')
 		fileset (dir: distDir, includes: "${system}-*${version}.*")
 		fileset (dir: '.', includes: 'LICENSE.txt')
-		fileset (dir: '.', includes: 'oiosaml.java-discovery-1.0.war')
 	}
 	
 	delete (dir: exportDir)	

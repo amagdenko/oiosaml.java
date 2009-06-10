@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Expires" content="0" />
-    <title>OIOSAML.java demo application</title>
+    <title>OIOSAML.java/WS-Federation demo application</title>
             <style type="text/css">
     	body {background-color: white; margin: 20px;}
     	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
@@ -26,7 +26,7 @@
 	SAMLConfiguration.getSystemConfiguration(); 
 	UserAssertion ua = (UserAssertion)session.getAttribute(Constants.SESSION_USER_ASSERTION);
 	%>
-<%=ua != null && ua.isAuthenticated() ? "<a href=\"" + request.getContextPath() + "/saml/Logout\">Log out</a>" : "<a href=\"" + request.getContextPath() + "/saml/login\">Login</a>"%>
+<%=ua != null && ua.isAuthenticated() ? "<a href=\"" + request.getContextPath() + "/saml/WSFedLogout\">Log out</a>" : "<a href=\"" + request.getContextPath() + "/saml/login\">Login</a>"%>
 
 <a href="<%= request.getContextPath() %>/saml/metadata">Metadata</a>
 

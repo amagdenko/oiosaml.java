@@ -1,6 +1,5 @@
 package dk.sst.oiosaml.wsfed.service;
 
-import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -15,11 +14,6 @@ public class WSFedAssertionValidator extends BasicAssertionValidator implements 
 		
 		Assertion a = assertion.getAssertion();
 		
-		DateTime confirmationTime = assertion.getConfirmationTime();
-		if (confirmationTime == null || !confirmationTime.isAfterNow()) {
-			throw new ValidationException("Subject Confirmation Data is expired: " + confirmationTime + " before " + new DateTime());
-		}
-
     	// There must be only be one AuthnStatement within the assertion
     	if (a.getAuthnStatements().size() != 1) {  
     		throw new ValidationException("The assertion must contain exactly one AuthnStatement. Was " + a.getAuthnStatements().size());

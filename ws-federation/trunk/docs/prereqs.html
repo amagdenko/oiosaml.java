@@ -1,0 +1,36 @@
+<html>
+<head>
+<title>WS-Federation extension for OIOSAML.java - Prequisites</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h1>Requirements for the WS-Federation Extension</h1>
+
+<p>Before the extension is installed into an application server, there are some configuration changes which are necessary:</p>
+
+<h2>Prepare the JDK for unlimited crypto</h2>
+<p>To support encryption, the JCE Unlimited Strengh crypto support must be installed. To do this, go to <a href="http://java.sun.com">java.sun.com</a>, 
+go to download of the appropriate JDK version and select "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy" (probably at the bottom).
+This is a small zip file, containing two jar files. These two files must be copied to JAVA_HOME/jre/lib/security, overwriting the existing files.</p>
+
+<h2>Endorse new Xerces version</h2>
+<p>OIOSAML.java requires Xerces 2.9.1 in order to work. Because the JDK already contains an XML parser, the old one must be overwritten. Choose one of the following options:</p>
+<ul>
+	<li>(Recommended) Copy the META-INF dir from the distribution file to WEB-INF/classes in the application. This keeps the change local to your application,
+	and does not change anything in any other applications which might be deployed on the same server. However, this method requires a recent version of the JDK.</li>
+	<li>Endorse xerces in the application server. <a href="https://svn.softwareborsen.dk/oiosaml.java/sp/trunk/docs/endorsement.html">The OIOSAML documentation has information on how to do this</a>.
+	<li>It might also be necessary to specify the correct implementation using system properties. For example, the GlassFish container sets a property which specifies another parser, which must then be overwritten.</li>
+</ul>
+
+</body>
+</html>

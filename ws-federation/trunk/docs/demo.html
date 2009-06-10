@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>WS-Federation extension for OIOSAML.java - Demo installation</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h1>Installation of the demo application</h1>
+<p>The WS-Federation extension package comes with a demo application which can perform the necessary protocol operations, display
+the SAML assertion after signin and initiate signout. The demo can be used as a base for a new application, or just to try the extension out.</p>
+
+<p>The demo is packaged as a war file ready for deployment. However, first <a href="prereqs.html">review the prerequisites</a> before continuing.</p>
+
+<p>Deploy the application to an application server such as Tomcat or GlassFish. Check the logs and make sure there are no errors. If there are, they
+are probably due to XML parser malconfiguration, in that case go back to <a href="prereqs.html">the prerequisites</a>.</p>
+
+<h2>Configuration</h2>
+<p>The extension needs a number of configuration files. In the demo application, these are stored in ~/.oiosaml-wsfed, where ~ is the user directory of 
+the user running the application server. If this dir does not exist, it is created automatically.</p>
+
+<p>When the configuration dir is empty, the server is unable to run in operational mode until the server has been configured. Configuration happens
+using an online service.</p>
+
+<p>Access http://&lt;server&gt;/&lt;path&gt;/saml/WSFedConfigure to configure the application. On this page, you must enter a couple of details about the
+new installation:</p>
+<ul>
+	<li>Entity ID: Corresponds to the WS-Federation realm. This should probably be http://&lt;server&gt;/&lt;path&gt;/saml/WSFedConsumer</li>
+	<li>Keystore: JKS or PKCS12 keystore containing the private key and certificate for the instance.</li>
+	<li>Create new keystore: This can be used for development if a new self-signed keystore should be created for the instance. The created keystore can
+	be retrieved later on.</li>
+	<li>Password: Password for the keystore. The same password is used for the keystore and the key itself.</li>
+	<li>STS Entity Id: This must match the value of the Issuer element in the Assertion.</li>
+	<li>STS WS-Federation endpoint URL: The location which handles WS-Federation Passive protocol requests.</li>
+	<li>STS WS-Federation logout endpoint URL: The location which handles WS-Federation Passive logout requests.</li>
+	<li>STS Certificate: A file containing the STS certificate in Base 64 encoded format, and with ----- BEGIN/END CERTIFICATE ----</li>
+</ul> 
+
+<p>Also, make sure that the hostname in the protocol urls is the actual name of the site - if users use another hostname to access it, cookies will be lost, and 
+signon will not work.</p>
+
+<p>Press Configure to configure the system. After the system has been configured, remember to also configure it in the STS.</p>
+
+<p>At this point, the application should be ready for use. The configuration can be downloaded as a zip file, or it can be reviewed in ~/.oiosaml-wsfed.</p>
+
+<p>To test the installation, access http://&lt;server&gt;/&lt;path&gt;/ and click Page requiring login. This should initiate the signon process and
+redirect the browser to the STS. After successful authentication, a page with the contents of the assertion received is displayed. Click Logout to test
+the logout feature.</p>
+</body>
+</html>

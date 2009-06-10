@@ -34,8 +34,10 @@ public class LogoutHandler implements SAMLHandler {
 		StringBuilder url = new StringBuilder(metadata.getSingleLogoutServiceLocation());
 		if (url.indexOf("?") == -1) {
 			url.append('?');
+		} else {
+			url.append("&");
 		}
-		url.append("?wa=wsignout1.0");
+		url.append("wa=wsignout1.0");
 
 		Audit.log(Operation.LOGOUTREQUEST, true, null, url.toString());
 

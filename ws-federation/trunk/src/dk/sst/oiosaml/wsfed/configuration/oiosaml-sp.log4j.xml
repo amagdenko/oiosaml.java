@@ -56,6 +56,11 @@
 		<appender-ref ref="OIOSAML_CONSOLE"/>
 		<appender-ref ref="OIOSAML_FILE"/>
 	</logger>
+	<logger name="dk.sst.oiosaml.wsfed">
+		<level value="info" />
+		<appender-ref ref="OIOSAML_CONSOLE"/>
+		<appender-ref ref="OIOSAML_FILE"/>
+	</logger>
 
 	<logger name="org.opensaml">
 		<level value="warn" />

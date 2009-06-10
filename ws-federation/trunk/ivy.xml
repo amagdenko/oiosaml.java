@@ -16,8 +16,8 @@
         <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="latest.integration" conf="*->@" />
         <dependency org="dk.itst.oiosaml" name="oiosaml-trust" rev="latest.integration" conf="*->@" />
         
-        <dependency org="junit" name="junit" rev="4.6" /> 
-        <dependency org="org.mockito" name="mockito-all" rev="1.7" />
+        <dependency org="junit" name="junit" rev="4.6" conf="test,build->default" /> 
+        <dependency org="org.mockito" name="mockito-all" rev="1.7" conf="test,build->default" />
         
     </dependencies>
 </ivy-module>

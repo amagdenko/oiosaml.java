@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>WS-Federation extension for OIOSAML.java</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h1>WS-Federation extension for OIOSAML.java</h1>
+
+<p>This package contains a WS-Federation extension for <a href="http://www.softwareborsen.dk/projekter/softwarecenter/brugerstyring/oio-saml-java">OIOSAML.java</a>,
+an open source SAML 2.0 Service Provider implementation for Java. The package has primarily been built for use with the Microsoft Geneva framework, but should
+work with other WS-Federation compliant tools.</p>
+
+<p>
+The package works by installing a servlet filter, which handles all signon and signout protocol messages. The filter also makes sure that requests are authenticated
+correctly, so that application code does not have to handle this manually. Application code can then read the attributes received in the assertion in order to implement
+business logic. 
+</p>
+
+<ul>
+	<li><a href="demo.html">Installation of the demo application</a></li>
+	<li><a href="installation.html">Installation into an existing or new web application</a></li>
+</ul>
+
+<h2>WS-Federation Requirements</h2>
+<p>The extension is based on the following assumptions:</p>
+<ul>
+	<li>JDK 1.5 or higher</li>
+	<li>No wreq parameter is sent to the STS when initiating login</li>
+	<li>The contents of wresult is a wst:RequestSecurityTokenResponse</li>
+	<li>The RequestedSecurityToken element contains either saml2:Assertion or saml2:EncryptedAssertion</li>
+	<li>The assertion is signed and valid according to the SAML 2.0 specification</li>
+</ul>
+
+<h2>Further Information</h2>
+<p>The WS-Federation extension is based on OIOSAML.java, which can be customized in a number of ways. <a href="https://svn.softwareborsen.dk/oiosaml.java/sp/trunk/docs/index.html">Read the full documentation for OIOSAML.java</a>
+to learn how to extend and configure the package.</p>
+<p>The extension uses the same configuration mechanism as OIOSAML.java - files are placed in ~/.oiosaml-appname, and the main config file is
+oiosaml-sp.properties.</p>
+
+</body>
+</html>

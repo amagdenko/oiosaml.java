@@ -53,6 +53,10 @@ only once. If possible, the configuration files will be written automatically to
 		<td><input type="text" name="stsLocation" id="stsLocation" value="$!stsLocation" /></td>
 	</tr>
 	<tr>
+		<td><label for="stsLogoutLocation">STS WS-Federation logout endpoint URL (leave blank to use the value above)</label></td>
+		<td><input type="text" name="stsLogoutLocation" id="stsLogoutLocation" value="$!stsLogoutLocation" /></td>
+	</tr>
+	<tr>
 		<td><label for="stsKeystore">STS Certificate (X.509 Base64-encoded)</label></td>
 		<td><input type="file" name="stsKeystore" id="stsKeystore" /></td> 
 	</tr>
