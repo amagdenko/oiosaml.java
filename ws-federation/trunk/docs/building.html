@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>WS-Federation extension for OIOSAML.java - Building from scratch</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h1>Building the WS-Federation Extension</h1>
+
+<p>This guide explains how to do a checkout from Subversion, build the project and import it into Eclipse. In order to build the WS-Federation extension, it is necessary first to build the OIOSAML.java project itself.</p>
+
+<ul>
+	<li>Download and install <a href="http://gant.codehaus.org/">Gant</a>, which is used for building the application</li>
+	<li>Do a svn checkout of oiosaml.java: <code>svn co https://svn.softwareborsen.dk/oiosaml.java/sp/trunk oiosaml</code></li>
+	<li>Build the OIOSAML.java project: <code>gant publish</code></li>
+	<li>Do a svn checkout of the WS-Federation extension: <code>svn co https://svn.softwareborsen.dk/oiosaml.java/ws-federation/trunk</code></li>
+	<li>Build the extension: <code>gant war</code></li>
+	<li>Import into Eclipse by using File -&gt; Import... -&gt; General -&gt; Existing projects into workspace -&gt; Point to extension checkout dir</li>
+</ul>
+
+
+</body>
+</html>
