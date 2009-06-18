@@ -14,13 +14,16 @@
     </style>
   </head>
   <body>
-	<form method="POST" action="$action" id="form">
+	<form method="POST" action="$action" id="form" name="loginform">
 			#foreach ($e in $attributes.entrySet())
 					<input type="hidden" name="$e.key" value="$e.value" />
 			#end
 		
-		<input type="submit" value="Submit" />
+		<input type="submit" value="Initiate Signon" />
 	</form>
 	
+	<script type="text/javascript">
+		document.getElementById("form").submit();
+	</script>
   </body>
 </html>

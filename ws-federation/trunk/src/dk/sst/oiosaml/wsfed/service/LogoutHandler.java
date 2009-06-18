@@ -37,7 +37,7 @@ public class LogoutHandler implements SAMLHandler {
 		} else {
 			url.append("&");
 		}
-		url.append("wa=wsignout1.0");
+		url.append("wa=").append(WSFedConstants.WSFED_SIGNOUT);
 
 		Audit.log(Operation.LOGOUTREQUEST, true, null, url.toString());
 
