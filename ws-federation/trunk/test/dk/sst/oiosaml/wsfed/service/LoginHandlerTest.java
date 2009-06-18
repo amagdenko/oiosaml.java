@@ -15,10 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -108,16 +105,4 @@ public class LoginHandlerTest extends AbstractTests {
 		String value;
 	}
 	
-	private Map<String, String> parseQuery(String query) {
-		Map<String, String> res = new HashMap<String, String>();
-		
-		for (String e : query.split("&")) {
-			String[] p = e.split("=");
-			try {
-				res.put(p[0], URLDecoder.decode(p[1], "UTF-8"));
-			} catch (UnsupportedEncodingException e1) {}
-		}
-		
-		return res;
-	}
 }

@@ -4,7 +4,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
@@ -68,5 +71,18 @@ public abstract class AbstractTests {
 		IdpMetadata idp = new IdpMetadata("http://schemas.xmlsoap.org/ws/2006/12/federation", (EntityDescriptor)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("IdPMetadata.xml")));
 		rc = new RequestContext(req, res, idp, new SPMetadata(desc, "http://schemas.xmlsoap.org/ws/2006/12/federation"), credential, cfg, sh, null);
 	}
-	
+
+	protected Map<String, String> parseQuery(String query) {
+		Map<String, String> res = new HashMap<String, String>();
+		
+		for (String e : query.split("&")) {
+			String[] p = e.split("=");
+			try {
+				res.put(p[0], URLDecoder.decode(p[1], "UTF-8"));
+			} catch (UnsupportedEncodingException e1) {}
+		}
+		
+		return res;
+	}
+
 }
