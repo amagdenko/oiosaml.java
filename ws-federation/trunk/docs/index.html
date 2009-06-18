@@ -37,7 +37,11 @@ business logic.
 	<li>JDK 1.5 or higher</li>
 	<li>No wreq parameter is sent to the STS when initiating login</li>
 	<li>The contents of wresult is a wst:RequestSecurityTokenResponse</li>
+	<li>The RSTR contains a wst:Lifetime/wst:Expires value which is not before now</li>
+	<li>The RSTR has an wst:AppliesTo containing an EndpointReference with the address of the consumer URL</li>
+	<li>The RSTR has a TokenType element indicating a SAML 2 assertion (either namespace or OASIS token type)</li>
 	<li>The RequestedSecurityToken element contains either saml2:Assertion or saml2:EncryptedAssertion</li>
+	<li>The RSTR is not signed - if it is, the signature is not processed</li>
 	<li>The assertion is signed and valid according to the SAML 2.0 specification</li>
 </ul>
 
