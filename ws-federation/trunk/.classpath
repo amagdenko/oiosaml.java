@@ -48,6 +48,7 @@
 	<classpathentry kind="lib" path="lib/nekohtml-1.9.11.jar"/>
 	<classpathentry kind="lib" path="lib/sac-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/webdriver-all.jar"/>
+	<classpathentry kind="lib" path="lib/webdriver-remote-common.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
