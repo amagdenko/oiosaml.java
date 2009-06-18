@@ -11,10 +11,14 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.EncryptedAssertion;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
+import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.XMLHelper;
@@ -34,6 +38,7 @@ import dk.itst.oiosaml.sp.service.SAMLHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.Utils;
+import dk.itst.oiosaml.trust.TrustConstants;
 
 public class ConsumerHandler implements SAMLHandler {
 	private static final Logger log = Logger.getLogger(ConsumerHandler.class);
@@ -107,6 +112,7 @@ public class ConsumerHandler implements SAMLHandler {
 		OIOAssertion assertion = null;
 		if (r instanceof RequestSecurityTokenResponse) {
 			RequestSecurityTokenResponse res = (RequestSecurityTokenResponse) r;
+			validateResponse(res, context);
 			
 			XMLObject rt = res.getRequestedSecurityToken().getUnknownXMLObjects().get(0);
 			if (rt instanceof Assertion) {
@@ -141,6 +147,40 @@ public class ConsumerHandler implements SAMLHandler {
 		session.setAttribute(Constants.SESSION_USER_ASSERTION, userAssertion);
 		
 		HTTPUtils.sendResponse(context.getSessionHandler().getRequest(relayState), context);
+	}
+
+	private void validateResponse(RequestSecurityTokenResponse res, RequestContext context) {
+		validateLifetime(res);
+		validateAppliesTo(res, context);
+		validateTokenType(res);
+	}
+
+	private void validateTokenType(RequestSecurityTokenResponse res) {
+		if (res.getTokenType() == null) throw new ValidationException("No TokenType in response");
+		if (!SAMLConstants.SAML20_NS.equals(res.getTokenType().getValue()) &&
+				!TrustConstants.TOKEN_TYPE_SAML_20.equals(res.getTokenType().getValue())) {
+			throw new ValidationException("Unsupported token type " + res.getTokenType().getValue());
+		}
+	}
+
+	private void validateAppliesTo(RequestSecurityTokenResponse res, RequestContext context) {
+		if (res.getAppliesTo() == null) throw new ValidationException("No AppliesTo in response");
+		EndpointReference epr = SAMLUtil.getFirstElement(res.getAppliesTo(), EndpointReference.class);
+		if (epr == null) throw new ValidationException("No EPR in AppliesTo");
+		
+		if (!context.getSpMetadata().getAssertionConsumerServiceLocation(0).equals(epr.getAddress().getValue())) {
+			throw new ValidationException("AppliesTo does not match: " + epr.getAddress().getValue() + " != " + context.getSpMetadata().getAssertionConsumerServiceLocation(0));
+		}
+	}
+
+	private void validateLifetime(RequestSecurityTokenResponse res) {
+		if (res.getLifetime() == null) throw new ValidationException("Response does not contain a Lifetime");
+
+		Expires expires = res.getLifetime().getExpires();
+		if (expires == null) throw new ValidationException("No expires in Lifetime");
+		if (expires.getDateTime().isBeforeNow()) {
+			throw new ValidationException("Response is expired: Expires at " + expires.getDateTime() + " < " + new DateTime());
+		}
 	}
 
 	public void handlePost(RequestContext context) throws ServletException, IOException {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="urn:federation:sstpassive">
+   <md:IDPSSODescriptor protocolSupportEnumeration="http://schemas.xmlsoap.org/ws/2006/12/federation">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIIBtjCCAWSgAwIBAgIQKtvWd3zirZdE7UcBSPSIPjAJBgUrDgMCHQUAMBYxFDASBgNVBAMTC1Jvb3QgQWdlbmN5MB4XDTA4MTEwNzEwMzUwOFoXDTM5MTIzMTIzNTk1OVowGTEXMBUGA1UEAxMOU1NUUGFzc2l2ZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANdcW7RSFUm3DwJ835kTxm6wDFz6OlUizdBJDLfu/b/ukmaCLQ/Y+XQhy8kf43Vnfgw8RFlT2hjnEcehLWtVoKNgv2Mrk6G3P29qs3fOOZc3WYzKzsD7RZm3/vEXE7xT9jh0aRJI4syxC/5FOqiBQx/ufRy6hyx7bZq1BQUOHEKnAgMBAAGjSzBJMEcGA1UdAQRAMD6AEBLkCS0GHR1PAI1hIdwWZGOhGDAWMRQwEgYDVQQDEwtSb290IEFnZW5jeYIQBjdsAKoAZIoRz7jUqlw19DAJBgUrDgMCHQUAA0EACzpx6dprFQpMWzBz5VBOVQk3XGS8CTcgQleN3RWw34BjcoP1Yf4/RpwlnaDamfQ2nm54HEIY9oJaDft1T6qiFw==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:KeyDescriptor use="encryption">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIIBtjCCAWSgAwIBAgIQKtvWd3zirZdE7UcBSPSIPjAJBgUrDgMCHQUAMBYxFDASBgNVBAMTC1Jvb3QgQWdlbmN5MB4XDTA4MTEwNzEwMzUwOFoXDTM5MTIzMTIzNTk1OVowGTEXMBUGA1UEAxMOU1NUUGFzc2l2ZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANdcW7RSFUm3DwJ835kTxm6wDFz6OlUizdBJDLfu/b/ukmaCLQ/Y+XQhy8kf43Vnfgw8RFlT2hjnEcehLWtVoKNgv2Mrk6G3P29qs3fOOZc3WYzKzsD7RZm3/vEXE7xT9jh0aRJI4syxC/5FOqiBQx/ufRy6hyx7bZq1BQUOHEKnAgMBAAGjSzBJMEcGA1UdAQRAMD6AEBLkCS0GHR1PAI1hIdwWZGOhGDAWMRQwEgYDVQQDEwtSb290IEFnZW5jeYIQBjdsAKoAZIoRz7jUqlw19DAJBgUrDgMCHQUAA0EACzpx6dprFQpMWzBz5VBOVQk3XGS8CTcgQleN3RWw34BjcoP1Yf4/RpwlnaDamfQ2nm54HEIY9oJaDft1T6qiFw==</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:SingleLogoutService Binding="http://schemas.xmlsoap.org/ws/2006/12/federation" Location="https://testfederation.sundhedsstyrelsen.dsdn.dk/SSTSTS/Logout.aspx"/>
+      <md:SingleSignOnService Binding="http://schemas.xmlsoap.org/ws/2006/12/federation" Location="https://testfederation.sundhedsstyrelsen.dsdn.dk/SSTSTS/"/>
+   </md:IDPSSODescriptor>
+</md:EntityDescriptor>

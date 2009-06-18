@@ -19,17 +19,20 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.xml.security.x509.BasicX509Credential;
+import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.security.CredentialRepository;
+import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
@@ -78,21 +81,39 @@ public class ConsumerHandlerTest {
 			put("oiosaml-sp.assertion.validator", Validator.class.getName());
 			put(Constants.PROP_HOME, "/home");
 		}});
-		rc = new RequestContext(req, res, null, new SPMetadata(desc, "http://schemas.xmlsoap.org/ws/2006/12/federation"), credential, cfg, sh, null);
+		IdpMetadata idp = new IdpMetadata("http://schemas.xmlsoap.org/ws/2006/12/federation", (EntityDescriptor)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("IdPMetadata.xml")));
+		rc = new RequestContext(req, res, idp, new SPMetadata(desc, "http://schemas.xmlsoap.org/ws/2006/12/federation"), credential, cfg, sh, null);
 		handler = new ConsumerHandler(cfg);
 	}
 
 	@Test
-	
 	public void testSignin() throws Exception {
 		when(req.getParameter("wa")).thenReturn("wsignin1.0");
-		when(req.getParameter("wresult")).thenReturn(IOUtils.toString(getClass().getResourceAsStream("/rstr.xml")));
+		RequestSecurityTokenResponse resp = (RequestSecurityTokenResponse) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/rstr.xml"));
+		resp.getLifetime().getExpires().setDateTime(new DateTime().plusMinutes(5));
+		SAMLUtil.getFirstElement(resp.getAppliesTo(), EndpointReference.class).getAddress().setValue(rc.getSpMetadata().getAssertionConsumerServiceLocation(0));
+		when(req.getParameter("wresult")).thenReturn(XMLHelper.nodeToString(SAMLUtil.marshallObject(resp)));
 		
 		handler.handleGet(rc);
 		
 		verify(sh).setAssertion(anyString(), any(OIOAssertion.class));
 		verify(session).setAttribute(anyString(), any(FederationUserAssertion.class));
 		verify(res).sendRedirect("/home");
+	}
+	
+	@Test(expected=ValidationException.class)
+	public void testSigninValidationFailsWhenLifetimeExpired() throws Exception {
+		when(req.getParameter("wa")).thenReturn("wsignin1.0");
+		RequestSecurityTokenResponse resp = (RequestSecurityTokenResponse) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/rstr.xml"));
+		resp.getLifetime().getExpires().setDateTime(new DateTime().minusMinutes(1));
+		when(req.getParameter("wresult")).thenReturn(XMLHelper.nodeToString(SAMLUtil.marshallObject(resp)));
+		
+		handler.handleGet(rc);
+		
+		verify(sh).setAssertion(anyString(), any(OIOAssertion.class));
+		verify(session).setAttribute(anyString(), any(FederationUserAssertion.class));
+		verify(res).sendRedirect("/home");
+		
 	}
 	
 	@Test
