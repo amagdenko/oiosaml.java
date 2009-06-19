@@ -62,6 +62,11 @@ public class LogoutHandlerTest extends AbstractTests {
 		assertEquals(WSFedConstants.WSFED_SIGNOUT, q.get("wa"));
 	}
 	
+	@Test(expected=UnsupportedOperationException.class)
+	public void postNotSupported() throws Exception {
+		new LogoutHandler().handlePost(rc);
+	}
+	
 	private class StringHolder {
 		String value;
 	}

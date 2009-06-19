@@ -61,7 +61,7 @@ public class ConsumerHandler implements SAMLHandler {
 			if (r instanceof Envelope && (((Envelope)r).getBody()).getUnknownXMLObjects().get(0) instanceof Fault) {
 				Fault f =  (Fault) (((Envelope)r).getBody()).getUnknownXMLObjects().get(0);
 				log.error("Request failed: " + XMLHelper.nodeToString(SAMLUtil.marshallObject(f)));
-				throw new RuntimeException("Request failed: " + f.getCode().getValue());
+				throw new LoginException("Request failed: " + f.getCode().getValue(), f);
 			}
 			log.debug(r);
 			handleSignin(relayState, r, context);
@@ -137,6 +137,7 @@ public class ConsumerHandler implements SAMLHandler {
 
 		UserAssertion userAssertion = new FederationUserAssertionImpl(assertion);
 		if (!invokeAuthenticationHandler(context, userAssertion)) {
+			Audit.logError(Operation.LOGIN, false, assertion.getID(), "Authentication handler stopped authentication");
 			log.error("Authentication handler stopped authentication");
 			return;
 		}

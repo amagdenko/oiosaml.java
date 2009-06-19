@@ -16,13 +16,13 @@ public class FederationUserAssertionImpl extends UserAssertionImpl implements Fe
 
 	@SuppressWarnings("unchecked")
 	public List<String> getRoles() {
-		UserAttribute a = getAttribute("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+		UserAttribute a = getAttribute(WSFedConstants.ATTRIBUTE_ROLES);
 		if (a == null) return Collections.EMPTY_LIST;
 		return a.getValues();
 	}
 
 	public String getUserPrincipalName() {
-		UserAttribute a = getAttribute("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn");
+		UserAttribute a = getAttribute(WSFedConstants.ATTRIBUTE_UPN);
 		if (a == null) return null;
 		
 		return a.getValue();
