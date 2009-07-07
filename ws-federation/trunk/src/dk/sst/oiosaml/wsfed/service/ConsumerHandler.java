@@ -52,6 +52,9 @@ public class ConsumerHandler implements SAMLHandler {
 		String response = context.getRequest().getParameter("wresult");
 		String relayState = context.getRequest().getParameter("wctx");
 		String op = context.getRequest().getParameter("wa");
+		if (op == null) {
+			throw new RuntimeException("No protocol action specified using the wa parameter");
+		}
 		
 		log.debug("Received result " + response);
 		
