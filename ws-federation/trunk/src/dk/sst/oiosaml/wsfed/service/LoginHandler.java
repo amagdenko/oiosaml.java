@@ -86,7 +86,7 @@ public class LoginHandler implements SAMLHandler {
 	}
 
 	public void handlePost(RequestContext arg0) throws ServletException, IOException {
-		throw new UnsupportedOperationException();
+		handleGet(arg0);
 	}
 
 }
