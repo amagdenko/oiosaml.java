@@ -30,7 +30,7 @@
     Persistent Pseudonym Profile: <%= ua.isPersistentPseudonymProfileCompliant() %><br />
      
     </p>
-    <a href="query.jsp">Perform attribute query</a> &nbsp; <a href="logout.jsp">Local logout</a>
+    <a href="logout.jsp">Local logout</a>
     </div>
 	<div style="float: right"><img src="<%= request.getContextPath() %>/oiosaml.gif" alt="oiosaml.java" /></div>
 	<div style="clear: both">&nbsp;</div>
