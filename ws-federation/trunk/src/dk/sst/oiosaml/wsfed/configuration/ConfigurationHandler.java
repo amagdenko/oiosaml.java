@@ -79,7 +79,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 			stsLogoutLocation = stsLocation;
 		}
 		String stsEntityId = extractParameter("stsEntityId", parameters);
-		String entityId = extractParameter("entityId", parameters);
+		String entityId = stsLocation;
 		final String password = extractParameter("keystorePassword", parameters);
 		byte[] stsKeystore = extractFile("stsKeystore", parameters).get();
 		FileItem ksData = extractFile("keystore", parameters);
@@ -95,7 +95,6 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 			params.put("error", "All fields must be filled.");
 			params.put("stsLocation", stsLocation);
 			params.put("keystorePassword", password);
-			params.put("entityId", entityId);
 			params.put("stsEntityId", stsEntityId);
 			params.put("stsLogoutLocation", stsLogoutLocation);
 			log.info("Parameters not correct: " + params);
@@ -413,7 +412,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 		params.put("logoutUrl", base + "/WSFedLogout");
 		params.put("logoutRequestUrl", base + "/WSFedConsumer");
 		params.put("home", getHome(servletContext));
-		params.put("entityId", getEntityId(request));
+		params.put("stsEntityId", "urn:federation:sstpassive");
 		return params;
 	}
 

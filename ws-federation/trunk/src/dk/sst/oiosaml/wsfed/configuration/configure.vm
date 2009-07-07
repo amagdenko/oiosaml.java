@@ -14,11 +14,9 @@ only once. If possible, the configuration files will be written automatically to
 
 <form method="post" enctype="multipart/form-data" name="configure" id="configure">
 
-<h3>Entity ID</h3>
-<p><input type="text" name="entityId" value="$entityId" /></p>
-
 <h3>Protocol locations:</h3>
-<span class="emphasis">These are autodiscovered based on the url you've used for this page. Make sure you're using the official url.</span>
+<span class="emphasis">These are autodiscovered based on the url you've used for this page. Make sure you're using the correct hostname 
+in your browser. Hostnames other than that shown below will not work after the system is configured.</span>
 <table border="0">
 <tr><td>Receive WS-Federation Login response</td><td class="monospace">$wsfedUrl</td></tr>
 <tr><td>Initiate Logout</td><td class="monospace">$logoutUrl</td></tr>
