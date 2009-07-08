@@ -12,13 +12,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
-
-import javax.servlet.ServletException;
 
 import org.cyberneko.html.parsers.DOMParser;
 import org.hamcrest.BaseMatcher;
@@ -94,11 +91,6 @@ public class LoginHandlerTest extends AbstractTests {
 		assertEquals(rc.getIdpMetadata().getFirstMetadata().getSingleSignonServiceLocation(WSFedConstants.WSFED_PROTOCOL), form.getAttribute("action"));
 		
 		verify(res, never()).sendRedirect(anyString());
-	}
-	
-	@Test(expected=UnsupportedOperationException.class)
-	public void postNotSupported() throws ServletException, IOException {
-		new LoginHandler().handlePost(rc);
 	}
 	
 	private class StringHolder {
