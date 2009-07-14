@@ -107,7 +107,6 @@ target (jar: 'Build jar file') {
 target (compile_test: 'Compile test cases') {
 	depends(compile)
 	doCompile(testSrcDir, testBuildDir)
-	doCompile('integration', testBuildDir)
 }
 
 target ( test : 'Run tests' ) {
