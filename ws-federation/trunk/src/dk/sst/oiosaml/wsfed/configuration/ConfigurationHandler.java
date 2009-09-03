@@ -133,7 +133,7 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 			}
 		}
 		
-		EntityDescriptor descriptor = generateSPDescriptor(getBaseUrl(request), entityId, credential, parameters);
+		EntityDescriptor descriptor = generateSPDescriptor(getBaseUrl(request), credential, parameters);
 		EntityDescriptor idpDescriptor = generateIdPDescriptor(stsEntityId, stsLocation, stsLogoutLocation, stsKeystore);
 		File zipFile = generateZipFile(request.getContextPath(), password, keystore, idpDescriptor, descriptor);
 		
@@ -229,9 +229,11 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 		return zipFile;
 	}
 
-	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, List<?> parameters) {
+	protected EntityDescriptor generateSPDescriptor(String baseUrl, Credential credential, List<?> parameters) {
+		String url = baseUrl + "/WSFedConsumer";
+		
 		EntityDescriptor descriptor = SAMLUtil.buildXMLObject(EntityDescriptor.class);
-		descriptor.setEntityID(entityId);
+		descriptor.setEntityID(url);
 		
 		SPSSODescriptor spDescriptor = SAMLUtil.buildXMLObject(SPSSODescriptor.class);
 		spDescriptor.setAuthnRequestsSigned(true);
@@ -253,9 +255,9 @@ public class ConfigurationHandler extends dk.itst.oiosaml.sp.configuration.Confi
 		spDescriptor.getKeyDescriptors().add(encryptionDescriptor);
 		
 		spDescriptor.addSupportedProtocol("http://schemas.xmlsoap.org/ws/2006/12/federation");
-		spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/WSFedConsumer", "http://schemas.xmlsoap.org/ws/2006/12/federation", 0, true));
+		spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(url, "http://schemas.xmlsoap.org/ws/2006/12/federation", 0, true));
 		
-		spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/WSFedConsumer", baseUrl + "/WSFedConsumer", "http://schemas.xmlsoap.org/ws/2006/12/federation"));
+		spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(url, url, "http://schemas.xmlsoap.org/ws/2006/12/federation"));
 		
 		
 		descriptor.getRoleDescriptors().add(spDescriptor);
