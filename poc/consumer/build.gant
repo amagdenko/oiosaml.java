@@ -20,7 +20,7 @@ ant.property(name: 'ivy.settings.file', value: 'ivyconf.xml')
 ant.property(name: "glassfish.home",  value:"/pack/glassfish-v2ur1/")
 //ant.property(name: "wsdl.uri", value: "http://localhost:8880/poc-provider/ProviderService?wsdl")
 //ant.property(name: "wsdl.uri", value: "http://saml-perf2.trifork.com:8080/poc-provider/ProviderService?wsdl")
-ant.property(name: "wsdl.uri", value: "https://oiosaml.trifork.com:8082/poc-provider/ProviderService?wsdl")
+ant.property(name: "wsdl.uri", value: "poc-provider.wsdl")
 
 
 includeTool << gant.tools.Ivy
