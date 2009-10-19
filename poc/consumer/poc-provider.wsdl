@@ -109,18 +109,91 @@
 </wsp:ExactlyOne>
 </wsp:Policy>
 <types>
-<xsd:schema>
-<xsd:import namespace="urn:liberty:sb:profile" schemaLocation="http://localhost:8880/poc-provider/ProviderService?xsd=1" />
-</xsd:schema>
-<xsd:schema>
-<xsd:import namespace="urn:liberty:sb:2006-08" schemaLocation="http://localhost:8880/poc-provider/ProviderService?xsd=2" />
-</xsd:schema>
-<xsd:schema>
-<xsd:import namespace="http://schemas.xmlsoap.org/soap/envelope/" schemaLocation="http://localhost:8880/poc-provider/ProviderService?xsd=3" />
-</xsd:schema>
-<xsd:schema>
-<xsd:import namespace="http://provider.poc.saml.itst.dk/" schemaLocation="http://localhost:8880/poc-provider/ProviderService?xsd=4" />
-</xsd:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="urn:liberty:sb:profile">
+
+<xs:attribute name="profile" type="xs:string" />
+</xs:schema>
+<xs:schema xmlns:tns="urn:liberty:sb:2006-08" xmlns:ns2="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="urn:liberty:sb:profile" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="urn:liberty:sb:2006-08">
+
+<xs:import namespace="urn:liberty:sb:profile" />
+
+<xs:import namespace="http://schemas.xmlsoap.org/soap/envelope/" />
+
+<xs:element name="Framework" type="tns:Framework" />
+
+<xs:element name="RedirectRequest" type="tns:RedirectRequest" />
+
+<xs:element name="UserInteraction" type="tns:UserInteraction" />
+
+<xs:complexType name="UserInteraction">
+<xs:sequence />
+<xs:attribute name="interact" type="xs:string" />
+<xs:attribute name="redirect" type="xs:boolean" use="required" />
+</xs:complexType>
+
+<xs:complexType name="Framework">
+<xs:sequence />
+<xs:attribute ref="ns1:profile" use="required" />
+<xs:attribute name="version" type="xs:string" use="required" />
+<xs:attribute ref="ns2:mustUnderstand" />
+</xs:complexType>
+
+<xs:complexType name="RedirectRequest">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0" />
+</xs:sequence>
+<xs:attribute name="RedirectURL" type="xs:string" />
+</xs:complexType>
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://schemas.xmlsoap.org/soap/envelope/">
+
+<xs:attribute name="mustUnderstand" type="xs:string" />
+</xs:schema>
+<xs:schema xmlns:tns="http://provider.poc.saml.itst.dk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://provider.poc.saml.itst.dk/">
+
+<xs:element name="Structure" type="tns:Structure" />
+
+<xs:element name="echo" type="tns:echo" />
+
+<xs:element name="echoResponse" type="tns:echoResponse" />
+
+<xs:element name="requestInteract" type="tns:requestInteract" />
+
+<xs:element name="requestInteractResponse" type="tns:requestInteractResponse" />
+
+<xs:complexType name="requestInteract">
+<xs:sequence>
+<xs:element name="user" type="xs:string" form="qualified" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="requestInteractResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="echo">
+<xs:sequence>
+<xs:element name="structure" type="tns:Structure" form="qualified" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="Structure">
+<xs:sequence>
+<xs:element name="structure" type="tns:Structure" form="qualified" minOccurs="0" maxOccurs="unbounded" />
+<xs:element name="value" type="xs:string" form="qualified" minOccurs="0" />
+
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="echoResponse">
+<xs:sequence>
+<xs:element name="structure" type="tns:Structure" form="qualified" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
+
 </types>
 <message name="echo">
 <part name="parameters" element="tns:echo" />
