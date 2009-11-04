@@ -33,7 +33,7 @@ namespace ClaimsAwareWebService
 {
     
 
-    public class ClaimsAwareWebService 
+    public class WebserviceproviderEcho 
     {
         static void Main( string[] args )
         {

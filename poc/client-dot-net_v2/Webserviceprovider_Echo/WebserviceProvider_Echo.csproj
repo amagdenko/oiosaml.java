@@ -73,7 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CertificateUtil.cs" />
-    <Compile Include="ClaimsAwareWebService.cs" />
+    <Compile Include="WebserviceproviderEcho.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrustedIssuerNameRegistry.cs" />
   </ItemGroup>
