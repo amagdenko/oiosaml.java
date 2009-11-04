@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebserviceProvider_Echo", "Webserviceprovider_Echo\WebserviceProvider_Echo.csproj", "{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityTokenService", "SimpleActiveSTS\SecurityTokenService.csproj", "{C0A11866-3F07-4519-8051-DCFB8ACA8CF1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bindings", "Bindings\Bindings.csproj", "{3211517E-7B64-4253-A957-3CAF6A2ECF3F}"
 EndProject
 Global
@@ -23,10 +21,6 @@ Global
 		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C0A11866-3F07-4519-8051-DCFB8ACA8CF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C0A11866-3F07-4519-8051-DCFB8ACA8CF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C0A11866-3F07-4519-8051-DCFB8ACA8CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C0A11866-3F07-4519-8051-DCFB8ACA8CF1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
