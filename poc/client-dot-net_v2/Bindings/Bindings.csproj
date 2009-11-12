@@ -36,17 +36,13 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.IdentityModel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\DLLs\DLLs\System.IdentityModel.dll</HintPath>
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+      <HintPath>..\fre\System.IdentityModel.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.ServiceModel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\DLLs\DLLs\Ny Servicemodel\System.ServiceModel.dll</HintPath>
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+      <HintPath>..\fre\System.ServiceModel.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -58,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bindings\Misc\TransportSSLBindingWithAnonomousAuthenticationAndWsdlGenereration.cs" />
     <Compile Include="Bindings\SecureTokenServiceBindings.cs" />
     <Compile Include="CustomHeaders\LibertyFrameworkHeader.cs" />
     <Compile Include="Data\FrameworkFault.cs" />

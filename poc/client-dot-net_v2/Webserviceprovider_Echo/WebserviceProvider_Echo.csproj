@@ -8,8 +8,8 @@
     <ProjectGuid>{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClaimsAwareWebService</RootNamespace>
-    <AssemblyName>ClaimsAwareWebService</AssemblyName>
+    <RootNamespace>Webserviceprovider_Echo</RootNamespace>
+    <AssemblyName>Webserviceprovider_Echo</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,27 +32,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.IdentityModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\target\debug\i386\Microsoft.IdentityModel.dll</HintPath>
-    </Reference>
-    <Reference Include="SMDiagnostics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\dd\QFE_1\binaries\x86fre\CDF\SMDiagnostics.dll</HintPath>
+      <HintPath>..\..\..\..\DLLs\DLLs\Microsoft.IdentityModel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.IdentityModel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\NewDLLs\System.IdentityModel.dll</HintPath>
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.IdentityModel.Selectors, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Users\mashiur\Desktop\NewDLLs\System.IdentityModel.Selectors.dll</HintPath>
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+      <HintPath>..\fre\System.IdentityModel.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -60,7 +49,7 @@
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.ServiceModel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\..\..\DLLs\DLLs\Ny Servicemodel\System.ServiceModel.dll</HintPath>
+      <HintPath>..\fre\System.ServiceModel.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

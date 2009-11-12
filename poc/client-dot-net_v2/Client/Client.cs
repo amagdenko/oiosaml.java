@@ -37,20 +37,27 @@ namespace Client
 {
     class Client
     {
-        static readonly string SigningCertificateNameService = @"CN=DANID A/S - DanID Test + SERIALNUMBER=CVR:30808460-UID:1237552804997, O=DANID A/S // CVR:30808460, C=DK";
-//        static readonly string SigningCertificateNameService = @"CN=sts";
-        static readonly string SigningCertificateNameClient = @"CN=localhost";
+        static readonly string SigningCertificateNameSTS = @"CN=DANID A/S - DanID Test + SERIALNUMBER=CVR:30808460-UID:1237552804997, O=DANID A/S // CVR:30808460, C=DK";
+        static readonly string SigningCertificateNameService = @"CN=Allan Apoteker + SERIALNUMBER=CVR:25520041-RID:1237281362460, O=TRIFORK SERVICES A/S // CVR:25520041, C=DK";
+        static readonly string SigningCertificateNameClient = @"SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK";
+
+        static readonly string JavaWSPSSLCertificate = @"CN=recht-laptop, OU=Sun Java System Application Server, O=Sun Microsystems, L=Santa Clara, S=California, C=US";
 
         static void Main(string[] args)
         {
             X509Certificate2 certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
-            X509Certificate2 certificate2Service = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameService);
-            EndpointIdentity identity = EndpointIdentity.CreateX509CertificateIdentity(certificate2Service);
+            X509Certificate2 certificate2Service = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameSTS);
+            X509Certificate2 sslCertJavaWSP = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, JavaWSPSSLCertificate);
+            EndpointIdentity identity = EndpointIdentity.CreateX509CertificateIdentity(sslCertJavaWSP);
 
-        
+
             Uri uri = new Uri("http://localhost:6020/Echo");
+//            Uri uri = new Uri("https://jre-mac.trifork.com:8181/poc-provider/ProviderService");
+//            Uri uri = new Uri("http://jre-mac.trifork.com:8880/poc-provider/ProviderService");
             EndpointAddress address = new EndpointAddress(uri, identity);
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return (true); };//Removes Validationcheck of SSL certificate, should not be here for Production.
+            ServicePointManager.ServerCertificateValidationCallback = delegate {
+                return (true); 
+            };//Removes Validationcheck of SSL certificate, should not be here for Production.
 
             WSTrustChannelFactory trustChannelFactory = new WSTrustChannelFactory(SecureTokenServiceBindings.GetIssuedTokenBindingNonSSL(), new EndpointAddress(new Uri(@"http://localhost:8080/sts/TokenService"), EndpointIdentity.CreateDnsIdentity("DANID A/S - DanID Test")));
             trustChannelFactory.Credentials.ServiceCertificate.DefaultCertificate = certificate2Service;
@@ -61,7 +68,7 @@ namespace Client
             trustChannelFactory.TrustVersion = TrustVersion.WSTrust13;
             var channel = (WSTrustChannel)trustChannelFactory.CreateChannel();
             var bootstrapSecurityToken = MakeBootstrapSecurityToken();
-            var rst = MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, certificate2Client, new Uri("http://localhost/Echo/service.svc/Echo"), new List<RequestClaim>());
+            var rst = MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, certificate2Client, new Uri( "http://localhost:6020/Echo" ), new List<RequestClaim>());
             var response = channel.Issue(rst);
 
 
@@ -71,7 +78,7 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
-                factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, "CN=localhost");
+                factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameService);
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
                 var pp = ChannelFactoryOperations.CreateChannelWithIssuedToken<IEchoService>(factory, response);
@@ -81,10 +88,10 @@ namespace Client
                 var echoRequest = new echo();
                 echoRequest.Framework = new LibertyFrameworkHeader();
                 echoRequest.structureToEcho = str;
-                
+
 
                 var result = pp.Echo(echoRequest);
-                //Console.WriteLine("Service returned: {0}", pp.ComputeResponse("Hello world"));
+                Console.WriteLine("Service returned: {0}", result.structureToEcho.value);
 
             }
             Console.WriteLine("=====================================");
@@ -110,9 +117,6 @@ namespace Client
             return requestSecurityToken;
         }
 
-       
-
-
         public static SecurityToken MakeBootstrapSecurityToken()
         {
             Saml2NameIdentifier identifier = new Saml2NameIdentifier("http://localhost/Echo");
@@ -129,55 +133,4 @@ namespace Client
         }
     }
 
-
-    [ServiceContract(ProtectionLevel = ProtectionLevel.Sign)]
-    public interface IClaimsAwareWebService
-    {
-        [OperationContract]
-        string ComputeResponse(string input);
-    }
-
-
-        //public static Binding GetBinding(string[] args)
-        //{
-        //    X509SecurityTokenParameters recipientSecurityTokenParameters = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.RawDataKeyIdentifier, SecurityTokenInclusionMode.AlwaysToInitiator);
-        //    recipientSecurityTokenParameters.RequireDerivedKeys = false;
-        //    X509SecurityTokenParameters intiatorSecurityTokenParameters = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.Any, SecurityTokenInclusionMode.AlwaysToRecipient);
-        //    intiatorSecurityTokenParameters.RequireDerivedKeys = false;
-        //    AsymmetricSecurityBindingElement asbe = new AsymmetricSecurityBindingElement(recipientSecurityTokenParameters, intiatorSecurityTokenParameters);
-        //    asbe.AllowSerializedSigningTokenOnReply = true;
-        //    asbe.EndpointSupportingTokenParameters.SetKeyDerivation(false);
-        //    asbe.MessageProtectionOrder = MessageProtectionOrder.SignBeforeEncrypt;
-        //    asbe.MessageSecurityVersion = MessageSecurityVersion.WSSecurity10WSTrust13WSSecureConversation13WSSecurityPolicy12BasicSecurityProfile10;
-
-        //    IssuedSecurityTokenParameters issuedTokenParameter = new IssuedSecurityTokenParameters();
-        //    issuedTokenParameter.IssuerAddress = new EndpointAddress("http://localhost:8080/sts/TokenService");
-        //    issuedTokenParameter.TokenType = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
-        //    issuedTokenParameter.KeyType = SecurityKeyType.AsymmetricKey;
-        //    WS2007HttpBinding ws2007HttpBinding = new WS2007HttpBinding();
-        //    ws2007HttpBinding.Security.Message.EstablishSecurityContext = false;
-        //    //ws2007HttpBinding.Security.Message.NegotiateServiceCredential= false;
-
-        //    var securityBinding = ws2007HttpBinding.CreateBindingElements().Find<SecurityBindingElement>();
-        //    securityBinding.OptionalEndpointSupportingTokenParameters.Endorsing.Add(new RsaSecurityTokenParameters());
-        //    var httpTransport = new HttpTransportBindingElement();
-        //   //{ AuthenticationScheme = AuthenticationSchemes.Anonymous, ProxyAuthenticationScheme = AuthenticationSchemes.Anonymous };
-
-        //    CustomBinding stsCustomBinding = new CustomBinding(
-        //        securityBinding,
-        //        new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressing10, Encoding.UTF8),
-        //        httpTransport
-        //        );
-
-        //    issuedTokenParameter.IssuerBinding = stsCustomBinding;
-        //    issuedTokenParameter.UseStrTransform = true;
-        //    issuedTokenParameter.RequireDerivedKeys = false;
-        //    asbe.EndpointSupportingTokenParameters.SignedEndorsing.Add(issuedTokenParameter);
-        //    CustomBinding customBinding = new CustomBinding(
-        //        asbe,
-        //        new TextMessageEncodingBindingElement(),
-        //        new HttpTransportBindingElement());
-
-        //    return customBinding;
-        //}
-    }
+}

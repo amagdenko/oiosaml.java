@@ -31,8 +31,6 @@ using Bindings.Bindings;
 
 namespace ClaimsAwareWebService
 {
-    
-
     public class WebserviceproviderEcho 
     {
         static void Main( string[] args )
@@ -43,30 +41,29 @@ namespace ClaimsAwareWebService
                 host.AddServiceEndpoint(typeof(IEchoService), new ServiceproviderBinding(false), "");
 
                 // Configure our certificate and issuer certificate validation settings on the service credentials
-                host.Credentials.ServiceCertificate.SetCertificate( "CN=localhost", StoreLocation.LocalMachine, StoreName.My );
-                host.Credentials.ClientCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
+                host.Credentials.ServiceCertificate.SetCertificate( "CN=Allan Apoteker + SERIALNUMBER=CVR:25520041-RID:1237281362460, O=TRIFORK SERVICES A/S // CVR:25520041, C=DK", StoreLocation.LocalMachine, StoreName.My );
 
                 // Enable metadata generation via HTTP GET
                 ServiceMetadataBehavior smb = new ServiceMetadataBehavior();
                 smb.HttpGetEnabled = true;
-                host.Description.Behaviors.Add( smb );
-                            
-                host.AddServiceEndpoint(typeof( IMetadataExchange), MetadataExchangeBindings.CreateMexHttpBinding(), "mex" );
+                host.Description.Behaviors.Add(smb);
+
+                host.AddServiceEndpoint(typeof(IMetadataExchange), MetadataExchangeBindings.CreateMexHttpBinding(), "mex");
 
 
                 // Configure the service host to use the Geneva Framework
                 ServiceConfiguration configuration = new ServiceConfiguration();
+            
                 configuration.IssuerNameRegistry = new TrustedIssuerNameRegistry();
-                configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add( new Uri("http://localhost/Echo/service.svc/Echo") );
+                configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("http://localhost/Echo/service.svc/Echo"));
+                configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("http://localhost:6020/Echo"));
+                configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("https://172.30.161.162:8181/poc-provider/ProviderService"));
 
                 FederatedServiceCredentials.ConfigureServiceHost( host, configuration );
 
-                //ADDED LATER ONLY FOR WAVE 2 NOT APPLICABLE FOR BETA2 
-                host.Credentials.IssuedTokenAuthentication.AudienceUriMode = System.IdentityModel.Selectors.AudienceUriMode.Never;
-              
                 host.Open();
 
-                Console.WriteLine( "ClaimsAwareWebService started, press ENTER to stop ..." );
+                Console.WriteLine( "Echo service started, press ENTER to stop ..." );
                 Console.ReadLine();
 
                 host.Close();

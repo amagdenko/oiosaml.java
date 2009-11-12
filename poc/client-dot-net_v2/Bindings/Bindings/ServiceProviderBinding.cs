@@ -8,6 +8,7 @@ using System.ServiceModel.Security.Tokens;
 using System.ServiceModel;
 using System.IdentityModel.Tokens;
 using System.ServiceModel.Security;
+using OIOSaml.Serviceprovider.Binding.Misc;
 
 namespace Bindings.Bindings
 {
@@ -22,9 +23,12 @@ namespace Bindings.Bindings
         {
             if (sslEnabled)
             {
-                return null;
-                //var httpsTransport = new TransportSSLBindingWithAnonomousAuthenticationAndWsdlGenereration();
-                //return CreateBinding(httpsTransport);
+
+                var httpsTransport = new TransportSSLBindingWithAnonomousAuthenticationAndWsdlGenereration();
+                //var httpsTransport = new HttpsTransportBindingElement();
+                //httpsTransport.AuthenticationScheme = AuthenticationSchemes.Anonymous;
+                //httpsTransport.ProxyAuthenticationScheme = AuthenticationSchemes.Anonymous;
+                return CreateBinding(httpsTransport);
             }
             else
             {
@@ -49,6 +53,7 @@ namespace Bindings.Bindings
             messageSecurity.RecipientTokenParameters = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.Any, SecurityTokenInclusionMode.AlwaysToInitiator);
             messageSecurity.RecipientTokenParameters.RequireDerivedKeys = false;
             var initiator = new IssuedSecurityTokenParameters("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
+            initiator.ProtectTokens = true;
             initiator.UseStrTransform = true;
             initiator.KeyType = SecurityKeyType.AsymmetricKey;
             initiator.RequireDerivedKeys = false;
@@ -87,29 +92,29 @@ namespace Bindings.Bindings
         //    return customBinding;
         //}
 
-        //private static System.ServiceModel.Channels.Binding CreateBinding(TransportBindingElement transport)
-        //{
-        //    X509SecurityTokenParameters recipientSecurityTokenParameters = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.Any, SecurityTokenInclusionMode.Never);
-        //    recipientSecurityTokenParameters.RequireDerivedKeys = false;
-        //    IssuedSecurityTokenParameters issuedTokenParameter = new IssuedSecurityTokenParameters("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
-        //    issuedTokenParameter.KeyType = SecurityKeyType.AsymmetricKey;
-        //    issuedTokenParameter.InclusionMode = SecurityTokenInclusionMode.AlwaysToRecipient;
-        //    issuedTokenParameter.UseStrTransform = true;
-        //    issuedTokenParameter.RequireDerivedKeys = false;
-        //    AsymmetricSecurityBindingElement asbe = new AsymmetricSecurityBindingElement(recipientSecurityTokenParameters, issuedTokenParameter);
-        //    asbe.AllowSerializedSigningTokenOnReply = false;
-        //    asbe.EndpointSupportingTokenParameters.SetKeyDerivation(false);
-        //    asbe.MessageProtectionOrder = MessageProtectionOrder.SignBeforeEncrypt;
-        //    asbe.MessageSecurityVersion = MessageSecurityVersion.WSSecurity10WSTrust13WSSecureConversation13WSSecurityPolicy12BasicSecurityProfile10;
-        //    asbe.LocalClientSettings.IdentityVerifier = new DisabledDnsIdentityCheck();
+        private static System.ServiceModel.Channels.Binding CreateBindingMS(TransportBindingElement transport)
+        {
+            X509SecurityTokenParameters recipientSecurityTokenParameters = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.Any, SecurityTokenInclusionMode.Never);
+            recipientSecurityTokenParameters.RequireDerivedKeys = false;
+            IssuedSecurityTokenParameters issuedTokenParameter = new IssuedSecurityTokenParameters("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
+            issuedTokenParameter.KeyType = SecurityKeyType.AsymmetricKey;
+            issuedTokenParameter.InclusionMode = SecurityTokenInclusionMode.AlwaysToRecipient;
+            issuedTokenParameter.UseStrTransform = true;
+            issuedTokenParameter.RequireDerivedKeys = false;
+            AsymmetricSecurityBindingElement asbe = new AsymmetricSecurityBindingElement(recipientSecurityTokenParameters, issuedTokenParameter);
+            asbe.AllowSerializedSigningTokenOnReply = false;
+            asbe.EndpointSupportingTokenParameters.SetKeyDerivation(false);
+            asbe.MessageProtectionOrder = MessageProtectionOrder.SignBeforeEncrypt;
+            asbe.MessageSecurityVersion = MessageSecurityVersion.WSSecurity10WSTrust13WSSecureConversation13WSSecurityPolicy12BasicSecurityProfile10;
+            asbe.LocalClientSettings.IdentityVerifier = new DisabledDnsIdentityCheck();
 
-        //    asbe.EndpointSupportingTokenParameters.Signed.Add(issuedTokenParameter);
-        //    CustomBinding customBinding = new CustomBinding(
-        //        asbe,
-        //         new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressing10, Encoding.UTF8),
-        //        transport);
-        //    return customBinding;
-        //}
+            asbe.EndpointSupportingTokenParameters.Signed.Add(issuedTokenParameter);
+            CustomBinding customBinding = new CustomBinding(
+                asbe,
+                 new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressing10, Encoding.UTF8),
+                transport);
+            return customBinding;
+        }
         //private static System.ServiceModel.Channels.Binding CreateBinding(TransportBindingElement transport)
         //{
         //    TextMessageEncodingBindingElement encodingBindingElement = new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressing10, Encoding.UTF8);
