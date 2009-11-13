@@ -18,8 +18,9 @@ Installation
 ------------------------------------------------------------------------------
 
 This package requires GlassFish 2ur2 to run. Furthermore, a couple of libraries
-must be upgraded. Do this by copying the contents of the glassfish/lib folder
-to your local GlassFish installation.
+must be upgraded. Do this by downloading the latest nightly of Metro 2.0 and
+ by copying the contents of the glassfish/lib folder to your local GlassFish 
+installation.
 
 If R2I is to be used, OIOSAML.java must be configured. If this application is 
 run on the same machine as the poc-provider application, configure the home
