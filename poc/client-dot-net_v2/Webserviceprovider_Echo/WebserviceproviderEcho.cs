@@ -42,7 +42,8 @@ namespace ClaimsAwareWebService
 
                 // Configure our certificate and issuer certificate validation settings on the service credentials
                 host.Credentials.ServiceCertificate.SetCertificate( "CN=Allan Apoteker + SERIALNUMBER=CVR:25520041-RID:1237281362460, O=TRIFORK SERVICES A/S // CVR:25520041, C=DK", StoreLocation.LocalMachine, StoreName.My );
-
+                host.Credentials.IssuedTokenAuthentication.CertificateValidationMode = X509CertificateValidationMode.None;
+                host.Credentials.ClientCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
                 // Enable metadata generation via HTTP GET
                 ServiceMetadataBehavior smb = new ServiceMetadataBehavior();
                 smb.HttpGetEnabled = true;

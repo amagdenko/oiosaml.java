@@ -51,9 +51,9 @@ namespace Client
             EndpointIdentity identity = EndpointIdentity.CreateX509CertificateIdentity(sslCertJavaWSP);
 
 
-            Uri uri = new Uri("http://localhost:6020/Echo");
-//            Uri uri = new Uri("https://jre-mac.trifork.com:8181/poc-provider/ProviderService");
-//            Uri uri = new Uri("http://jre-mac.trifork.com:8880/poc-provider/ProviderService");
+//            Uri uri = new Uri("http://localhost:6020/Echo");
+            //            Uri uri = new Uri("https://172.30.161.203:8181/poc-provider/ProviderService");
+            Uri uri = new Uri("http://172.30.161.203:8880/poc-provider/ProviderService");
             EndpointAddress address = new EndpointAddress(uri, identity);
             ServicePointManager.ServerCertificateValidationCallback = delegate {
                 return (true); 
@@ -68,17 +68,17 @@ namespace Client
             trustChannelFactory.TrustVersion = TrustVersion.WSTrust13;
             var channel = (WSTrustChannel)trustChannelFactory.CreateChannel();
             var bootstrapSecurityToken = MakeBootstrapSecurityToken();
-            var rst = MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, certificate2Client, new Uri( "http://localhost:6020/Echo" ), new List<RequestClaim>());
+            var rst = MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, certificate2Client, new Uri("http://172.30.161.203:8880/poc-provider/ProviderService"), new List<RequestClaim>());
             var response = channel.Issue(rst);
 
-
+            
             using (ChannelFactory<IEchoService> factory = new ChannelFactory<IEchoService>(new ServiceproviderBinding(false), address))
             {
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
-                factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameService);
+                factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
                 var pp = ChannelFactoryOperations.CreateChannelWithIssuedToken<IEchoService>(factory, response);

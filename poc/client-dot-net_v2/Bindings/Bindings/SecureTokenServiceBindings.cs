@@ -21,7 +21,6 @@ namespace Bindings.Bindings
             textmessageEncoding.MessageVersion = MessageVersion.Soap11WSAddressing10;
 
             var messageSecurity = new AsymmetricSecurityBindingElement();
-            //messageSecurity.MessageProtectionOrder = MessageProtectionOrder.SignBeforeEncrypt;
             messageSecurity.AllowSerializedSigningTokenOnReply = true;
             messageSecurity.MessageSecurityVersion = MessageSecurityVersion.WSSecurity10WSTrust13WSSecureConversation13WSSecurityPolicy12BasicSecurityProfile10;
             var x509SecurityParamter = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.RawDataKeyIdentifier, SecurityTokenInclusionMode.AlwaysToInitiator);
