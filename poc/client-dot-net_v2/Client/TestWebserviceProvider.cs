@@ -207,12 +207,16 @@ namespace Client
 
             X509Certificate2 certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
 
-            Uri uri = new Uri("https://172.30.161.203:8880/poc-provider/ProviderService");
+            Uri uri = new Uri("https://172.30.161.203:8181/poc-provider/ProviderService");
             EndpointIdentity identity = EndpointIdentity.CreateX509CertificateIdentity(sslCertJavaWSP);
 
             EndpointAddress address = new EndpointAddress(uri, identity);
 
             SecurityToken issuedToken = TestJavaSTSConnection.GetIssuedToken(new Uri("https://172.30.161.203:8181/poc-provider/ProviderService"));
+            ServicePointManager.ServerCertificateValidationCallback = delegate
+            {
+                return (true);
+            };//Removes Validationcheck of SSL certificate, should not be here for Production.
 
             using (ChannelFactory<IEchoService> factory = new ChannelFactory<IEchoService>(new ServiceproviderBinding(true), address))
             {
