@@ -54,7 +54,7 @@ namespace Bindings.Bindings
             messageSecurity.RecipientTokenParameters = new X509SecurityTokenParameters(X509KeyIdentifierClauseType.Any, SecurityTokenInclusionMode.AlwaysToInitiator);
             messageSecurity.RecipientTokenParameters.RequireDerivedKeys = false;
             var initiator = new IssuedSecurityTokenParameters("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
-            initiator.ProtectTokens = true;
+            messageSecurity.ProtectTokens = true;
             initiator.UseStrTransform = true;
             initiator.KeyType = SecurityKeyType.AsymmetricKey;
             initiator.RequireDerivedKeys = false;
