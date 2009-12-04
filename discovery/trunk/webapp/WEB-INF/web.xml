@@ -7,14 +7,31 @@
 	<display-name>OIOSAML Discovery</display-name>
 
 	<servlet>
-		<servlet-name>DiscoveryServlet</servlet-name>
-		<servlet-class>
-			dk.itst.oiosaml.discovery.service.DiscoveryServlet
-		</servlet-class>
+		<servlet-name>discovery</servlet-name>
+		<servlet-class>dk.itst.oiosaml.discovery.service.DiscoveryServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>cookie</servlet-name>
+		<servlet-class>dk.itst.oiosaml.discovery.service.CookieServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>cookie.html</servlet-name>
+		<jsp-file>/cookie.html</jsp-file>
+	</servlet>
+	<servlet>
+		<servlet-name>clear</servlet-name>
+		<servlet-class>dk.itst.oiosaml.discovery.service.ClearCookieServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>DispatcherServlet</servlet-name>
+		<servlet-class>dk.itst.oiosaml.discovery.service.DispatcherServlet</servlet-class>
+	</servlet>
+	
 
 	<servlet-mapping>
-		<servlet-name>DiscoveryServlet</servlet-name>
+		<servlet-name>DispatcherServlet</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 </web-app>
