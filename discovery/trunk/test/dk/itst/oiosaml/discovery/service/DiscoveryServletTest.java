@@ -100,7 +100,7 @@ public class DiscoveryServletTest {
 		}});
 		servlet.doGet(req, res);
 		
-		assertTrue(sw.toString().indexOf("0;url=http://localhost?_saml_idp=" + URLEncoder.encode(idplist, "UTF-8")) > -1);
+		assertTrue(sw.toString().indexOf("0;url=http://localhost?_saml_idp=" + Base64.encodeBytes(URLEncoder.encode(idplist, "UTF-8").getBytes())) > -1);
 		context.assertIsSatisfied();
 	}	
 }
