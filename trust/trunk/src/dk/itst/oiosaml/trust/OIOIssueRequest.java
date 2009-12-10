@@ -39,6 +39,7 @@ import org.opensaml.ws.wstrust.TokenType;
 import org.opensaml.xml.XMLObject;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.liberty.ActAs;
 import dk.itst.oiosaml.liberty.ClaimType;
 
 /**
@@ -101,9 +102,17 @@ public class OIOIssueRequest {
 
 	/**
 	 * Set the assertion id of the attached assertion. The assertion must be placed in the Security header as a SecurityTokenReference.
+	 * The assertion is included in a wst:OnBehalfOf element.
 	 */
 	public void setOnBehalfOf(String assertionId) {
 		OnBehalfOf onBehalfOf = SAMLUtil.buildXMLObject(OnBehalfOf.class);
+		SecurityTokenReference oref = getSecurityTokenReferenceFor(assertionId);
+
+		onBehalfOf.setUnknownXMLObject(oref);
+		replace(onBehalfOf);
+	}
+
+	private SecurityTokenReference getSecurityTokenReferenceFor(String assertionId) {
 		SecurityTokenReference oref = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
 		oref.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, TrustConstants.TOKEN_TYPE_SAML_20);
 		
@@ -111,10 +120,16 @@ public class OIOIssueRequest {
 		ki.setValueType(TrustConstants.SAMLID);
 		ki.setValue(assertionId);
 		oref.getUnknownXMLObjects().add(ki);
+		return oref;
+	}
 
-//		onBehalfOf.setSecurityTokenReference(oref);
-		onBehalfOf.setUnknownXMLObject(oref);
-		replace(onBehalfOf);
+	/**
+	 * Include the assertion in a wst:ActAs element. The assertion itself must be placed in the Security header.
+	 */
+	public void setActAs(String assertionId) {
+		ActAs actAs = SAMLUtil.buildXMLObject(ActAs.class);
+		actAs.setUnknownXMLObject(getSecurityTokenReferenceFor(assertionId));
+		replace(actAs);
 	}
 	
 	/**
@@ -125,6 +140,17 @@ public class OIOIssueRequest {
 		OnBehalfOf onBehalfOf = SAMLUtil.buildXMLObject(OnBehalfOf.class);
 		onBehalfOf.setUnknownXMLObject(obj);
 		replace(onBehalfOf);
+	}
+	
+	/**
+	 * Include a token in an wst:ActAs element.
+	 * @param obj
+	 */
+	public void setActAs(XMLObject obj) {
+		obj.detach();
+		ActAs actAs = SAMLUtil.buildXMLObject(ActAs.class);
+		actAs.setUnknownXMLObject(obj);
+		replace(actAs);
 	}
 
 	/**

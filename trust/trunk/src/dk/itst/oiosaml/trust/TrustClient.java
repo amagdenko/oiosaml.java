@@ -80,7 +80,8 @@ public class TrustClient extends ClientBase {
 	private PublicKey stsKey;
 
 
-	private boolean useReferenceForOnBehalfOf = false;
+	private boolean useReferenceForDelegateToken = false;
+	private boolean useActAs = true;
 
 	private Assertion token;
 	
@@ -273,12 +274,20 @@ public class TrustClient extends ClientBase {
 		env.setBody(req.getXMLObject());
 		env.setTimestamp(5);
 
-		if (useReferenceForOnBehalfOf) {
+		if (useReferenceForDelegateToken) {
 			token.getAssertion().detach();
-			req.setOnBehalfOf(token.getAssertion().getID());
+			if (useActAs) {
+				req.setActAs(token.getAssertion().getID());
+			} else {
+				req.setOnBehalfOf(token.getAssertion().getID());
+			}
 			env.addSecurityToken(token.getAssertion());
 		} else {
-			req.setOnBehalfOf(token.getAssertion());
+			if (useActAs) {
+				req.setActAs(token.getAssertion());
+			} else {
+				req.setOnBehalfOf(token.getAssertion());
+			}
 		}
 		
 		Element signed = env.sign(getCredential());
@@ -312,11 +321,19 @@ public class TrustClient extends ClientBase {
 	
 	
 	/**
-	 * Configure whether bootstrap tokens should be placed directly in OnBehalfOf or in the Security header using a SecurityTokenReference.
-	 * @param useReferenceForOnBehalfOf <code>true</code> to put the token in the security header.
+	 * Configure whether bootstrap tokens should be placed directly in OnBehalfOf/ActAs or in the Security header using a SecurityTokenReference.
+	 * @param useReferenceForDelegateToken <code>true</code> to put the token in the security header.
 	 */
-	public void setUseReferenceForOnBehalfOf(boolean useReferenceForOnBehalfOf) {
-		this.useReferenceForOnBehalfOf = useReferenceForOnBehalfOf;
+	public void setUseReferenceForDelegateToken(boolean useReferenceForDelegateToken) {
+		this.useReferenceForDelegateToken = useReferenceForDelegateToken;
+	}
+	
+	/**
+	 * Set to true to include tokens in the wst:ActAs element, otherwise wst:OnBehalfOf will be used.
+	 * @param useActAs
+	 */
+	public void setUseActAs(boolean useActAs) {
+		this.useActAs = useActAs;
 	}
 
 	/**

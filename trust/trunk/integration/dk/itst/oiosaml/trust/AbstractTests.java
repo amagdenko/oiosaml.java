@@ -54,7 +54,8 @@ public class AbstractTests extends TrustTests {
 		stsCredential = credentialRepository.getCredential(getProperty("sts.certificate"), getProperty("sts.certificate.password"));
 		client = new TrustClient(epr, credential, stsCredential.getPublicKey());
 		client.setAppliesTo(getProperty("endpoint"));
-		client.setUseReferenceForOnBehalfOf(false);
+		client.setUseReferenceForDelegateToken(false);
+		client.setUseActAs(true);
 	}
 
 	protected String getProperty(String name) {

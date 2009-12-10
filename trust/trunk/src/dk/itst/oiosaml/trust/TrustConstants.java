@@ -35,6 +35,8 @@ public class TrustConstants {
 	
 	public static final String WST_NS = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
 	public static final String WST_PREFIX = "wst";
+	public static final String WST14_NS = "http://docs.oasis-open.org/ws-sx/ws-trust/200802/";
+	public static final String WST14_PREFRIX = "wst14";
 	public static final String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";
 	public static final String WSSE11_PREFIX = "wsse11";
 	
