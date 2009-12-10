@@ -2,6 +2,7 @@ package dk.sst.oiosaml.wsfed.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PublicKey;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -18,8 +19,12 @@ import org.opensaml.saml2.core.EncryptedAssertion;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.Expires;
+import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
+import org.opensaml.ws.wstrust.RequestedSecurityToken;
+import org.opensaml.ws.wstrust.TokenType;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.XMLHelper;
 
@@ -117,7 +122,8 @@ public class ConsumerHandler implements SAMLHandler {
 			RequestSecurityTokenResponse res = (RequestSecurityTokenResponse) r;
 			validateResponse(res, context);
 			
-			XMLObject rt = res.getRequestedSecurityToken().getUnknownXMLObjects().get(0);
+			RequestedSecurityToken rst = SAMLUtil.getFirstElement(res, RequestedSecurityToken.class);
+			XMLObject rt = rst.getUnknownXMLObject();
 			if (rt instanceof Assertion) {
 				assertion = new OIOAssertion((Assertion) rt);
 			} else if (rt instanceof EncryptedAssertion) {
@@ -132,7 +138,14 @@ public class ConsumerHandler implements SAMLHandler {
 
 		Metadata metadata = context.getIdpMetadata().getMetadata(assertion.getIssuer());
 		
-		if (!assertion.verifySignature(metadata.getCertificate().getPublicKey())) {
+		boolean valid = false;
+		for (PublicKey key : metadata.getPublicKeys()) {
+			if (assertion.verifySignature(key)) {
+				valid = true;
+				break;
+			}
+		}
+		if (!valid) {
 			log.error("Invalid signature on assertion " + assertion);
 			throw new ValidationException("The assertion is not signed correctly");
 		}
@@ -160,16 +173,18 @@ public class ConsumerHandler implements SAMLHandler {
 	}
 
 	private void validateTokenType(RequestSecurityTokenResponse res) {
-		if (res.getTokenType() == null) throw new ValidationException("No TokenType in response");
-		if (!SAMLConstants.SAML20_NS.equals(res.getTokenType().getValue()) &&
-				!TrustConstants.TOKEN_TYPE_SAML_20.equals(res.getTokenType().getValue())) {
-			throw new ValidationException("Unsupported token type " + res.getTokenType().getValue());
+		TokenType tokenType = SAMLUtil.getFirstElement(res, TokenType.class);
+		if (tokenType == null) throw new ValidationException("No TokenType in response");
+		if (!SAMLConstants.SAML20_NS.equals(tokenType.getValue()) &&
+				!TrustConstants.TOKEN_TYPE_SAML_20.equals(tokenType.getValue())) {
+			throw new ValidationException("Unsupported token type " + tokenType.getValue());
 		}
 	}
 
 	private void validateAppliesTo(RequestSecurityTokenResponse res, RequestContext context) {
-		if (res.getAppliesTo() == null) throw new ValidationException("No AppliesTo in response");
-		EndpointReference epr = SAMLUtil.getFirstElement(res.getAppliesTo(), EndpointReference.class);
+		AppliesTo appliesTo = SAMLUtil.getFirstElement(res, AppliesTo.class);
+		if (appliesTo == null) throw new ValidationException("No AppliesTo in response");
+		EndpointReference epr = SAMLUtil.getFirstElement(appliesTo, EndpointReference.class);
 		if (epr == null) throw new ValidationException("No EPR in AppliesTo");
 		
 		if (!context.getSpMetadata().getAssertionConsumerServiceLocation(0).equals(epr.getAddress().getValue())) {
@@ -178,9 +193,10 @@ public class ConsumerHandler implements SAMLHandler {
 	}
 
 	private void validateLifetime(RequestSecurityTokenResponse res) {
-		if (res.getLifetime() == null) throw new ValidationException("Response does not contain a Lifetime");
+		Lifetime lifetime = SAMLUtil.getFirstElement(res, Lifetime.class);
+		if (lifetime == null) throw new ValidationException("Response does not contain a Lifetime");
 
-		Expires expires = res.getLifetime().getExpires();
+		Expires expires = lifetime.getExpires();
 		if (expires == null) throw new ValidationException("No expires in Lifetime");
 		if (expires.getDateTime().isBeforeNow()) {
 			throw new ValidationException("Response is expired: Expires at " + expires.getDateTime() + " < " + new DateTime());

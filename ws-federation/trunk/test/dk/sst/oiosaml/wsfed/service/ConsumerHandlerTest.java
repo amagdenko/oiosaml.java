@@ -20,6 +20,8 @@ import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.soap.soap11.FaultCode;
 import org.opensaml.ws.wsaddressing.EndpointReference;
+import org.opensaml.ws.wspolicy.AppliesTo;
+import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.xml.util.XMLHelper;
 
@@ -45,8 +47,10 @@ public class ConsumerHandlerTest extends AbstractTests {
 	public void testSignin() throws Exception {
 		when(req.getParameter("wa")).thenReturn("wsignin1.0");
 		RequestSecurityTokenResponse resp = (RequestSecurityTokenResponse) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/rstr.xml"));
-		resp.getLifetime().getExpires().setDateTime(new DateTime().plusMinutes(5));
-		SAMLUtil.getFirstElement(resp.getAppliesTo(), EndpointReference.class).getAddress().setValue(rc.getSpMetadata().getAssertionConsumerServiceLocation(0));
+		
+		Lifetime lifetime = SAMLUtil.getFirstElement(resp, Lifetime.class);
+		lifetime.getExpires().setDateTime(new DateTime().plusMinutes(5));
+		SAMLUtil.getFirstElement(SAMLUtil.getFirstElement(resp, AppliesTo.class), EndpointReference.class).getAddress().setValue(rc.getSpMetadata().getAssertionConsumerServiceLocation(0));
 		when(req.getParameter("wresult")).thenReturn(XMLHelper.nodeToString(SAMLUtil.marshallObject(resp)));
 		
 		handler.handleGet(rc);
@@ -62,8 +66,8 @@ public class ConsumerHandlerTest extends AbstractTests {
 		
 		when(req.getParameter("wa")).thenReturn("wsignin1.0");
 		RequestSecurityTokenResponse resp = (RequestSecurityTokenResponse) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/rstr.xml"));
-		resp.getLifetime().getExpires().setDateTime(new DateTime().plusMinutes(5));
-		SAMLUtil.getFirstElement(resp.getAppliesTo(), EndpointReference.class).getAddress().setValue(rc.getSpMetadata().getAssertionConsumerServiceLocation(0));
+		SAMLUtil.getFirstElement(resp, Lifetime.class).getExpires().setDateTime(new DateTime().plusMinutes(5));
+		SAMLUtil.getFirstElement(SAMLUtil.getFirstElement(resp, AppliesTo.class), EndpointReference.class).getAddress().setValue(rc.getSpMetadata().getAssertionConsumerServiceLocation(0));
 		when(req.getParameter("wresult")).thenReturn(XMLHelper.nodeToString(SAMLUtil.marshallObject(resp)));
 		
 		handler.handleGet(rc);
@@ -76,7 +80,7 @@ public class ConsumerHandlerTest extends AbstractTests {
 	public void testSigninValidationFailsWhenLifetimeExpired() throws Exception {
 		when(req.getParameter("wa")).thenReturn("wsignin1.0");
 		RequestSecurityTokenResponse resp = (RequestSecurityTokenResponse) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/rstr.xml"));
-		resp.getLifetime().getExpires().setDateTime(new DateTime().minusMinutes(1));
+		SAMLUtil.getFirstElement(resp, Lifetime.class).getExpires().setDateTime(new DateTime().minusMinutes(1));
 		when(req.getParameter("wresult")).thenReturn(XMLHelper.nodeToString(SAMLUtil.marshallObject(resp)));
 		
 		handler.handleGet(rc);
