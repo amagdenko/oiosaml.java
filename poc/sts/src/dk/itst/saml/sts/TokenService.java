@@ -81,6 +81,7 @@ import org.w3c.dom.NodeList;
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.liberty.ActAs;
 import dk.itst.oiosaml.liberty.ClaimType;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.NameIDFormat;
@@ -123,10 +124,14 @@ public class TokenService extends HttpServlet {
 		
 		RequestSecurityToken rst = (RequestSecurityToken) env.getBody();
 		OnBehalfOf obo = SAMLUtil.getFirstElement(rst, OnBehalfOf.class);
+		ActAs actAs = SAMLUtil.getFirstElement(rst, ActAs.class);
 		
 		Assertion bootstrapAssertion = null;
-		if (obo.getUnknownXMLObject() instanceof Assertion) {
+		if (obo != null && obo.getUnknownXMLObject() instanceof Assertion) {
 			bootstrapAssertion = (Assertion) obo.getUnknownXMLObject();
+		}
+		if (actAs != null && actAs.getUnknownXMLObject() instanceof Assertion) {
+			bootstrapAssertion = (Assertion) actAs.getUnknownXMLObject();
 		}
 		OIOAssertion bootstrap = null;
 		if (bootstrapAssertion != null) {
