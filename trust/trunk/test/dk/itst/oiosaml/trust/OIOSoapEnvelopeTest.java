@@ -1,6 +1,7 @@
 package dk.itst.oiosaml.trust;
 
 import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -19,9 +20,12 @@ import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
+import org.opensaml.ws.wsaddressing.RelatesTo;
 import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.ws.wsaddressing.WSAddressingConstants;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
+import org.opensaml.ws.wssecurity.KeyIdentifier;
+import org.opensaml.ws.wssecurity.Reference;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.Timestamp;
@@ -37,7 +41,6 @@ import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.liberty.UserInteraction;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
@@ -155,10 +158,11 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		assertTrue(signature.getKeyInfo().getXMLObjects().get(0) instanceof SecurityTokenReference);
 		
 		SecurityTokenReference ref = (SecurityTokenReference) signature.getKeyInfo().getXMLObjects().get(0);
-		assertNotNull(ref.getReference());
-		assertNotNull(ref.getReference().getURI());
+		Reference reference = SAMLUtil.getFirstElement(ref, Reference.class);
+		assertNotNull(reference);
+		assertNotNull(reference.getURI());
 		
-		Element bstElement = e.getOwnerDocument().getElementById(ref.getReference().getURI().substring(1));
+		Element bstElement = e.getOwnerDocument().getElementById(reference.getURI().substring(1));
 		assertNotNull(bstElement);
 		
 		BinarySecurityToken bst = (BinarySecurityToken) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(bstElement));
@@ -259,7 +263,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		sec = env.getHeaderElement(Security.class);
 		SecurityTokenReference str = SAMLUtil.getFirstElement(sec, SecurityTokenReference.class);
 		assertNotNull(str);
-		assertEquals(assertion.getID(), str.getKeyIdentifier().getValue());
+		assertEquals(assertion.getID(), SAMLUtil.getFirstElement(str, KeyIdentifier.class).getValue());
 		
 		Signature sig = SAMLUtil.getFirstElement(sec, Signature.class);
 		
@@ -268,7 +272,7 @@ public class OIOSoapEnvelopeTest extends TrustTests {
 		for (int i = 0; i < si.getLength(); i++) {
 			XMLSignatureInput ref = si.getReferencedContentBeforeTransformsItem(i);
 			System.out.println(ref.getSourceURI());
-			if (("#" + str.getId()).equals(ref.getSourceURI())) {
+			if (("#" + str.getWSUId()).equals(ref.getSourceURI())) {
 				found = true;
 			}
 		}

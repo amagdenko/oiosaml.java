@@ -16,6 +16,7 @@ import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.MessageID;
+import org.opensaml.ws.wsaddressing.RelatesTo;
 import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.ws.wssecurity.Security;
@@ -153,6 +154,16 @@ public class RequestTest extends AbstractTests {
 		});
 	}
 	
+	@Test
+	public void relatesToMustBeSigned() throws Exception {
+		serviceClient.sendRequest(req, getProperty("endpoint"), getProperty("action"), serviceCredential.getPublicKey(), new ResultHandler<Element>() {
+			public void handleResult(Element result) throws Exception {
+				RelatesTo rt = serviceClient.getLastResponse().getHeaderElement(RelatesTo.class);
+				String id = rt.getUnknownAttributes().get(new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd", "Id"));
+				assertNotNull(id);
+			}
+		});
+	}
 	@Test
 	public void tokenWithWrongAudienceMustBeRejected() throws Exception {
 		client.setAppliesTo("urn:testing");

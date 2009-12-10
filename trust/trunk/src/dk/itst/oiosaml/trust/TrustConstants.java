@@ -46,6 +46,7 @@ public class TrustConstants {
 
 	public static final QName WSU_ID = new QName(WSSecurityConstants.WSU_NS, "Id", WSSecurityConstants.WSU_PREFIX);
 	public static final QName WSA_RELATES_TO = new QName(MessageID.ELEMENT_NAME.getNamespaceURI(), "RelatesTo", "wsa");
+	public static final QName TOKEN_TYPE = new QName(WSSE11_NS, "TokenType", WSSE11_PREFIX);
 	
 	public static final String PROP_CERTIFICATE_LOCATION = "oiosaml-trust.certificate.location";
 	public static final String PROP_CERTIFICATE_PASSWORD = "oiosaml-trust.certificate.password";	

@@ -52,7 +52,6 @@ import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Detail;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
-import org.opensaml.ws.soap.soap11.FaultCode;
 import org.opensaml.ws.soap.soap11.FaultString;
 import org.opensaml.ws.soap.soap11.Header;
 import org.opensaml.ws.soap.util.SOAPConstants;
@@ -61,8 +60,12 @@ import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wsaddressing.MessageID;
 import org.opensaml.ws.wsaddressing.Metadata;
+import org.opensaml.ws.wsaddressing.RelatesTo;
 import org.opensaml.ws.wsaddressing.ReplyTo;
+import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.Security;
+import org.opensaml.ws.wstrust.Claims;
+import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
@@ -76,7 +79,6 @@ import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
-import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -132,8 +134,9 @@ public class TokenClientTest extends TrustTests {
 
 		final OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(SOAPConstants.SOAP11_NS);
 		RequestSecurityTokenResponse rstr = SAMLUtil.buildXMLObject(RequestSecurityTokenResponse.class);
-		rstr.setRequestedSecurityToken(SAMLUtil.buildXMLObject(RequestedSecurityToken.class));
-		rstr.getRequestedSecurityToken().getUnknownXMLObjects().add(assertion);
+		RequestedSecurityToken rdst = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
+		rdst.setUnknownXMLObject(assertion);
+		rstr.getUnknownXMLObjects().add(rdst);
 		new OIOAssertion(assertion).sign(stsCredential);
 		
 		env.setBody(rstr);
@@ -150,15 +153,20 @@ public class TokenClientTest extends TrustTests {
 		assertEquals(XMLHelper.nodeToString(SAMLUtil.marshallObject(assertion)), XMLHelper.nodeToString(token.getDOM()));
 		
 		OIOSoapEnvelope request = new OIOSoapEnvelope((Envelope) SAMLUtil.unmarshallElementFromString(holder.getValue()));
+		System.out.println(holder.getValue());
 		assertTrue(request.isSigned());
 		
 		assertTrue(request.getBody() instanceof RequestSecurityToken);
 		RequestSecurityToken rst = ((RequestSecurityToken)request.getBody());
-		assertEquals("urn:service", SAMLUtil.getFirstElement(rst.getAppliesTo(), EndpointReference.class).getAddress().getValue());
-		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", SAMLUtil.getFirstElement(rst.getOnBehalfOf(), Assertion.class).getID());
+		
+		AppliesTo appliesTo = SAMLUtil.getFirstElement(rst, AppliesTo.class);
+		OnBehalfOf obo = SAMLUtil.getFirstElement(rst, OnBehalfOf.class);
+		assertEquals("urn:service", SAMLUtil.getFirstElement(appliesTo, EndpointReference.class).getAddress().getValue());
+		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", ((Assertion)obo.getUnknownXMLObject()).getID());
 
-		assertNotNull(rst.getClaims());
-		assertEquals("urn:testing", rst.getClaims().getDialect());
+		Claims claims = SAMLUtil.getFirstElement(rst, Claims.class);
+		assertNotNull(claims);
+		assertEquals("urn:testing", claims.getDialect());
 	}
 	
 	@Test(expected=TrustException.class)
@@ -307,8 +315,9 @@ public class TokenClientTest extends TrustTests {
 			one(soapClient).wsCall(with(equal(ADDRESS)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)), with(holder), with(equal("urn:action")));
 			will(new CustomAction("test") {
 				public Object invoke(Invocation invocation) throws Throwable {
+//					System.out.println(holder.getValue());
 					Envelope f = buildFault(holder.getValue());
-					throw new SOAPException(500, SAMLUtil.getSAMLObjectAsPrettyPrintXML(f));
+					throw new SOAPException(500, XMLHelper.nodeToString(SAMLUtil.marshallObject(f)));
 				}
 			});
 		}});
@@ -385,10 +394,6 @@ public class TokenClientTest extends TrustTests {
 		Fault fault = SAMLUtil.buildXMLObject(Fault.class);
 		Detail detail = SAMLUtil.buildXMLObject(Detail.class);
 
-		FaultCode code = SAMLUtil.buildXMLObject(FaultCode.class);
-		code.setValue(new QName("urn:test", "code"));
-		fault.setCode(code);
-		
 		FaultString msg = SAMLUtil.buildXMLObject(FaultString.class);
 		msg.setValue("test");
 		fault.setMessage(msg);

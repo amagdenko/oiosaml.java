@@ -30,6 +30,8 @@ import org.apache.xml.security.signature.XMLSignatureInput;
 import org.apache.xml.security.transforms.Transform;
 import org.apache.xml.security.transforms.TransformSpi;
 import org.apache.xml.security.utils.XMLUtils;
+import org.opensaml.ws.wssecurity.KeyIdentifier;
+import org.opensaml.ws.wssecurity.Reference;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
 import org.opensaml.ws.wssecurity.impl.SecurityTokenReferenceUnmarshaller;
@@ -38,6 +40,8 @@ import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import dk.itst.oiosaml.common.SAMLUtil;
 
 /**
  * Class STRTransform
@@ -167,10 +171,12 @@ public class STRTransform extends TransformSpi {
 
 	private Element dereferenceSTR(Document doc, SecurityTokenReference secRef) throws CanonicalizationException {
 		String id = null;
-		if (secRef.getKeyIdentifier() != null) {
-			id = secRef.getKeyIdentifier().getValue();
-		} else if (secRef.getReference() != null) {
-			id = secRef.getReference().getURI().substring(1);
+		KeyIdentifier keyIdentifier = SAMLUtil.getFirstElement(secRef, KeyIdentifier.class);
+		Reference ref = SAMLUtil.getFirstElement(secRef, Reference.class);
+		if (keyIdentifier != null) {
+			id = keyIdentifier.getValue();
+		} else if (ref != null) {
+			id = ref.getURI().substring(1);
 		}
 		Element token = doc.getElementById(id);
 		if (token == null) {

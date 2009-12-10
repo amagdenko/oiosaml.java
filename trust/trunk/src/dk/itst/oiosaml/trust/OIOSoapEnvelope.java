@@ -23,6 +23,7 @@
 package dk.itst.oiosaml.trust;
 
 import java.security.InvalidAlgorithmParameterException;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
@@ -66,6 +67,7 @@ import org.opensaml.ws.soap.soap11.impl.HeaderBuilder;
 import org.opensaml.ws.wsaddressing.Action;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.MessageID;
+import org.opensaml.ws.wsaddressing.RelatesTo;
 import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wsaddressing.To;
 import org.opensaml.ws.wssecurity.BinarySecurityToken;
@@ -79,7 +81,6 @@ import org.opensaml.ws.wssecurity.WSSecurityConstants;
 import org.opensaml.xml.AttributeExtensibleXMLObject;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSAny;
-import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.Signature;
@@ -91,7 +92,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.util.Utils;
@@ -145,7 +145,7 @@ public class OIOSoapEnvelope {
 		if (signHeaderElements) {
 			if (security == null) {
 				security = SAMLUtil.buildXMLObject(Security.class);
-				security.setMustUnderstand(new XSBooleanValue(true, true));
+				security.getUnknownAttributes().put(new QName(envelope.getElementQName().getNamespaceURI(), "mustUnderstand"), "1");
 				envelope.getHeader().getUnknownXMLObjects().add(security);
 			}
 			for (XMLObject o : envelope.getHeader().getUnknownXMLObjects()) {
@@ -201,7 +201,7 @@ public class OIOSoapEnvelope {
 		header.getUnknownXMLObjects().add(framework);
 		
 		Security security = SAMLUtil.buildXMLObject(Security.class);
-		security.setMustUnderstand(new XSBooleanValue(true, true));
+		security.getUnknownAttributes().put(new QName(env.getElementQName().getNamespaceURI(), "mustUnderstand"), "1");
 		env.getHeader().getUnknownXMLObjects().add(security);
 		
 		return new OIOSoapEnvelope(env, msgId, framework, signingPolicy);
@@ -279,14 +279,14 @@ public class OIOSoapEnvelope {
 
 	private SecurityTokenReference createSecurityTokenReference(Assertion token) {
 		SecurityTokenReference str = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
-		str.setId(Utils.generateUUID());
-		str.setTokenType(WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLV2.0");
+		str.setWSUId(Utils.generateUUID());
+		str.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLV2.0");
 		
 		KeyIdentifier keyIdentifier = SAMLUtil.buildXMLObject(KeyIdentifier.class);
 		keyIdentifier.setValueType(WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLID");
 		keyIdentifier.setValue(token.getID());
 		keyIdentifier.setEncodingType(null);
-		str.setKeyIdentifier(keyIdentifier);
+		str.getUnknownXMLObjects().add(keyIdentifier);
 
 		return str;
 	}
@@ -295,8 +295,8 @@ public class OIOSoapEnvelope {
 		SecurityTokenReference str = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
 		org.opensaml.ws.wssecurity.Reference ref = SAMLUtil.buildXMLObject(org.opensaml.ws.wssecurity.Reference.class);
 		ref.setValueType(bst.getValueType());
-		ref.setURI("#" + bst.getId());
-		str.setReference(ref);
+		ref.setURI("#" + bst.getWSUId());
+		str.getUnknownXMLObjects().add(ref);
 		return str;
 	}
 
@@ -396,7 +396,7 @@ public class OIOSoapEnvelope {
 			
 			
 			transforms.add(SignatureFactory.getInstance().newTransform("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#STR-Transform",  new DOMStructure(tp)));
-			Reference r = xsf.newReference("#"+securityTokenReference.getId(), digestMethod, transforms, null, null);
+			Reference r = xsf.newReference("#"+securityTokenReference.getWSUId(), digestMethod, transforms, null, null);
 			refs.add(r);
 		}
 
@@ -516,7 +516,7 @@ public class OIOSoapEnvelope {
 		BinarySecurityToken bst = SAMLUtil.buildXMLObject(BinarySecurityToken.class);
     	bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
     	bst.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
-    	bst.setId(Utils.generateUUID());
+    	bst.setWSUId(Utils.generateUUID());
     	
 		// assume that the first element is Timestamp (or the list is empty)
 		int idx = -1;
@@ -533,7 +533,7 @@ public class OIOSoapEnvelope {
 		}
 		
     	if (signingPolicy.sign(bst)) {
-    		references.put(bst, bst.getId());
+    		references.put(bst, bst.getWSUId());
     	}
     	try {
 			bst.setValue(Base64.encodeBytes(credential.getEntityCertificate().getEncoded(), Base64.DONT_BREAK_LINES));

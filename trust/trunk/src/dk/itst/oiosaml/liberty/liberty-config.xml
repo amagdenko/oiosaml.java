@@ -56,11 +56,11 @@
         	<UnmarshallingClass className="org.opensaml.ws.soap.soap11.impl.FaultUnmarshaller" />
 		</ObjectProvider>
 		
-		<ObjectProvider qualifiedName="wsa:RelatesTo">
+		<!-- ObjectProvider qualifiedName="wsa:RelatesTo">
         	<BuilderClass className="dk.itst.oiosaml.liberty.RelatesToBuilder" />
         	<MarshallingClass className="org.opensaml.ws.wsaddressing.impl.MessageIDMarshaller" />
         	<UnmarshallingClass className="org.opensaml.ws.wsaddressing.impl.MessageIDUnmarshaller" />
-		</ObjectProvider>
+		</ObjectProvider> -->
                         
 		<ObjectProvider qualifiedName="i:ClaimType">
         	<BuilderClass className="dk.itst.oiosaml.liberty.ClaimTypeBuilder" />

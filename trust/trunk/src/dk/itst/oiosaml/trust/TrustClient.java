@@ -188,15 +188,20 @@ public class TrustClient extends ClientBase {
 			} else if (res instanceof RequestSecurityTokenResponse) {
 				RequestSecurityTokenResponse tokenResponse = (RequestSecurityTokenResponse) res;
 				
-				return validateToken(SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class));
+				return findToken(tokenResponse);
 			} else if (res instanceof RequestSecurityTokenResponseCollection){
 				RequestSecurityTokenResponse tokenResponse = ((RequestSecurityTokenResponseCollection)res).getRequestSecurityTokenResponses().get(0);
 				
-				return validateToken(SAMLUtil.getFirstElement(tokenResponse.getRequestedSecurityToken(), Assertion.class));
+				return findToken(tokenResponse);
 			} else {
 				for (XMLObject object : res.getOrderedChildren()) {
-					if (object.getElementQName().equals(RequestedSecurityToken.ELEMENT_NAME)) {
-						return validateToken(SAMLUtil.getFirstElement((RequestedSecurityToken)object, Assertion.class));
+					if (object instanceof RequestedSecurityToken) {
+						XMLObject token = ((RequestedSecurityToken)object).getUnknownXMLObject();
+						if (!(token instanceof Assertion)) {
+							throw new TrustException("Returned token is not a SAML Assertion: " + token);
+						} else {
+							return validateToken((Assertion) token);
+						}
 					}
 				}
 				throw new TrustException("Got a " + res.getElementQName() + ", expected " + RequestSecurityTokenResponse.ELEMENT_NAME);
@@ -211,6 +216,16 @@ public class TrustClient extends ClientBase {
 			throw new TrustException(e);
 		} catch (XMLSignatureException e) {
 			throw new TrustException(e);
+		}
+	}
+
+	private Assertion findToken(RequestSecurityTokenResponse tokenResponse) {
+		RequestedSecurityToken rst = SAMLUtil.getFirstElement(tokenResponse, RequestedSecurityToken.class);
+		XMLObject token = rst.getUnknownXMLObject();
+		if (!(token instanceof Assertion)) {
+			throw new TrustException("Returned token is not a SAML Assertion: " + token);
+		} else {
+			return validateToken((Assertion) token);
 		}
 	}
 

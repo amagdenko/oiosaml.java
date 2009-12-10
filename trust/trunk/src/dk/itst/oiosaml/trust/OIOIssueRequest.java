@@ -64,21 +64,29 @@ public class OIOIssueRequest {
 		RequestSecurityToken req = SAMLUtil.buildXMLObject(RequestSecurityToken.class);
 		RequestType type = SAMLUtil.buildXMLObject(RequestType.class);
 		type.setValue("http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue");
-		req.setRequestType(type);
+		req.getUnknownXMLObjects().add(type);
 
 		TokenType tokenType = SAMLUtil.buildXMLObject(TokenType.class);
 		tokenType.setValue(TrustConstants.TOKEN_TYPE_SAML_20);
-		req.setTokenType(tokenType);
+		req.getUnknownXMLObjects().add(tokenType);
 		
 		return new OIOIssueRequest(req);
 	}
-
+	
 	public void setIssuer(String issuer) {
 		Issuer i = SAMLUtil.buildXMLObject(Issuer.class);
 		Address issuerAddress = SAMLUtil.buildXMLObject(Address.class);
 		issuerAddress.setValue(issuer);
 		i.setAddress(issuerAddress);
-		request.setIssuer(i);
+		replace(i);
+	}
+	
+	private void replace(XMLObject obj) {
+		XMLObject old = SAMLUtil.getFirstElement(request, obj.getClass());
+		if (old != null) {
+			request.getUnknownXMLObjects().remove(old);
+		}
+		request.getUnknownXMLObjects().add(obj);
 	}
 	
 	public void setAppliesTo(String appliesTo) {
@@ -88,7 +96,7 @@ public class OIOIssueRequest {
 		appliesToAddress.setValue(appliesTo);
 		ref.setAddress(appliesToAddress);
 		a.getUnknownXMLObjects().add(ref);
-		request.setAppliesTo(a);
+		replace(a);
 	}
 
 	/**
@@ -97,15 +105,16 @@ public class OIOIssueRequest {
 	public void setOnBehalfOf(String assertionId) {
 		OnBehalfOf onBehalfOf = SAMLUtil.buildXMLObject(OnBehalfOf.class);
 		SecurityTokenReference oref = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
-		oref.setTokenType(TrustConstants.TOKEN_TYPE_SAML_20);
+		oref.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, TrustConstants.TOKEN_TYPE_SAML_20);
 		
 		KeyIdentifier ki = SAMLUtil.buildXMLObject(KeyIdentifier.class);
 		ki.setValueType(TrustConstants.SAMLID);
 		ki.setValue(assertionId);
-		oref.setKeyIdentifier(ki);
+		oref.getUnknownXMLObjects().add(ki);
 
-		onBehalfOf.setSecurityTokenReference(oref);
-		request.setOnBehalfOf(onBehalfOf);
+//		onBehalfOf.setSecurityTokenReference(oref);
+		onBehalfOf.setUnknownXMLObject(oref);
+		replace(onBehalfOf);
 	}
 	
 	/**
@@ -114,8 +123,8 @@ public class OIOIssueRequest {
 	public void setOnBehalfOf(XMLObject obj) {
 		obj.detach();
 		OnBehalfOf onBehalfOf = SAMLUtil.buildXMLObject(OnBehalfOf.class);
-		onBehalfOf.getUnknownXMLObjects().add(obj);
-		request.setOnBehalfOf(onBehalfOf);
+		onBehalfOf.setUnknownXMLObject(obj);
+		replace(onBehalfOf);
 	}
 
 	/**
@@ -131,7 +140,7 @@ public class OIOIssueRequest {
 		for (XMLObject co : claimObjects) {
 			claims.getUnknownXMLObjects().add(co);
 		}
-		request.setClaims(claims);
+		replace(claims);
 	}
 	
 	/**
@@ -149,7 +158,7 @@ public class OIOIssueRequest {
 			ct.setUri(claim);
 			c.getUnknownXMLObjects().add(ct);
 		}
-		request.setClaims(c);
+		replace(c);
 	}
 	
 	public void setLifetime(DateTime expire) {
@@ -158,7 +167,7 @@ public class OIOIssueRequest {
 		expires.setDateTime(expire);
 		lifetime.setExpires(expires);
 
-		request.setLifetime(lifetime);
+		replace(lifetime);
 	}
 	
 	public XMLObject getXMLObject() {

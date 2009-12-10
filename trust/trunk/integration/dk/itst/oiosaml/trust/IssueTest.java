@@ -1,6 +1,7 @@
 package dk.itst.oiosaml.trust;
 
 import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -9,12 +10,12 @@ import javax.xml.namespace.QName;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.ws.wsaddressing.RelatesTo;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
-import dk.itst.oiosaml.liberty.RelatesTo;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
 public class IssueTest extends AbstractTests {

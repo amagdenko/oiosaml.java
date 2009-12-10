@@ -25,7 +25,6 @@ import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.UnmarshallingException;
-import org.opensaml.xml.schema.XSBooleanValue;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.XMLHelper;
@@ -127,7 +126,7 @@ public class ServiceClient extends ClientBase {
 			if (signRequests) {
 				request = env.sign(getCredential());
 			} else {
-				env.getHeaderElement(Security.class).setMustUnderstand(new XSBooleanValue(false, true));
+				env.getHeaderElement(Security.class).getUnknownAttributes().put(new QName(env.getSoapVersion(), "mustUnderstand"), "1");
 				request = SAMLUtil.marshallObject(env.getXMLObject());
 			}
 			

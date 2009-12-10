@@ -6,6 +6,6 @@
       <conf name="test" extends="build"/>
     </configurations>
     <dependencies>
-        <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="[3876,)" conf="*->@" />
+        <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="[5272,)" conf="*->@" />
     </dependencies>
 </ivy-module>
