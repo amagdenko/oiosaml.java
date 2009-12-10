@@ -58,7 +58,7 @@ public class Provider {
 			Subject subject = SubjectAccessor.getRequesterSubject(context);
 			log.info("Credentials: " + subject.getPublicCredentials());
 			if (subject.getPublicCredentials().size() != 1) {
-				throw new SOAPFaultException(SOAPFactory.newInstance().createFault("Invalid number of credentials: " + subject.getPublicCredentials().size() + ", expected 1", new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurityToken")));
+//				throw new SOAPFaultException(SOAPFactory.newInstance().createFault("Invalid number of credentials: " + subject.getPublicCredentials().size() + ", expected 1", new QName(WSSecurityConstants.WSSE_NS, "InvalidSecurityToken")));
 			}
 			
 			OIOAssertion assertion = new OIOAssertion(getCredential(subject));
