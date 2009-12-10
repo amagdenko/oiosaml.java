@@ -65,7 +65,6 @@ import org.opensaml.ws.wsaddressing.ReplyTo;
 import org.opensaml.ws.wspolicy.AppliesTo;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wstrust.Claims;
-import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestedSecurityToken;
@@ -79,6 +78,7 @@ import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
+import dk.itst.oiosaml.liberty.ActAs;
 import dk.itst.oiosaml.liberty.SecurityContext;
 import dk.itst.oiosaml.liberty.Token;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -160,7 +160,7 @@ public class TokenClientTest extends TrustTests {
 		RequestSecurityToken rst = ((RequestSecurityToken)request.getBody());
 		
 		AppliesTo appliesTo = SAMLUtil.getFirstElement(rst, AppliesTo.class);
-		OnBehalfOf obo = SAMLUtil.getFirstElement(rst, OnBehalfOf.class);
+		ActAs obo = SAMLUtil.getFirstElement(rst, ActAs.class);
 		assertEquals("urn:service", SAMLUtil.getFirstElement(appliesTo, EndpointReference.class).getAddress().getValue());
 		assertEquals("pVQYCtN.5RD5VtkGJx3Fhecjrkd", ((Assertion)obo.getUnknownXMLObject()).getID());
 
