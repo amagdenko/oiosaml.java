@@ -58,6 +58,7 @@ import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wssecurity.WSSecurityConstants;
 import org.opensaml.ws.wstrust.Claims;
 import org.opensaml.ws.wstrust.Lifetime;
+import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponse;
 import org.opensaml.ws.wstrust.RequestSecurityTokenResponseCollection;
@@ -121,7 +122,12 @@ public class TokenService extends HttpServlet {
 		BinarySecurityToken bst = SAMLUtil.getFirstElement(env.getHeaderElement(Security.class), BinarySecurityToken.class);
 		
 		RequestSecurityToken rst = (RequestSecurityToken) env.getBody();
-		Assertion bootstrapAssertion = SAMLUtil.getFirstElement(rst.getOnBehalfOf(), Assertion.class);
+		OnBehalfOf obo = SAMLUtil.getFirstElement(rst, OnBehalfOf.class);
+		
+		Assertion bootstrapAssertion = null;
+		if (obo.getUnknownXMLObject() instanceof Assertion) {
+			bootstrapAssertion = (Assertion) obo.getUnknownXMLObject();
+		}
 		OIOAssertion bootstrap = null;
 		if (bootstrapAssertion != null) {
 			bootstrap = new OIOAssertion(bootstrapAssertion);
@@ -129,8 +135,9 @@ public class TokenService extends HttpServlet {
 			log.error("No SAML Assertion in OnBehalfOf");
 		}
 		DateTime expire;
-		if (rst.getLifetime() != null && rst.getLifetime().getExpires() != null) {
-			expire = rst.getLifetime().getExpires().getDateTime();
+		Lifetime lifetime = SAMLUtil.getFirstElement(rst, Lifetime.class);
+		if (lifetime != null && lifetime.getExpires() != null) {
+			expire = lifetime.getExpires().getDateTime();
 		} else {
 			expire = new DateTime().plusMinutes(5);
 		}
@@ -147,30 +154,32 @@ public class TokenService extends HttpServlet {
 		String to = setAppliesTo(rst, rstr);
 		rstr.setContext(rst.getContext());
 		
-		rstr.setTokenType(SAMLUtil.buildXMLObject(TokenType.class));
-		rstr.getTokenType().setValue(TrustConstants.TOKEN_TYPE_SAML_20);
+		TokenType tokenType = SAMLUtil.buildXMLObject(TokenType.class);
+		tokenType.setValue(TrustConstants.TOKEN_TYPE_SAML_20);
+		rstr.getUnknownXMLObjects().add(tokenType);
 		
-		Lifetime lifetime = SAMLUtil.buildXMLObject(Lifetime.class);
+		Lifetime lt = SAMLUtil.buildXMLObject(Lifetime.class);
 		Expires expires = SAMLUtil.buildXMLObject(Expires.class);
 		Created created = SAMLUtil.buildXMLObject(Created.class);
 		created.setDateTime(new DateTime());
 		expires.setDateTime(expire);
-		lifetime.setExpires(expires);
-		lifetime.setCreated(created);
-		rstr.setLifetime(lifetime);
+		lt.setExpires(expires);
+		lt.setCreated(created);
+		rstr.getUnknownXMLObjects().add(lt);
 		
 		RequestedSecurityToken requestedSecurityToken = SAMLUtil.buildXMLObject(RequestedSecurityToken.class);
-		rstr.setRequestedSecurityToken(requestedSecurityToken);
-		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential, expire, rst.getClaims());
-		requestedSecurityToken.getUnknownXMLObjects().add(assertion);
+		rstr.getUnknownXMLObjects().add(requestedSecurityToken);
+		Assertion assertion = generateAssertion(req, bootstrap, to, bst.getValue(), credential, expire, SAMLUtil.getFirstElement(rst, Claims.class));
+		requestedSecurityToken.setUnknownXMLObject(assertion);
 		
 		RequestedAttachedReference attached = SAMLUtil.buildXMLObject(RequestedAttachedReference.class);
 		attached.setSecurityTokenReference(generateTokenReference(assertion));
-		rstr.setRequestedAttachedReference(attached);
+		rstr.getUnknownXMLObjects().add(attached);
 		
-		rstr.setRequestedUnattachedReference(SAMLUtil.buildXMLObject(RequestedUnattachedReference.class));
-		rstr.getRequestedUnattachedReference().setSecurityTokenReference(generateTokenReference(assertion));
-		rstr.addNamespace(new Namespace(SecurityTokenReference.TOKEN_TYPE_ATTR_NAME.getNamespaceURI(), "wsse11"));
+		RequestedUnattachedReference unattachedReference = SAMLUtil.buildXMLObject(RequestedUnattachedReference.class);
+		unattachedReference.setSecurityTokenReference(generateTokenReference(assertion));
+		rstr.addNamespace(new Namespace(TrustConstants.WSSE11_NS, "wsse11"));
+		rstr.getUnknownXMLObjects().add(unattachedReference);
 		
 		
 		res.setBody(rstrc);
@@ -191,7 +200,7 @@ public class TokenService extends HttpServlet {
 	}
 
 	private String setAppliesTo(RequestSecurityToken rst, RequestSecurityTokenResponse rstr) {
-		EndpointReference epr = SAMLUtil.getFirstElement(rst.getAppliesTo(), EndpointReference.class);
+		EndpointReference epr = SAMLUtil.getFirstElement(SAMLUtil.getFirstElement(rst, AppliesTo.class), EndpointReference.class);
 		log.debug("AppliesTo EPR: " + epr);
 		
 		if (epr == null) return null;
@@ -203,7 +212,7 @@ public class TokenService extends HttpServlet {
 		addr.setValue(epr.getAddress().getValue());
 		appliesTo.getUnknownXMLObjects().add(reference);
 		
-		rstr.setAppliesTo(appliesTo);
+		rstr.getUnknownXMLObjects().add(appliesTo);
 		return epr.getAddress().getValue();
 	}
 
@@ -213,8 +222,8 @@ public class TokenService extends HttpServlet {
 		keyIdentifier.setValue(assertion.getID());
 		keyIdentifier.setValueType(TrustConstants.SAMLID);
 		keyIdentifier.setEncodingType(null);
-		tokenReference.setTokenType(TrustConstants.TOKEN_TYPE_SAML_20);
-		tokenReference.setKeyIdentifier(keyIdentifier);
+		tokenReference.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, TrustConstants.TOKEN_TYPE_SAML_20);
+		tokenReference.getUnknownXMLObjects().add(keyIdentifier);
 		return tokenReference;
 	}
 
