@@ -117,7 +117,7 @@ public class OIOIssueRequest {
 		oref.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, TrustConstants.TOKEN_TYPE_SAML_20);
 		
 		KeyIdentifier ki = SAMLUtil.buildXMLObject(KeyIdentifier.class);
-		ki.setValueType(TrustConstants.SAMLID);
+		ki.getUnknownAttributes().put(TrustConstants.VALUE_TYPE, TrustConstants.SAMLID);
 		ki.setValue(assertionId);
 		oref.getUnknownXMLObjects().add(ki);
 		return oref;

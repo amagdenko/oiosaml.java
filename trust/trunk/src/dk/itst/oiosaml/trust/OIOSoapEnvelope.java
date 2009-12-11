@@ -283,6 +283,7 @@ public class OIOSoapEnvelope {
 		str.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLV2.0");
 		
 		KeyIdentifier keyIdentifier = SAMLUtil.buildXMLObject(KeyIdentifier.class);
+		keyIdentifier.getUnknownAttributes().put(TrustConstants.VALUE_TYPE, WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLID");
 		keyIdentifier.setValueType(WSSecurityConstants.WSSE11_SAML_TOKEN_PROFILE_NS + "#SAMLID");
 		keyIdentifier.setValue(token.getID());
 		keyIdentifier.setEncodingType(null);
