@@ -1,5 +1,6 @@
 package dk.itst.saml.sts;
 
+
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -225,7 +226,7 @@ public class TokenService extends HttpServlet {
 		SecurityTokenReference tokenReference = SAMLUtil.buildXMLObject(SecurityTokenReference.class);
 		KeyIdentifier keyIdentifier = SAMLUtil.buildXMLObject(KeyIdentifier.class);
 		keyIdentifier.setValue(assertion.getID());
-		keyIdentifier.setValueType(TrustConstants.SAMLID);
+		keyIdentifier.getUnknownAttributes().put(TrustConstants.VALUE_TYPE, TrustConstants.SAMLID);
 		keyIdentifier.setEncodingType(null);
 		tokenReference.getUnknownAttributes().put(TrustConstants.TOKEN_TYPE, TrustConstants.TOKEN_TYPE_SAML_20);
 		tokenReference.getUnknownXMLObjects().add(keyIdentifier);
