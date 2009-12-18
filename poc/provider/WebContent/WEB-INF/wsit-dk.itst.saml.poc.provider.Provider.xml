@@ -77,7 +77,7 @@
 				 				 <sp:IssuedToken>
 			 				 		<sp:RequestSecurityTokenTemplate>
 			 				 			<t:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</t:TokenType>
-			 				 			<t:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/AsymmetricKey</t:KeyType>
+			 				 			<t:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</t:KeyType>
 			 				 		</sp:RequestSecurityTokenTemplate>
 				 				 	<wsp:Policy>
 				 				 		<sp:RequireInternalReference />
