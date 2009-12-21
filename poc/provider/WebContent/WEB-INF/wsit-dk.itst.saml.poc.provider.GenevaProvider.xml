@@ -95,6 +95,7 @@
 			<sp:Header Name="MessageID" Namespace="http://www.w3.org/2005/08/addressing" />
 			<sp:Header Name="UserInteraction" Namespace="urn:liberty:sb:2006-08" />
 			<sp:Header Name="Framework" Namespace="urn:liberty:sb:2006-08" />
+			<sp:Header Name="RelatesTo" Namespace="http://www.w3.org/2005/08/addressing" />
 			<sp:Body />
 		</sp:SignedParts>
 	</wsp:Policy>
