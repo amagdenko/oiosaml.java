@@ -173,10 +173,10 @@ namespace Client
 
             X509Certificate2 certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
 
-            Uri uri = new Uri("http://172.30.161.52:8880/poc-provider/ProviderService");
+            Uri uri = new Uri("http://172.16.232.1:8880/poc-provider/ProviderService");
             EndpointAddress address = new EndpointAddress(uri);
 
-            SecurityToken issuedToken = TestJavaSTSConnection.GetIssuedToken(new Uri("http://172.30.161.52:8880/poc-provider/ProviderService"));
+            SecurityToken issuedToken = TestJavaSTSConnection.GetIssuedToken(new Uri("http://172.16.232.1:8880/poc-provider/ProviderService"));
 
             using (ChannelFactory<IEchoService> factory = new ChannelFactory<IEchoService>(new ServiceproviderBinding(false), address))
             {
@@ -207,12 +207,12 @@ namespace Client
 
             X509Certificate2 certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
 
-            Uri uri = new Uri("https://172.30.161.203:8181/poc-provider/ProviderService");
+            Uri uri = new Uri("https://172.16.232.1:8181/poc-provider/ProviderService");
             EndpointIdentity identity = EndpointIdentity.CreateX509CertificateIdentity(sslCertJavaWSP);
 
             EndpointAddress address = new EndpointAddress(uri, identity);
 
-            SecurityToken issuedToken = TestJavaSTSConnection.GetIssuedToken(new Uri("https://172.30.161.203:8181/poc-provider/ProviderService"));
+            SecurityToken issuedToken = TestJavaSTSConnection.GetIssuedToken(new Uri("https://172.16.232.1:8181/poc-provider/ProviderService"));
             ServicePointManager.ServerCertificateValidationCallback = delegate
             {
                 return (true);

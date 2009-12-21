@@ -5,6 +5,7 @@ using System.Text;
 using NUnit.Framework;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Bindings.Bindings;
+using Bindings.TokenClient;
 using System.ServiceModel;
 using System.Net.Security;
 using System.ServiceModel.Security;
@@ -32,31 +33,19 @@ namespace Client
 
         public static SecurityToken GetIssuedToken()
         {
-            var audience = new Uri("https://172.30.161.162:8181/poc-provider/ProviderService");
+            var audience = new Uri("https://172.16.232.1:8181/poc-provider/ProviderService");
             return GetIssuedToken(audience);
-
         }
 
-
-        public static SecurityToken GetIssuedToken(Uri audience)
+        public static SecurityToken GetIssuedToken(Uri audience) 
         {
-            X509Certificate2 certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
-            X509Certificate2 certificate2Service = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameSTS);
-
-            WSTrustChannelFactory trustChannelFactory = new WSTrustChannelFactory(SecureTokenServiceBindings.GetIssuedTokenBindingNonSSL(), new EndpointAddress(new Uri(@"http://localhost:8080/sts/TokenService"), EndpointIdentity.CreateDnsIdentity("DANID A/S - DanID Test")));
-            trustChannelFactory.Credentials.ServiceCertificate.DefaultCertificate = certificate2Service;
-            trustChannelFactory.Credentials.ClientCertificate.Certificate = certificate2Client;
-            trustChannelFactory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
-            trustChannelFactory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
-
-            trustChannelFactory.TrustVersion = TrustVersion.WSTrust13;
-            var channel = (WSTrustChannel)trustChannelFactory.CreateChannel();
-            var bootstrapSecurityToken = MakeBootstrapSecurityToken();
-            var rst = MakeOnBehalfOfSTSRequestSecurityToken(bootstrapSecurityToken, certificate2Client, audience, new List<RequestClaim>());
-            var response = channel.Issue(rst);
-            return response;
+            var certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
+            var certificate2Service = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameSTS);
+            var ep = new Uri("http://172.16.232.1:8081/sts/TokenService");
+            return TokenClient.GetIssuedToken(audience, certificate2Client, certificate2Service, ep, MakeBootstrapSecurityToken());
 
         }
+
 
         public static SecurityToken MakeBootstrapSecurityToken()
         {
@@ -73,24 +62,6 @@ namespace Client
             return new Saml2SecurityToken(assertion);
         }
 
-        public static RequestSecurityToken MakeOnBehalfOfSTSRequestSecurityToken(SecurityToken bootstrapSecurityToken, X509Certificate2 clientCertificate, Uri RelyingPartyAdress, IEnumerable<RequestClaim> requestClaims)
-        {
-            var requestSecurityToken = new RequestSecurityToken(WSTrust13Constants.RequestTypes.Issue);
-            Uri ServiceAddress = RelyingPartyAdress;
-            requestSecurityToken.AppliesTo = new EndpointAddress(ServiceAddress);
-            requestSecurityToken.TokenType = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
-            requestSecurityToken.KeyType = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey";
-            requestSecurityToken.OnBehalfOf = new SecurityTokenElement(bootstrapSecurityToken);
-            SecurityKeyIdentifierClause clause = new X509RawDataKeyIdentifierClause(clientCertificate);
-            requestSecurityToken.UseKey = new UseKey(new SecurityKeyIdentifier(clause), new X509SecurityToken(clientCertificate));
-
-            foreach (RequestClaim claim in requestClaims)
-            {
-                requestSecurityToken.Claims.Add(claim);
-            }
-
-            return requestSecurityToken;
-        }
 
     }
 }
