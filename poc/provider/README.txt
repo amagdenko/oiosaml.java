@@ -17,10 +17,10 @@ This package contains the Web Service Provider POC. It consists of 3 services:
 Installation
 ------------------------------------------------------------------------------
 
-This package requires GlassFish 2ur2 to run. Furthermore, a couple of libraries
-must be upgraded. Do this by downloading the latest nightly of Metro 2.0 and
- by copying the contents of the glassfish/lib folder to your local GlassFish 
-installation.
+This package requires GlassFish 2ur2+ to run. Furthermore, a couple of libraries
+must be upgraded. Do this by downloading the latest version of Metro 2.0 and
+install it in the GlassFish instance. Follow the installation instructions
+in the downloaded archive.
 
 If R2I is to be used, OIOSAML.java must be configured. If this application is 
 run on the same machine as the poc-provider application, configure the home
