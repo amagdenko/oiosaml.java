@@ -516,7 +516,7 @@ public class OIOSoapEnvelope {
 			throws XMLSignatureException {
 		BinarySecurityToken bst = SAMLUtil.buildXMLObject(BinarySecurityToken.class);
     	bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
-    	bst.setValueType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
+    	bst.getUnknownAttributes().put(TrustConstants.VALUE_TYPE, "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
     	bst.setWSUId(Utils.generateUUID());
     	
 		// assume that the first element is Timestamp (or the list is empty)
