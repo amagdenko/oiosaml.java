@@ -254,7 +254,7 @@ public class TokenService extends HttpServlet {
 		confirmation.getNameID().setFormat(NameIDFormat.ENTITY.getFormat());
 		
 		SubjectConfirmationData data = SAMLUtil.buildXMLObject(SubjectConfirmationData.class);
-		data.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), "saml:KeyInfoConfirmationDataType");
+		data.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), data.getElementQName().getPrefix() + ":KeyInfoConfirmationDataType");
 		
 		KeyInfo keyInfo = SAMLUtil.buildXMLObject(KeyInfo.class);
 		X509Data x509data = SAMLUtil.buildXMLObject(X509Data.class);
