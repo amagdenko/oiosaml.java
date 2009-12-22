@@ -35,7 +35,7 @@ public class TokenServlet extends HttpServlet {
 		try {
 			TrustClient tokenClient = new TrustClient();
 			tokenClient.setSoapVersion(SOAPConstants.SOAP11_NS);
-			tokenClient.setUseReferenceForOnBehalfOf(false);
+			tokenClient.setUseReferenceForDelegateToken(false);
 			tokenClient.setIssuer(SPMetadata.getInstance().getEntityID());
 			tokenClient.setIssuer(null);
 
