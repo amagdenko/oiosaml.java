@@ -36,8 +36,8 @@ Visual Studio, simply place the files in c:/strtransform/. To run an application
 through IIS, the files must be installed in GAC using 
 
 svn.exe -Vr *,*
-gacutil /i /r System.IdentityModel.dll
-gacutil /i /r System.ServiceModel.dll
-gacutil /i /r Microsoft.IdentityModel.dll
+gacutil /i /f System.IdentityModel.dll
+gacutil /i /f System.ServiceModel.dll
+gacutil /i /f Microsoft.IdentityModel.dll
 
 These commands must be run from a Visual Studio prompt as Administrator.
