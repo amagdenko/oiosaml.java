@@ -25,6 +25,12 @@ ant.path(id: 'classpath') {
 	pathelement(location: buildDirectory)
 }
 
+ant.path(id: 'testclasspath') {
+		path (refid: 'classpath')
+		pathelement(location: testBuildDir)
+
+}
+
 doCompile = { srcdir, destdir ->
 	ant.javac (srcdir: srcdir, destdir: destdir, debug: true, source: '1.5', target: '1.5', classpathref: 'classpath', includeJavaRuntime: true)
 	ant.copy (todir: destdir) {
@@ -37,7 +43,7 @@ doResolve = { conf ->
 }
 
 target (init : 'Initialize build') {
-	[buildDirectory, testBuildDir, distDir, javadocsDir, testReports, "${testReports}/html"].each { dir -> 
+	[buildDirectory, testBuildDir, distDir, javadocsDir, testReports, "${testReports}/html", 'target/integration'].each { dir -> 
 		ant.mkdir (dir: dir)
 	}
 	
@@ -100,8 +106,16 @@ target (jar: 'Build jar file') {
 }
 
 target (compile_test: 'Compile test cases') {
-	depends(compile)
+	depends(compile, resolve_test)
 	doCompile(testSrcDir, testBuildDir)
+}
+
+target (compile_integration: 'Compile integration tests') {
+	depends(compile, compile_test)
+	ant.javac (srcdir: 'integration', destdir: 'target/integration', debug: true, source: '1.5', target: '1.5', classpathref: 'testclasspath', includeJavaRuntime: true)
+	ant.copy (todir: 'target/integration') {
+		fileset (dir: 'integration', excludes: '**/*.java')
+	}
 }
 
 target ( test : 'Run tests' ) {
@@ -118,8 +132,7 @@ target ( test : 'Run tests' ) {
 		formatter (type: 'xml')
 		classpath {
 			pathelement(location: instrumentDir)
-			path (refid: 'classpath')
-			pathelement(location: testBuildDir)
+			path (refid: 'testclasspath')
 		}
 		batchtest(todir: testReports) {
 			fileset (dir: testBuildDir, includes: '**/*Test.class')
@@ -137,6 +150,27 @@ target ( test : 'Run tests' ) {
 	ant.'cobertura-report' (format: 'xml', destdir: 'target/coverage', datafile: 'target/cobertura.ser') {
 		fileset (dir: sourceDirectory, includes: '**/*.java', excludes: '**/*Stub.java')
 	}
+}
+
+target (integration: 'Run integration tests') {
+	depends(compile_integration)
+	
+	junit (forkmode: 'once', fork: true, failureproperty: 'tests.failed', printsummary: true) {
+		formatter (type: 'plain')
+		formatter (type: 'xml')
+		classpath {
+			pathelement(location: 'target/integration')
+			path (refid: 'testclasspath')
+		}
+		batchtest(todir: testReports) {
+			fileset (dir: 'target/integration', includes: '**/*Test.class')
+		}
+	}
+	ant.junitreport (todir: "${testReports}/html") {
+		fileset (dir: testReports, includes: 'TEST-*.xml')
+		report (format: 'frames', todir: "${testReports}/html")
+	}
+	fail(if: 'tests.failed', message: 'There were test failures')
 }
 
 target (instrument: 'Instrument test code') {
