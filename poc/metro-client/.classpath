@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="target/gensrc"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-sun-1.6.0.16"/>
+	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/build/webservices-rt.jar" sourcepath="/home/recht/install/wsit/wsit/rt/build/webservices-src.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
