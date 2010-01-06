@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jar name="sts.war">
+    <dir path="" from="web"/>
+    <dir path="WEB-INF/classes" from="bin"/>
+    <dir path="WEB-INF/lib" from="lib/build"/>
+</jar>

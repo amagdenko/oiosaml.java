@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<endpoints
+    xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime"
+    version="2.0">
+
+    <endpoint
+        name="sts"
+        implementation="dk.itst.oiosaml.sts.STSImpl"
+        wsdl="WEB-INF/wsdl/sts.wsdl"    
+        service="{http://tempuri.org/}SecurityTokenService"
+        port="{http://tempuri.org/}ISecurityTokenService_Port"
+        binding="http://schemas.xmlsoap.org/wsdl/soap/http" 
+        url-pattern="/sts" />
+    <endpoint
+        name="sts_mex"
+        implementation="com.sun.xml.ws.mex.server.MEXEndpoint"
+        binding="http://schemas.xmlsoap.org/wsdl/soap/http" 
+        url-pattern="/sts/mex" />
+
+</endpoints>
