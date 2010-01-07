@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>dk.itst.oiosaml</groupId>
+    <artifactId>oiosaml-trust</artifactId>
+    <version>5372</version>
+    <packaging>jar</packaging>
+
+    <name>oiosaml-trust</name>
+    
+    <dependencies>
+    	<dependency>
+    		<groupId>dk.itst.oiosaml</groupId>
+    		<artifactId>oiosaml</artifactId>
+    		<version>5354</version>
+    	</dependency>
+    </dependencies>
+</project>
