@@ -59,4 +59,6 @@ public class TrustConstants {
 	public static final String DISCOVERY_EPR_ATTRIBUTE = "urn:liberty:disco:2006-08:DiscoveryEPR";
 	
 	public static final String CLAIMS_DIALECT_IDENTITY = "http://schemas.xmlsoap.org/ws/2005/05/identity";
+	
+	public static final String PUBLIC_KEY = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey";
 }

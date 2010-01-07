@@ -31,6 +31,7 @@ import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
 import org.opensaml.ws.wstrust.Claims;
 import org.opensaml.ws.wstrust.Issuer;
+import org.opensaml.ws.wstrust.KeyType;
 import org.opensaml.ws.wstrust.Lifetime;
 import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
@@ -70,6 +71,10 @@ public class OIOIssueRequest {
 		TokenType tokenType = SAMLUtil.buildXMLObject(TokenType.class);
 		tokenType.setValue(TrustConstants.TOKEN_TYPE_SAML_20);
 		req.getUnknownXMLObjects().add(tokenType);
+		
+		KeyType keyType = SAMLUtil.buildXMLObject(KeyType.class);
+		keyType.setValue(TrustConstants.PUBLIC_KEY);
+		req.getUnknownXMLObjects().add(keyType);
 		
 		return new OIOIssueRequest(req);
 	}
