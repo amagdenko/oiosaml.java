@@ -32,7 +32,7 @@ public class OIOIssueRequestTest extends TrustTests {
 	@Test
 	public void testBuild() {
 		assertNotNull(req.getXMLObject());
-		assertEquals(2, req.getXMLObject().getOrderedChildren().size());
+		assertEquals(3, req.getXMLObject().getOrderedChildren().size());
 		assertTrue(req.getXMLObject() instanceof RequestSecurityToken);
 	}
 	
