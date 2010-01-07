@@ -17,7 +17,7 @@
     	<dependency>
     		<groupId>dk.itst.oiosaml</groupId>
     		<artifactId>oiosaml-trust</artifactId>
-    		<version>5351</version>
+    		<version>5372</version>
     	</dependency>
     </dependencies>
 </project>
