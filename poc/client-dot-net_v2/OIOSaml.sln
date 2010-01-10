@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{CB06125B-DD5F-41D2-92AF-C054A733F149}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebserviceProvider_Echo", "Webserviceprovider_Echo\WebserviceProvider_Echo.csproj", "{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bindings", "Bindings\Bindings.csproj", "{3211517E-7B64-4253-A957-3CAF6A2ECF3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoWebserviceProvider", "EchoServiceProvider\EchoWebserviceProvider.csproj", "{0EDF5C56-E5CF-4284-9964-5F6C557A4922}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,14 +17,14 @@ Global
 		{CB06125B-DD5F-41D2-92AF-C054A733F149}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB06125B-DD5F-41D2-92AF-C054A733F149}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB06125B-DD5F-41D2-92AF-C054A733F149}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3602BE02-C5B2-4EAF-9C51-6F237476BEEF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3211517E-7B64-4253-A957-3CAF6A2ECF3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
