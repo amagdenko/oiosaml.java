@@ -46,7 +46,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, "CN=STS");// SigningCertificateNameGenevaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
                 var service = ChannelFactoryOperations.CreateChannelWithIssuedToken<IEchoService>(factory, issuedToken);
@@ -81,7 +80,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, "CN=STS");// SigningCertificateNameGenevaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
                 var service = ChannelFactoryOperations.CreateChannelWithIssuedToken<IEchoService>(factory, issuedToken);
@@ -117,7 +115,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameGenevaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
 
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
@@ -153,7 +150,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameGenevaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
 
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
@@ -189,7 +185,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameGenevaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
 
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
@@ -224,7 +219,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameJavaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
                 var service = ChannelFactoryOperations.CreateChannelWithIssuedToken<IEchoService>(factory, issuedToken);
@@ -264,7 +258,6 @@ namespace Client
                 factory.ConfigureChannelFactory();
                 factory.Credentials.ClientCertificate.Certificate = certificate2Client;
                 factory.Credentials.ServiceCertificate.DefaultCertificate = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameJavaService);
-                factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
                 factory.Endpoint.Contract.ProtectionLevel = ProtectionLevel.Sign;
 
                 var service = ChannelFactoryOperations.CreateChannelWithIssuedToken<IEchoService>(factory, issuedToken);

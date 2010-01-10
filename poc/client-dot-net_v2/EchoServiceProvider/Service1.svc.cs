@@ -56,7 +56,7 @@ namespace IssHosted
             configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("http://localhost/Echo/service.svc/Echo"));
             configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("http://localhost:6020/Echo"));
             configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("https://172.30.161.162:8181/poc-provider/ProviderService"));
-
+            configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("https://172.16.232.1:8181/poc-provider/ProviderService"));
             FederatedServiceCredentials.ConfigureServiceHost(host, configuration);
             return host;
         }

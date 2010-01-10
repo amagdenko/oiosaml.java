@@ -41,7 +41,7 @@ namespace Client
         {
             var certificate2Client = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameClient);
             var certificate2Service = CertificateUtil.GetCertificate(StoreName.My, StoreLocation.LocalMachine, SigningCertificateNameSTS);
-            var ep = new Uri("http://172.16.232.1:8081/sts/TokenService");
+            var ep = new Uri("http://localhost:8080/sts/TokenService");
             return TokenClient.GetIssuedToken(audience, certificate2Client, certificate2Service, ep, MakeBootstrapSecurityToken());
 
         }
