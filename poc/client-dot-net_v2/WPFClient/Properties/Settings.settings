@@ -2,23 +2,14 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WPFClient.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="BootstrapSTSUrl" Type="System.Collections.Specialized.StringCollection" Scope="Application">
-      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;Self-issued bootstraptoken&lt;/string&gt;
-&lt;/ArrayOfString&gt;</Value>
+    <Setting Name="LocalSTSUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost:8080/sts/TokenService</Value>
     </Setting>
-    <Setting Name="ServiceSTSUrl" Type="System.Collections.Specialized.StringCollection" Scope="Application">
-      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;http://localhost:8080/sts/TokenService&lt;/string&gt;
-&lt;/ArrayOfString&gt;</Value>
+    <Setting Name="STSUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost:8080/sts/TokenService</Value>
     </Setting>
-    <Setting Name="WSUrl" Type="System.Collections.Specialized.StringCollection" Scope="Application">
-      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;https://172.16.232.1:8181/poc-provider/ProviderService&lt;/string&gt;
-&lt;/ArrayOfString&gt;</Value>
+    <Setting Name="WSUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://csky-pc/test/Service1.svc</Value>
     </Setting>
   </Settings>
 </SettingsFile>

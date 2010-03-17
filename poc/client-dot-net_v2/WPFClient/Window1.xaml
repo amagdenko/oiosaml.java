@@ -2,7 +2,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:properties="clr-namespace:WPFClient.Properties"
-    Title="Window1" Height="571" Width="848">
+    Title="OIO-IDWS .NET Testapplikation" Height="571" Width="697" Initialized="Window_Initialized">
+    
     <DockPanel>
     <Grid Width="Auto" DockPanel.Dock="Top" Margin="10">
         <Grid.ColumnDefinitions>
@@ -10,18 +11,19 @@
             <ColumnDefinition Width="839*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="159*" />
-            <RowDefinition Height="374*" />
+            <RowDefinition Height="248" />
+            <RowDefinition Height="265*" />
         </Grid.RowDefinitions>
-        <Button Height="23" HorizontalAlignment="Right" Margin="0,112,9,0" Name="buttonWS" VerticalAlignment="Top" Width="75" Click="buttonWS_Click" Grid.Column="1">Call WS</Button>
-        <TextBox Name="textBoxResult" Grid.Row="1" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" />
-        <Label Height="28" HorizontalAlignment="Left" Margin="10,9,0,0" Name="labelBootstrapSTSUrl" VerticalAlignment="Top" Width="142" Grid.ColumnSpan="2">Bootstrap token STS Url:</Label>
-        <ComboBox Height="23" Margin="142,12,9,0" Name="comboBoxBootstrapSTSUrl" VerticalAlignment="Top" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=BootstrapSTSUrl}" SelectedIndex="0" IsEditable="True" Grid.Column="1" />
-        <Label HorizontalAlignment="Left" Margin="10,39,0,50" Name="labelServiceToken" Width="142" Grid.ColumnSpan="2">Service token STS Url:</Label>
-        <ComboBox IsEditable="True" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=ServiceSTSUrl}" Margin="142,44,9,0" Name="comboBoxServiceSTSUrl" SelectedIndex="0" VerticalAlignment="Top" Grid.Column="1" Height="21.96" />
-        <Label Height="28" HorizontalAlignment="Left" Margin="10,80,0,0" Name="labelWSUrl" VerticalAlignment="Top" Width="142" Grid.ColumnSpan="2">Webservice Url:</Label>
-        <ComboBox IsEditable="True" ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=WSUrl}" Margin="142,80,9,0" Name="comboBoxWSUrl" SelectedIndex="0" Height="23" VerticalAlignment="Top" Grid.Column="1" />
-        
-    </Grid>
+        <Button Height="23" Margin="244,170,243,19" Name="buttonWS" VerticalAlignment="Top" Click="buttonWS_Click" Grid.Column="1">Execute Request</Button>
+        <TextBox Name="textBoxResult" Grid.Row="1" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" HorizontalScrollBarVisibility="Auto" />
+        <Label Height="28" HorizontalAlignment="Left" Margin="0,9,0,0" Name="labelBootstrapSTSUrl" VerticalAlignment="Top" Width="142" Grid.Column="1">Local STS Url:</Label>
+            <Label HorizontalAlignment="Left" Margin="0,44,0,0" Name="labelServiceToken" Width="142" Grid.Column="1" Height="31" VerticalAlignment="Top">Service STS Url:</Label>
+            <Label Height="28" HorizontalAlignment="Left" Margin="0,80,0,0" Name="labelWSUrl" VerticalAlignment="Top" Width="142" Grid.Column="1">Service Url:</Label>
+            <Label HorizontalAlignment="Left" Margin="0,117,0,99" Name="label1" Width="120" Grid.Column="1">User certificate:</Label>
+            <TextBox Grid.Column="1" Height="23" Margin="142,11,9,0" Name="textBoxLocalUrl" VerticalAlignment="Top" Text="{Binding Source={x:Static properties:Settings.Default},Path=LocalSTSUrl, Mode=OneWay}"/>
+            <TextBox Height="23" Margin="142,46,9,0" Name="textBoxServiceSTSUrl" VerticalAlignment="Top" Grid.Column="1" Text="{Binding Source={x:Static properties:Settings.Default},Path=STSUrl, Mode=OneWay}"/>
+            <TextBox Height="23" Margin="142,80,9,0" Name="textBoxServiceUrl" VerticalAlignment="Top" Grid.Column="1" Text="{Binding Source={x:Static properties:Settings.Default},Path=WSUrl, Mode=OneWay}"/>
+            <ComboBox Grid.Column="1" Margin="142,117,9,109.04" Name="comboBoxCerts" Height="20" MaxHeight="20" />
+        </Grid>
     </DockPanel>
 </Window>

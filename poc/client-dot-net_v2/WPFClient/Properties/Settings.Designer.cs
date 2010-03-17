@@ -25,35 +25,28 @@ namespace WPFClient.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>Self-issued bootstraptoken</string>\r\n</ArrayOfString>")]
-        public global::System.Collections.Specialized.StringCollection BootstrapSTSUrl {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:8080/sts/TokenService")]
+        public string LocalSTSUrl {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["BootstrapSTSUrl"]));
+                return ((string)(this["LocalSTSUrl"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>http://localhost:8080/sts/TokenService</string>\r\n</ArrayOfString>")]
-        public global::System.Collections.Specialized.StringCollection ServiceSTSUrl {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:8080/sts/TokenService")]
+        public string STSUrl {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["ServiceSTSUrl"]));
+                return ((string)(this["STSUrl"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>https://172.16.232.1:8181/poc-provider/ProviderService</string>\r\n</ArrayOf" +
-            "String>")]
-        public global::System.Collections.Specialized.StringCollection WSUrl {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://csky-pc/test/Service1.svc")]
+        public string WSUrl {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["WSUrl"]));
+                return ((string)(this["WSUrl"]));
             }
         }
     }

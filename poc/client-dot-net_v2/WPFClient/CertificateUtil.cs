@@ -74,5 +74,31 @@ public class CertificateUtil
             store.Close();
         }
     }
+
+    public static X509Certificate2Collection GetCertificates(StoreName name, StoreLocation location)
+    {
+        X509Store store = null;
+
+        try
+        {
+
+            store = new X509Store(name, location);
+            X509Certificate2Collection certificates = null;
+            store.Open(OpenFlags.ReadOnly);
+
+
+            // Every time we call store.Certificates property, a new collection will be returned.
+            return store.Certificates;
+        }
+        finally
+        {
+            if (store != null)
+            {
+                store.Close();
+            }
+        }
+
+        return null;
+    }
 }
 

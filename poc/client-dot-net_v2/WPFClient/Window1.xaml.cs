@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IdentityModel.Tokens;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WPFClient
 {
@@ -23,27 +24,77 @@ namespace WPFClient
         public Window1()
         {
             InitializeComponent();
+
+            var certs = CertificateUtil.GetCertificates(StoreName.My, StoreLocation.LocalMachine);
+            comboBoxCerts.ItemsSource = certs;
+            comboBoxCerts.SelectedValuePath = "Subject";
+            comboBoxCerts.DisplayMemberPath = "SubjectName.Name";
         }
 
         private void buttonWS_Click(object sender, RoutedEventArgs e)
         {
+            // Get bootstrap token
+
+
             SecurityToken bootstrapToken = null;
+            SecurityToken token = null;
 
-            textBoxResult.AppendText("Getting bootstrap token...\n");
-
-            if (comboBoxBootstrapSTSUrl.SelectedIndex == 0)
+            try
             {
-                bootstrapToken = TokenUtil.MakeBootstrapSecurityToken();
+                if (string.IsNullOrEmpty(textBoxLocalUrl.Text))
+                {
+                    textBoxResult.AppendText("No local STS Url selected, using bootstrap token.\n");
+                    bootstrapToken = TokenUtil.MakeBootstrapSecurityToken(textBoxServiceUrl.Text);
+                }
+                else
+                {
+                    // TODO: Use real bs-token
+                    bootstrapToken = TokenUtil.MakeBootstrapSecurityToken(textBoxServiceUrl.Text);
+                }
+
+
             }
-            else
+            catch (Exception ex)
             {
-                // TODO Get BS Token from STS
+                textBoxResult.AppendText("Exception while getting bootstrap-token: " + ex);
+                return;
             }
 
-            textBoxResult.AppendText("Bootstrap token: " + bootstrapToken.ToString() + "\nGetting WS token...\n");
+            string selectedCert = null;
+            try
+            {
+                // Get WS Token
 
-            var wsToken = TokenUtil.GetIssuedToken((string)comboBoxServiceSTSUrl.SelectedValue, (string)comboBoxWSUrl.SelectedValue);
-            textBoxResult.AppendText("Webservice token: " + wsToken.ToString());
+                selectedCert = (string)comboBoxCerts.SelectedValue;
+                textBoxResult.AppendText("Getting WS token...\n");
+                token = TokenUtil.GetIssuedToken(textBoxServiceSTSUrl.Text, textBoxServiceUrl.Text, selectedCert, bootstrapToken);
+                
+                textBoxResult.AppendText("Webservice token: " + token.ToString());
+            }
+            catch (Exception ex)
+            {
+                textBoxResult.AppendText("Exception while getting service-token: " + ex);
+                return;
+            }
+
+            try
+            {
+                // Execute WS call
+                textBoxResult.AppendText("Calling webservice...\n");
+                var res = TokenUtil.ExecuteWS(selectedCert, textBoxServiceUrl.Text, token);
+                textBoxResult.AppendText("Webservice result: " + res);
+            }
+            catch (Exception ex)
+            {
+                textBoxResult.AppendText("Exception while calling webservice: " + ex);
+                return;
+            }
+        }
+
+        private void Window_Initialized(object sender, EventArgs e)
+        {
+            
+ 
         }
     }
 }
