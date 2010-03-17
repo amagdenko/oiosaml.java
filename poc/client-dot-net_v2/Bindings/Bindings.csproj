@@ -68,11 +68,7 @@
     <Compile Include="Data\FrameworkFault.cs" />
     <Compile Include="Data\Structure.cs" />
     <Compile Include="DisableDnsIdentityCheck.cs" />
-    <Compile Include="MessageContracts\Echo.cs" />
-    <Compile Include="MessageContracts\EchoResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceInterfaces\EchoService.cs" />
-    <Compile Include="ServiceInterfaces\IEchoService.cs" />
     <Compile Include="Bindings\ServiceProviderBinding.cs" />
     <Compile Include="TokenClient\TokenClient.cs" />
   </ItemGroup>

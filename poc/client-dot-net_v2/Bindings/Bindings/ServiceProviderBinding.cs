@@ -60,7 +60,6 @@ namespace Bindings.Bindings
             initiator.RequireDerivedKeys = false;
             messageSecurity.InitiatorTokenParameters = initiator;
 
-
             var customBinding = new CustomBinding(encodingBindingElement, messageSecurity, transport);
 
             return customBinding;

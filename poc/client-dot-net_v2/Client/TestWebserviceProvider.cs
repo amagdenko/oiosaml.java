@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Bindings.ServiceInterfaces;
 using System.ServiceModel;
 using Bindings.Bindings;
 using System.Net.Security;
@@ -13,19 +12,21 @@ using Microsoft.IdentityModel.Protocols.WSTrust;
 using Bindings.Data;
 using Bindings.CustomHeaders;
 using System.IdentityModel.Tokens;
-using Bindings.MessageContracts;
 using System.Net;
+using EchoService.ServiceInterfaces;
+using EchoService.MessageContracts;
 
 namespace Client
 {
     [TestFixture]
     public class TestWebserviceProvider
     {
-//        static readonly string SigningCertificateNameGenevaService = @"CN=Allan Apoteker + SERIALNUMBER=CVR:25520041-RID:1237281362460, O=TRIFORK SERVICES A/S // CVR:25520041, C=DK";
+        static readonly string SigningCertificateNameClient  = @"CN=Allan Apoteker + SERIALNUMBER=CVR:25520041-RID:1237281362460, O=TRIFORK SERVICES A/S // CVR:25520041, C=DK";
         static readonly string SigningCertificateNameGenevaService = @"CN=STS";
-        static readonly string SigningCertificateNameClient = @"SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK";
+        // static readonly string SigningCertificateNameClient = @"SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK";
         static readonly string JavaWSPSSLCertificate = @"CN=recht-laptop, OU=Sun Java System Application Server, O=Sun Microsystems, L=Santa Clara, S=California, C=US";
-        static readonly string SigningCertificateNameJavaService = @"SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK";
+        // static readonly string SigningCertificateNameJavaService = @"SERIALNUMBER=CVR:25767535-UID:1100080130597 + CN=TDC TOTALLØSNINGER A/S - TDC Test, O=TDC TOTALLØSNINGER A/S // CVR:25767535, C=DK";
+        static readonly string SigningCertificateNameJavaService = @"CN=Allan Apoteker + SERIALNUMBER=CVR:25520041-RID:1237281362460, O=TRIFORK SERVICES A/S // CVR:25520041, C=DK";
 
         [Test]
         public void TestGenevaWebserviceProvider()

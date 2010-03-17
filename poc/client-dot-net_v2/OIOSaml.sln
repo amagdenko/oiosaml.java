@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bindings", "Bindings\Bindin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoWebserviceProvider", "EchoServiceProvider\EchoWebserviceProvider.csproj", "{0EDF5C56-E5CF-4284-9964-5F6C557A4922}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFClient", "WPFClient\WPFClient.csproj", "{96C181FD-2B28-453B-BF1C-E8D128897F2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoService", "EchoService\EchoService.csproj", "{B16328BA-5F42-48C3-B101-A8C5FD94D401}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,14 @@ Global
 		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EDF5C56-E5CF-4284-9964-5F6C557A4922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96C181FD-2B28-453B-BF1C-E8D128897F2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96C181FD-2B28-453B-BF1C-E8D128897F2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96C181FD-2B28-453B-BF1C-E8D128897F2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96C181FD-2B28-453B-BF1C-E8D128897F2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B16328BA-5F42-48C3-B101-A8C5FD94D401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B16328BA-5F42-48C3-B101-A8C5FD94D401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B16328BA-5F42-48C3-B101-A8C5FD94D401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B16328BA-5F42-48C3-B101-A8C5FD94D401}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

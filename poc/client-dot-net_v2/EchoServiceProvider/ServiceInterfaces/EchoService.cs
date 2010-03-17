@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Bindings.MessageContracts;
 using System.ServiceModel;
 using Bindings.Data;
 using Bindings.CustomHeaders;
+using EchoService.MessageContracts;
+using EchoService.ServiceInterfaces;
 
-namespace Bindings.ServiceInterfaces
+namespace IssHosted.ServiceInterfaces
 {
     public class EchoService : IEchoService
     {

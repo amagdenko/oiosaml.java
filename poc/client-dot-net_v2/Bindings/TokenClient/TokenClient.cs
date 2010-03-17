@@ -35,7 +35,6 @@ namespace Bindings.TokenClient
             var rst = RequestSecurityToken(bootstrapSecurityToken, clientCertificate, audience, new List<RequestClaim>());
             var response = channel.Issue(rst);
             return response;
-
         }
 
         /// <summary>

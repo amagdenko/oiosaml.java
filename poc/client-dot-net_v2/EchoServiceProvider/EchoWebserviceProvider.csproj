@@ -70,12 +70,17 @@
       <DependentUpon>Service1.svc</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceInterfaces\EchoService.cs" />
     <Compile Include="TrustedIssuerNameRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bindings\Bindings.csproj">
       <Project>{3211517E-7B64-4253-A957-3CAF6A2ECF3F}</Project>
       <Name>Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EchoService\EchoService.csproj">
+      <Project>{B16328BA-5F42-48C3-B101-A8C5FD94D401}</Project>
+      <Name>EchoService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +101,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>49554</DevelopmentServerPort>
+          <DevelopmentServerPort>49557</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

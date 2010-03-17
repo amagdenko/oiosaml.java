@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using System.ServiceModel.Activation;
-using Bindings.ServiceInterfaces;
+using EchoService.ServiceInterfaces;
 using Bindings.Bindings;
 using System.ServiceModel.Security;
 using System.ServiceModel.Description;
@@ -32,7 +32,7 @@ namespace IssHosted
         public override ServiceHostBase CreateServiceHost
                 (string service, Uri[] baseAddresses)
         {
-            ServiceHost host = new ServiceHost(typeof(EchoService),
+            ServiceHost host = new ServiceHost(typeof(IssHosted.ServiceInterfaces.EchoService),
                 baseAddresses);
 
             host.AddServiceEndpoint(typeof(IEchoService), new ServiceproviderBinding(true), "");
@@ -57,6 +57,7 @@ namespace IssHosted
             configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("http://localhost:6020/Echo"));
             configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("https://172.30.161.162:8181/poc-provider/ProviderService"));
             configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("https://172.16.232.1:8181/poc-provider/ProviderService"));
+            configuration.SecurityTokenHandlers.Configuration.AudienceRestriction.AllowedAudienceUris.Add(new Uri("http://csky-pc/test/Service1.svc"));
             FederatedServiceCredentials.ConfigureServiceHost(host, configuration);
             return host;
         }

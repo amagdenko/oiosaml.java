@@ -81,6 +81,10 @@
       <Project>{3211517E-7B64-4253-A957-3CAF6A2ECF3F}</Project>
       <Name>Bindings</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EchoService\EchoService.csproj">
+      <Project>{B16328BA-5F42-48C3-B101-A8C5FD94D401}</Project>
+      <Name>EchoService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
