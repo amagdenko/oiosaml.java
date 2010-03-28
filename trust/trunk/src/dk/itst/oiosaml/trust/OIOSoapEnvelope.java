@@ -234,9 +234,13 @@ public class OIOSoapEnvelope {
 		addHeaderElement(a);
 	}
 	
-	public void addSecurityToken(Assertion token) {
+	public void addSecurityToken(XMLObject token) {
 		security.getUnknownXMLObjects().add(token);
+		if (token instanceof AttributeExtensibleXMLObject) {
+			addSignatureElement((AttributeExtensibleXMLObject) token);
+		}
 	}
+	
 	
 	/**
 	 * Insert a token and a SecurityTokenReference pointing to the token.
@@ -249,7 +253,7 @@ public class OIOSoapEnvelope {
 		
 		token.detach();
 		securityToken = token;
-		addSecurityToken(token);
+		security.getUnknownXMLObjects().add(token);
 		
 		if (protect) {
 			securityTokenReference = createSecurityTokenReference(token);
@@ -267,7 +271,7 @@ public class OIOSoapEnvelope {
 		
 		token.detach();
 		endorsingToken = token;
-		addSecurityToken(token);
+		security.getUnknownXMLObjects().add(token);
 		
 		references.put(token, token.getID());
 		

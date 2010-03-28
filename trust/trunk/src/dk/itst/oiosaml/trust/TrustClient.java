@@ -84,6 +84,8 @@ public class TrustClient extends ClientBase {
 	private boolean useActAs = true;
 
 	private Assertion token;
+	private XMLObject delegateToken;
+	private XMLObject securityToken;
 	
 	private String claimsDialect;
 	private List<String> claims = new ArrayList<String>();
@@ -175,8 +177,12 @@ public class TrustClient extends ClientBase {
 			OIOSoapEnvelope env = new OIOSoapEnvelope(soapClient.wsCall(endpoint, null, null, true, xml, "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"));
 			setLastResponse(env);
 	
-			if (!env.verifySignature(stsKey)) {
-				throw new TrustException("Response was not signed correctly");
+			if (stsKey != null) {
+				if (!env.verifySignature(stsKey)) {
+					throw new TrustException("Response was not signed correctly");
+				}
+			} else {
+				log.warn("No STS certificate specified, not validating response");
 			}
 			
 			//TODO: Support tokens in security header
@@ -232,9 +238,13 @@ public class TrustClient extends ClientBase {
 
 	private Assertion validateToken(Assertion token) {
 		OIOAssertion a = new OIOAssertion(token);
-		if (!a.verifySignature(stsKey)) {
-			log.error("Token is not signed correctly by the STS");
-			throw new TrustException("Token assertion does not contain a valid signature");
+		if (stsKey != null) {
+			if (!a.verifySignature(stsKey)) {
+				log.error("Token is not signed correctly by the STS");
+				throw new TrustException("Token assertion does not contain a valid signature");
+			}
+		} else {
+			log.warn("No STS certificate specified, not validating assertion");
 		}
 		this.token = token;
 		token.detach();
@@ -250,7 +260,10 @@ public class TrustClient extends ClientBase {
 	}
 	
 	private String toXMLRequest(DateTime lifetimeExpire) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, MarshalException, XMLSignatureException {
-		Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
+		if (epr != null) {
+			Token token = getToken("urn:liberty:security:tokenusage:2006-08:SecurityToken", epr.getMetadata().getUnknownXMLObjects(SecurityContext.ELEMENT_NAME));
+			delegateToken = token.getAssertion();
+		}
 		
         OIOIssueRequest req = OIOIssueRequest.buildRequest();
         
@@ -273,20 +286,26 @@ public class TrustClient extends ClientBase {
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
 		env.setBody(req.getXMLObject());
 		env.setTimestamp(5);
+		
+		if (securityToken != null) {
+			env.addSecurityToken(securityToken);
+		}
 
-		if (useReferenceForDelegateToken) {
-			token.getAssertion().detach();
-			if (useActAs) {
-				req.setActAs(token.getAssertion().getID());
+		if (delegateToken != null) {
+			if (useReferenceForDelegateToken && delegateToken instanceof Assertion) {
+				delegateToken.detach();
+				if (useActAs) {
+					req.setActAs(((Assertion)delegateToken).getID());
+				} else {
+					req.setOnBehalfOf(((Assertion)delegateToken).getID());
+				}
+				env.addSecurityToken(delegateToken);
 			} else {
-				req.setOnBehalfOf(token.getAssertion().getID());
-			}
-			env.addSecurityToken(token.getAssertion());
-		} else {
-			if (useActAs) {
-				req.setActAs(token.getAssertion());
-			} else {
-				req.setOnBehalfOf(token.getAssertion());
+				if (useActAs) {
+					req.setActAs(delegateToken);
+				} else {
+					req.setOnBehalfOf(delegateToken);
+				}
 			}
 		}
 		
@@ -356,5 +375,13 @@ public class TrustClient extends ClientBase {
 	
 	public void addClaim(String claim) {
 		claims.add(claim);
+	}
+	
+	public void setDelegateToken(XMLObject delegateToken) {
+		this.delegateToken = delegateToken;
+	}
+	
+	public void setSecurityToken(XMLObject securityToken) {
+		this.securityToken = securityToken;
 	}
 }
