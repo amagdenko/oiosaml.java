@@ -1,9 +1,12 @@
 package dk.itst.saml.sts;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -243,9 +246,21 @@ public class TokenService extends HttpServlet {
 		
 		if (bootstrap != null) {
 			NameID nameID = bootstrap.getAssertion().getSubject().getNameID();
-			NameID nameId = SAMLUtil.createNameID(nameID.getValue());
-			nameId.setFormat(nameID.getFormat());
-			subject.setNameID(nameId);
+			if (nameID != null) {
+				NameID nameId = SAMLUtil.createNameID(nameID.getValue());
+				nameId.setFormat(nameID.getFormat());
+				subject.setNameID(nameId);
+			}
+		} else {
+			String c = "-----BEGIN CERTIFICATE-----\n" + x509 + "\n-----END CERTIFICATE-----\n";
+			try {
+				java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate) CertificateFactory.getInstance("x509").generateCertificate(new ByteArrayInputStream(c.getBytes()));
+				NameID nameId = SAMLUtil.createNameID(cert.getSubjectDN().getName());
+				nameId.setFormat("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified");
+				subject.setNameID(nameId);
+			} catch (CertificateException e) {
+				log.error("Unable to read certificate", e);
+			}
 		}
 		
 		SubjectConfirmation confirmation = SAMLUtil.buildXMLObject(SubjectConfirmation.class);
