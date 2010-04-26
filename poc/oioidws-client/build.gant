@@ -1,0 +1,116 @@
+system = 'oioidws-client'
+buildDirectory = 'target/build'
+testBuildDir = 'target/test'
+instrumentDir = 'target/instrumented'
+distDir = 'target/dist'
+sourceDirectory = 'src'
+testSrcDir = 'test'
+javadocsDir = 'target/docs'
+testReports = 'target/reports'
+webDir = 'webapp'
+version = 'unknown'
+
+ant.property(name: 'ivy.checksums', value: '')
+
+includeTargets << gant.targets.Clean
+
+cleanDirectory << ['target', 'lib/build', 'lib/test', 'lib/dist']
+cleanPattern << [ '**/*~' , '**/*.bak' ]
+
+includeTool << gant.tools.Ivy
+includeTool << gant.tools.Execute
+
+ant.path(id: 'classpath') {
+	fileset (dir: 'lib') {
+		include (name: '**/*.jar')
+	}
+	pathelement(location: buildDirectory)
+}
+
+doCompile = { srcdir, destdir ->
+	ant.javac (srcdir: srcdir, destdir: destdir, debug: true, source: '1.5', target: '1.5', classpathref: 'classpath')
+	ant.copy (todir: destdir) {
+		fileset (dir: srcdir, excludes: '**/*.java')
+	}
+}
+
+doResolve = { conf -> 
+	ivy.retrieve(pattern: "lib/${conf}/[organisation]-[artifact].[ext]", conf: conf)
+}
+
+target (init : 'Initialize build') {
+	[buildDirectory, testBuildDir, distDir, javadocsDir, testReports, "${testReports}/html"].each { dir -> 
+		ant.mkdir (dir: dir)
+	}
+	
+	execute.shell ( 'svn info', outProcessing: { l -> 
+		m = l =~ /Last Changed Rev: (.*)/
+		if (m.matches())
+			version = m.group(1) 
+	})
+	println "Building ${system} version ${version}"
+}
+
+target (compile: 'Compile') {
+	depends(init, resolve)
+	doCompile(sourceDirectory, buildDirectory)
+}
+
+target (resolve : 'Resolve dependencies') {
+	depends(init)
+	doResolve('build')
+}
+
+target (resolve_test : 'Resolve dependencies') {
+	depends(init)
+	doResolve('test')
+}
+
+target (resolve_dist : 'Resolve dependencies') {
+	depends(init)
+	doResolve('dist')
+}
+
+
+target (publish: 'Publish build') {
+	depends(resolve)
+	depends(jar)
+	delete (file: "${distDir}/ivy.xml")
+	
+	def ivyxml = new XmlParser().parseText(new File('ivy.xml').getText())
+	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
+		copy (file: "lib/${a.'@name'}.jar", todir: distDir)
+	}
+	copy (file: "${distDir}/${system}-${version}.jar", tofile: "${distDir}/${system}.jar", overwrite: true)
+	
+	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
+	
+	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
+		delete (file: "${distDir}/${a.'@name'}.jar")
+	}
+	delete (file: "${distDir}/${system}.jar")
+}
+
+target (jar: 'Build jar file') {
+	depends(compile)
+	jar (destfile: "${distDir}/${system}-${version}.jar", basedir: buildDirectory) {
+		metainf (dir: '.', includes: 'LICENSE.txt')
+		manifest {
+			attribute (name: 'Implementation-Title', value: system)
+			attribute (name: 'Implementation-Vendor', value: 'Trifork A/S')
+			attribute (name: 'Implementation-Version', value: version)
+			attribute (name: 'Built-By', value: System.getProperty('user.name'))
+		}
+	}
+}
+
+target (compile_test: 'Compile test cases') {
+	depends(compile)
+	doCompile(testSrcDir, testBuildDir)
+	doCompile('integration', testBuildDir)
+}
+
+
+target (build_everything: 'Build everything') {
+	depends(clean, compile, javadoc, test, war, zipdist)
+}
