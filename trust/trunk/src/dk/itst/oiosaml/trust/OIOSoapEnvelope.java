@@ -179,12 +179,16 @@ public class OIOSoapEnvelope {
 		return buildEnvelope(soapVersion, new SigningPolicy(true));
 	}
 	
+	public static OIOSoapEnvelope buildEnvelope(String soapVersion, SigningPolicy signingPolicy) {
+		return buildEnvelope(soapVersion, signingPolicy, true);
+	}
+	
 	/**
 	 * Build a new soap envelope with standard OIO headers.
 	 * 
 	 *  Standard headers include sbf:Framework, wsa:MessageID, and an empty Security header.
 	 */
-	public static OIOSoapEnvelope buildEnvelope(String soapVersion, SigningPolicy signingPolicy) {
+	public static OIOSoapEnvelope buildEnvelope(String soapVersion, SigningPolicy signingPolicy, boolean includeFrameworkHeader) {
 		Envelope env = envelopeBuilder.buildObject(soapVersion, "Envelope", "s");
 
 		Header header = headerBuilder.buildObject(soapVersion, "Header", "s");
@@ -193,12 +197,15 @@ public class OIOSoapEnvelope {
 		MessageID msgId = SAMLUtil.buildXMLObject(MessageID.class);
 		msgId.setValue("urn:uuid:" + UUID.randomUUID().toString());
 		header.getUnknownXMLObjects().add(msgId);
-		
-		XSAny framework = new XSAnyBuilder().buildObject("urn:liberty:sb:2006-08", "Framework", "sbf");
-		framework.getUnknownAttributes().put(new QName("version"), "2.0");
-		framework.getUnknownAttributes().put(new QName("urn:liberty:sb:profile", "profile"), "urn:liberty:sb:profile:basic");
-		framework.getUnknownAttributes().put(new QName(soapVersion, "mustUnderstand"), "1");
-		header.getUnknownXMLObjects().add(framework);
+	
+		XSAny framework = null;
+		if (includeFrameworkHeader) {
+			framework = new XSAnyBuilder().buildObject("urn:liberty:sb:2006-08", "Framework", "sbf");
+			framework.getUnknownAttributes().put(new QName("version"), "2.0");
+			framework.getUnknownAttributes().put(new QName("urn:liberty:sb:profile", "profile"), "urn:liberty:sb:profile:basic");
+			framework.getUnknownAttributes().put(new QName(soapVersion, "mustUnderstand"), "1");
+			header.getUnknownXMLObjects().add(framework);
+		}
 		
 		Security security = SAMLUtil.buildXMLObject(Security.class);
 		security.getUnknownAttributes().put(new QName(env.getElementQName().getNamespaceURI(), "mustUnderstand"), "1");
