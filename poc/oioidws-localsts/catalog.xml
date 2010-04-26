@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/home/recht/.netbeans/6.8/config/WebServices/TokenServiceService.wsdl" uri="src/conf/xml-resources/web-services/TokenService/wsdl/TokenServiceService.wsdl"/>
+    <system systemId="file:/home/recht/.netbeans/6.8/config/WebServices/sts_schema.xsd" uri="src/conf/xml-resources/web-services/TokenService/wsdl/sts_schema.xsd"/>
+</catalog>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jax-ws xmlns="http://www.netbeans.org/ns/jax-ws/1">
+  <services>
+    <service name="TokenService">
+      <implementation-class>dk.itst.idws.sts.TokenService</implementation-class>
+      <wsdl-url>file:/home/recht/.netbeans/6.8/config/WebServices/TokenServiceService.wsdl</wsdl-url>
+      <local-wsdl-file>TokenServiceService.wsdl</local-wsdl-file>
+      <service-name>TokenServiceService</service-name>
+      <port-name>ITokenServiceService_Port</port-name>
+      <package-name>javax.xml.ws</package-name>
+      <catalog-file>catalog.xml</catalog-file>
+      <use-provider>true</use-provider>
+      <wsimport-options>
+        <wsimport-option>
+          <wsimport-option-name>extension</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>verbose</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>xnocompile</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>xendorsed</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+      </wsimport-options>
+    </service>
+  </services>
+  <clients/>
+</jax-ws>

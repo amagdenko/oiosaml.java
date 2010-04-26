@@ -1,0 +1,35 @@
+# Create top-level object in domain
+dn: dc=trifork,dc=com
+objectClass: top
+objectClass: dcObject
+objectclass: organization
+o: Trifork
+dc: trifork
+
+# Admin user.
+dn: cn=admin,dc=trifork,dc=com
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+userPassword: dild42
+
+dn: ou=people,dc=trifork,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: uid=jre,ou=people,dc=trifork,dc=com
+objectClass: inetOrgPerson
+uid: jre
+sn: Recht
+givenName: Joakim
+cn: Joakim Recht
+mail: jre@trifork.com
+postalCode: 31000
+l: Toulouse
+o: Example
+mobile: +33 (0)6 xx xx xx xx
+homePhone: +33 (0)5 xx xx xx xx
+title: System Administrator
+initials: jre
+userPassword: dild42
