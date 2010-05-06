@@ -22,10 +22,15 @@
  */
 package dk.itst.oiosaml.trust;
 
+import java.security.cert.CertificateEncodingException;
+
+import javax.xml.namespace.QName;
+
 import org.joda.time.DateTime;
 import org.opensaml.ws.wsaddressing.Address;
 import org.opensaml.ws.wsaddressing.EndpointReference;
 import org.opensaml.ws.wspolicy.AppliesTo;
+import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.Expires;
 import org.opensaml.ws.wssecurity.KeyIdentifier;
 import org.opensaml.ws.wssecurity.SecurityTokenReference;
@@ -37,7 +42,10 @@ import org.opensaml.ws.wstrust.OnBehalfOf;
 import org.opensaml.ws.wstrust.RequestSecurityToken;
 import org.opensaml.ws.wstrust.RequestType;
 import org.opensaml.ws.wstrust.TokenType;
+import org.opensaml.ws.wstrust.UseKey;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.security.x509.X509Credential;
+import org.opensaml.xml.util.Base64;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.liberty.ActAs;
@@ -203,5 +211,21 @@ public class OIOIssueRequest {
 	
 	public XMLObject getXMLObject() {
 		return request;
+	}
+	
+	public void setUseKey(X509Credential credential) {
+		UseKey key = SAMLUtil.buildXMLObject(UseKey.class);
+
+		
+		BinarySecurityToken bst = SAMLUtil.buildXMLObject(BinarySecurityToken.class);
+		try {
+			bst.setValue(Base64.encodeBytes(credential.getEntityCertificate().getEncoded()));
+		} catch (CertificateEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		bst.setEncodingType("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
+		bst.getUnknownAttributes().put(new QName("ValueType"), "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
+		key.setUnknownXMLObject(bst);
+		replace(key);
 	}
 }

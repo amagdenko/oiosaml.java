@@ -276,11 +276,11 @@ public class TrustClient extends ClientBase {
         if (lifetimeExpire != null) {
         	req.setLifetime(lifetimeExpire);
         }
-		
+        req.setUseKey(getCredential());
 		
 		req.setAppliesTo(appliesTo);
 
-		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion, signingPolicy);
+		OIOSoapEnvelope env = OIOSoapEnvelope.buildEnvelope(soapVersion, signingPolicy, false);
 		env.setAction("http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 		env.setTo(endpoint);
 		env.setReplyTo("http://www.w3.org/2005/08/addressing/anonymous");
