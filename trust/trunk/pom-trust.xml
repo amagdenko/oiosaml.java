@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.itst.oiosaml</groupId>
     <artifactId>oiosaml-trust</artifactId>
-    <version>5372</version>
+    <version>5375</version>
     <packaging>jar</packaging>
 
     <name>oiosaml-trust</name>
