@@ -9,6 +9,9 @@
     
         <dependency org="dk.itst.oiosaml" name="oiosaml.java" rev="latest.integration" conf="*->@" />
         <dependency org="dk.itst.oiosaml" name="oiosaml-trust" rev="latest.integration" conf="*->@" />
+	<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.7.1" transitive="false">
+		<artifact name="groovy-all" type="jar" />
+	</dependency>
    		
     </dependencies>
 </ivy-module>

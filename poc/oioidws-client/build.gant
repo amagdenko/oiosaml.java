@@ -11,6 +11,7 @@ webDir = 'webapp'
 version = 'unknown'
 
 ant.property(name: 'ivy.checksums', value: '')
+ant.taskdef (  name : 'groovyc' , classname : 'org.codehaus.groovy.ant.Groovyc' )
 
 includeTargets << gant.targets.Clean
 
@@ -28,6 +29,7 @@ ant.path(id: 'classpath') {
 }
 
 doCompile = { srcdir, destdir ->
+	ant.groovyc (srcdir: srcdir, destdir: destdir, classpathref: 'classpath')
 	ant.javac (srcdir: srcdir, destdir: destdir, debug: true, source: '1.5', target: '1.5', classpathref: 'classpath')
 	ant.copy (todir: destdir) {
 		fileset (dir: srcdir, excludes: '**/*.java')
@@ -61,56 +63,8 @@ target (resolve : 'Resolve dependencies') {
 	doResolve('build')
 }
 
-target (resolve_test : 'Resolve dependencies') {
-	depends(init)
-	doResolve('test')
-}
-
-target (resolve_dist : 'Resolve dependencies') {
-	depends(init)
-	doResolve('dist')
-}
-
-
-target (publish: 'Publish build') {
-	depends(resolve)
-	depends(jar)
-	delete (file: "${distDir}/ivy.xml")
-	
-	def ivyxml = new XmlParser().parseText(new File('ivy.xml').getText())
-	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
-		copy (file: "lib/${a.'@name'}.jar", todir: distDir)
-	}
-	copy (file: "${distDir}/${system}-${version}.jar", tofile: "${distDir}/${system}.jar", overwrite: true)
-	
-	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
-	
-	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
-		delete (file: "${distDir}/${a.'@name'}.jar")
-	}
-	delete (file: "${distDir}/${system}.jar")
-}
-
-target (jar: 'Build jar file') {
+target (run : 'Run the client') {
 	depends(compile)
-	jar (destfile: "${distDir}/${system}-${version}.jar", basedir: buildDirectory) {
-		metainf (dir: '.', includes: 'LICENSE.txt')
-		manifest {
-			attribute (name: 'Implementation-Title', value: system)
-			attribute (name: 'Implementation-Vendor', value: 'Trifork A/S')
-			attribute (name: 'Implementation-Version', value: version)
-			attribute (name: 'Built-By', value: System.getProperty('user.name'))
-		}
-	}
-}
-
-target (compile_test: 'Compile test cases') {
-	depends(compile)
-	doCompile(testSrcDir, testBuildDir)
-	doCompile('integration', testBuildDir)
-}
-
-
-target (build_everything: 'Build everything') {
-	depends(clean, compile, javadoc, test, war, zipdist)
+	
+	java (classpathref: 'classpath', classname: 'dk.itst.oiosaml.client.Client', fork: true)
 }

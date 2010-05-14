@@ -132,12 +132,7 @@ class Client {
 		
 		print("Sending service request to ${model.serviceUrl}")
 		def req = SAMLUtil.loadElementFromString('<ns2:Echo xmlns:ns2="http://tempuri.org/"><ns2:Structure><ns2:Value>testing</ns2:Value></ns2:Structure></ns2:Echo>')
-		sc.sendRequest(req, model.serviceUrl, "http://tempuri.org/service/EchoRequest", null, new ResultHandler<Element>() {
-			public void handleResult(Element result) throws Exception {
-				print("Result received")
-				print(XMLHelper.prettyPrintXML(result))
-			}
-		});
+		sc.sendRequest(req, model.serviceUrl, "http://tempuri.org/service/EchoRequest", null, new RHandler());
 	}
 	
 	static print(line) {
@@ -145,5 +140,13 @@ class Client {
 			console.text += line
 			console.text += "\n"
 		}
+	}
+	
+	static class RHandler implements ResultHandler<Element> {
+		public void handleResult(Element result) throws Exception {
+			print("Result received")
+			print(XMLHelper.prettyPrintXML(result))
+		}
+		
 	}
 }
