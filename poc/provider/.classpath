@@ -8,11 +8,6 @@
 			<attribute name="owner.project.facets" value="jst.web"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-sun-1.6.0.16">
-		<attributes>
-			<attribute name="owner.project.facets" value="jst.java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/build/com.sun.tools.ws-webservices-tools.jar"/>
 	<classpathentry kind="lib" path="lib/build/com.sun.xml.bind-jaxb.jar"/>
 	<classpathentry kind="lib" path="lib/build/com.sun.xml.ws-webservices-rt.jar"/>
@@ -46,5 +41,6 @@
 	<classpathentry kind="lib" path="lib/build/xalan-xalan.jar"/>
 	<classpathentry kind="lib" path="lib/build/xerces-xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/build/xml-resolver-xml-resolver.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
