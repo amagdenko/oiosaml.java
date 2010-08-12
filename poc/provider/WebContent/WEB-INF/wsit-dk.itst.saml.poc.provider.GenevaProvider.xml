@@ -81,9 +81,9 @@
 						<sp:MustSupportRefIssuerSerial />
 					</wsp:Policy>
 				</sp:Wss10>
-				<sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks" alias="voces"
+				<!-- sc:KeyStore wspp:visibility="private" storepass="changeit" type="jks" alias="voces"
 					location="server-keystore.jks" />
-				<sc:TrustStore wspp:visibility="private" location="truststore" storepass="changeit" />
+				<sc:TrustStore wspp:visibility="private" location="truststore" storepass="changeit" /-->
 			</wsp:All>
 		</wsp:ExactlyOne>
 	</wsp:Policy>
