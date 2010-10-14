@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="integration"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.9.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-codec-commons-codec.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-collections-commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-httpclient-commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-io-commons-io.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-lang-commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-logging-commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/build/javax.servlet-servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/build/joda-time-joda-time.jar"/>
+	<classpathentry kind="lib" path="lib/build/log4j-log4j.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.slf4j-slf4j-api.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.slf4j-slf4j-log4j12.jar"/>
+	<classpathentry kind="lib" path="lib/test/junit-junit.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-configuration-commons-configuration.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-digester-commons-digester.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.jmock-jmock-junit4.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.jmock-jmock.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-fileupload-commons-fileupload.jar"/>
+	<classpathentry kind="lib" path="lib/test/net.sourceforge.cssparser-cssparser.jar"/>
+	<classpathentry kind="lib" path="lib/test/net.sourceforge.htmlunit-htmlunit-core-js.jar"/>
+	<classpathentry kind="lib" path="lib/test/net.sourceforge.htmlunit-htmlunit.jar"/>
+	<classpathentry kind="lib" path="lib/test/net.sourceforge.nekohtml-nekohtml.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.hamcrest-hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.hamcrest-hamcrest-library.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jetty-embedded.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jetty-util.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jetty.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.w3c.css-sac.jar"/>
+	<classpathentry kind="lib" path="lib/build/xalan-xalan.jar"/>
+	<classpathentry kind="lib" path="lib/build/xerces-xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/build/xml-resolver-xml-resolver.jar"/>
+	<classpathentry kind="lib" path="lib/openws-wstrust.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-api-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.santuario-xmlsec.jar" sourcepath="/Users/kfr/products/xml-security-1_4_3 2/src"/>
+	<classpathentry kind="lib" path="lib/opensaml-2.3.1.jar" sourcepath="/Users/kfr/products/opensaml-2.3.1/src/main/java"/>
+	<classpathentry kind="lib" path="lib/xmltooling-1.2.1.jar" sourcepath="/Users/kfr/products/xmltooling-1.2.1/src/main/java"/>
+	<classpathentry kind="lib" path="lib/build/xalan-serializer.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.velocity-velocity.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.bouncycastle-bcprov-jdk15.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
