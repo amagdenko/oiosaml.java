@@ -1,5 +1,9 @@
 Releases log for OIOSAML.Java
 -----------------------------
+Release note ?
+The following have been included in this release:
+* Fixed bug that prevented the component from working under JRE 1.8.
+
 Release note, 11442
 The following have been included in this release:
 * Fixed issue regarding making a POST request without being logged in. After having logged in it was not possible to reproduce the POST request because the form values was gone. This fix ensures that the form values does not disappear from the original request that was stored in session.
@@ -21,7 +25,7 @@ The following have been included in this release:
 1.1 OCSP validation
 
 Validation of IdP certificate chain is now possible using an OCSP responder.
-It’s possible to configure the location of the responder or to use an access
+It's possible to configure the location of the responder or to use an access
 location url specified in the IdP certificate.
 
 1.2 Refactoring of configuration logic and new configuration factory
