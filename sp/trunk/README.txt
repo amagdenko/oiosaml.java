@@ -5,8 +5,8 @@ instructions.
 
 Building and packaging the project:
  
-- Download and install latest Java SDK 8
-- Set environment variable JAVA_HOME to installation dir of SDK 8
+- Download and install latest Java SDK 6
+- Set environment variable JAVA_HOME to installation dir of SDK 6
 - Download and install groovy-2.1.6-installer.exe and include GANT in the installation. Hereafter set the environment variable GROOVY_HOME to the installation dir and include %GROOVY_HOME%\bin in the path. This will install a working version of GANT 1.9.9 (I did not succed in downloading and installing GANT manually. I tried many different versions (1.9.2, 1.9.5 and 1.9.9). Also I tried the GANT versions where Groovy must be manually installed.)
 - Download and install JCE in order for the tests to succeed
 - Run gant build_everything. Also, run this command before opening the project in an IDE in order to have the dependant jars downloaded.

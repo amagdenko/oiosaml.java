@@ -28,7 +28,7 @@ ant.path(id: 'classpath') {
 }
 
 doCompile = { srcdir, destdir ->
-	ant.javac (srcdir: srcdir, destdir: destdir, debug: true, source: '1.5', target: '1.5', classpathref: 'classpath')
+	ant.javac (srcdir: srcdir, destdir: destdir, debug: true, source: '1.6', target: '1.6', classpathref: 'classpath')
 	ant.copy (todir: destdir) {
 		fileset (dir: srcdir, excludes: '**/*.java')
 	}
