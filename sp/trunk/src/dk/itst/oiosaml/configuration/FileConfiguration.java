@@ -60,18 +60,18 @@ import javax.naming.NamingException;
 /**
  * Utility class to obtain a handle to all property values within the current
  * project.
- * 
+ *
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
  * @author Aage Nielsen <ani@openminds.dk>
  * @author Carsten Larsen <cas@schultz.dk>
- * 
+ *
  */
 public class FileConfiguration implements SAMLConfiguration {
-	private static final Logger log = LoggerFactory.getLogger(FileConfiguration.class);
-	private String homeDir;
-	private String configurationFileName;
-	private Configuration systemConfiguration;
+    private static final Logger log = LoggerFactory.getLogger(FileConfiguration.class);
+    private String homeDir;
+    private String configurationFileName;
+    private Configuration systemConfiguration;
 
     /**
      * Tries to resolve {@link Constants#INIT_OIOSAML_FILE}, {@link Constants#INIT_OIOSAML_HOME} and {@link Constants#INIT_OIOSAML_NAME} from web.xml file.
@@ -121,65 +121,65 @@ public class FileConfiguration implements SAMLConfiguration {
     }
 
     /**
-	 * Get the current system configuration. The configuration is stored in
-	 * {@link SAMLUtil#OIOSAML_HOME}. The property is normally set in
-	 * {@link SPFilter}.
-	 * 
-	 * @throws IllegalStateException
-	 *             When the system has not been configured properly yet.
-	 */
-	public Configuration getSystemConfiguration() throws IllegalStateException {
-		if (systemConfiguration != null)
-			return systemConfiguration;
-		if (homeDir == null || !isConfigured()) {
-			throw new IllegalStateException("System not configured");
-		}
+     * Get the current system configuration. The configuration is stored in
+     * {@link SAMLUtil#OIOSAML_HOME}. The property is normally set in
+     * {@link SPFilter}.
+     *
+     * @throws IllegalStateException
+     *             When the system has not been configured properly yet.
+     */
+    public Configuration getSystemConfiguration() throws IllegalStateException {
+        if (systemConfiguration != null)
+            return systemConfiguration;
+        if (homeDir == null || !isConfigured()) {
+            throw new IllegalStateException("System not configured");
+        }
 
-		CompositeConfiguration conf = new CompositeConfiguration();
-		conf.setProperty(SAMLUtil.OIOSAML_HOME, homeDir);
+        CompositeConfiguration conf = new CompositeConfiguration();
+        conf.setProperty(SAMLUtil.OIOSAML_HOME, homeDir);
 
-		try {
-			conf.addConfiguration(new PropertiesConfiguration(new File(homeDir, configurationFileName)));
-			conf.addConfiguration(getCommonConfiguration());
+        try {
+            conf.addConfiguration(new PropertiesConfiguration(new File(homeDir, configurationFileName)));
+            conf.addConfiguration(getCommonConfiguration());
 
-			systemConfiguration = conf;
-			return systemConfiguration;
-		} catch (ConfigurationException e) {
-			log.error("Cannot load the configuration file", e);
-			throw new WrappedException(Layer.DATAACCESS, e);
-		} catch (IOException e) {
-			log.error("Unable to load oiosaml-common.propeties from classpath", e);
-			throw new WrappedException(Layer.DATAACCESS, e);
-		}
-	}
+            systemConfiguration = conf;
+            return systemConfiguration;
+        } catch (ConfigurationException e) {
+            log.error("Cannot load the configuration file", e);
+            throw new WrappedException(Layer.DATAACCESS, e);
+        } catch (IOException e) {
+            log.error("Unable to load oiosaml-common.propeties from classpath", e);
+            throw new WrappedException(Layer.DATAACCESS, e);
+        }
+    }
 
-	public Configuration getCommonConfiguration() throws IOException {
-		CompositeConfiguration conf = new CompositeConfiguration();
-		Enumeration<URL> resources = SAMLConfiguration.class.getClassLoader().getResources("oiosaml-common.properties");
-		while (resources.hasMoreElements()) {
-			URL u = resources.nextElement();
-			log.debug("Loading config from " + u);
-			try {
-				conf.addConfiguration(new PropertiesConfiguration(u));
-			} catch (ConfigurationException e) {
-				log.error("Cannot load the configuration file", e);
-				throw new WrappedException(Layer.DATAACCESS, e);
-			}
-		}
+    public Configuration getCommonConfiguration() throws IOException {
+        CompositeConfiguration conf = new CompositeConfiguration();
+        Enumeration<URL> resources = SAMLConfiguration.class.getClassLoader().getResources("oiosaml-common.properties");
+        while (resources.hasMoreElements()) {
+            URL u = resources.nextElement();
+            log.debug("Loading config from " + u);
+            try {
+                conf.addConfiguration(new PropertiesConfiguration(u));
+            } catch (ConfigurationException e) {
+                log.error("Cannot load the configuration file", e);
+                throw new WrappedException(Layer.DATAACCESS, e);
+            }
+        }
 
-		return conf;
-	}
+        return conf;
+    }
 
-	public boolean isConfigured() {
-		if (homeDir == null)
-			return false;
+    public boolean isConfigured() {
+        if (homeDir == null)
+            return false;
 
-		log.info("Config filename: " + homeDir + configurationFileName);
-		File config = new File(homeDir + configurationFileName);
+        log.info("Config filename: " + homeDir + configurationFileName);
+        File config = new File(homeDir + configurationFileName);
 
-		log.info("Looking in : " + config.getAbsolutePath());
-		return config.exists();
-	}
+        log.info("Looking in : " + config.getAbsolutePath());
+        return config.exists();
+    }
 
     public KeyStore getKeystore() throws WrappedException {
         KeyStore keystore = null;
@@ -225,89 +225,89 @@ public class FileConfiguration implements SAMLConfiguration {
 
 
     private KeyStore loadStore(InputStream input, String password, String type) throws KeyStoreException,
-			NoSuchAlgorithmException, CertificateException, IOException {
-		KeyStore ks = KeyStore.getInstance(type);
-		char[] jksPassword = password.toCharArray();
-		ks.load(input, jksPassword);
-		input.close();
-		return ks;
-	}
+            NoSuchAlgorithmException, CertificateException, IOException {
+        KeyStore ks = KeyStore.getInstance(type);
+        char[] jksPassword = password.toCharArray();
+        ks.load(input, jksPassword);
+        input.close();
+        return ks;
+    }
 
-	public XMLObject getSPMetaData() throws WrappedException {
-		String filename = getSystemConfiguration().getString(Constants.SP_METADATA_FILE);
-		String directory = homeDir + getSystemConfiguration().getString(Constants.SP_METADATA_DIRECTORY);
-		String spMetadataFileName = directory + "/" + filename;
+    public XMLObject getSPMetaData() throws WrappedException {
+        String filename = getSystemConfiguration().getString(Constants.SP_METADATA_FILE);
+        String directory = homeDir + getSystemConfiguration().getString(Constants.SP_METADATA_DIRECTORY);
+        String spMetadataFileName = directory + "/" + filename;
 
-		XMLObject unmarshallElementFromFile = null;
-		try {
-			unmarshallElementFromFile = SAMLUtil.unmarshallElementFromFile(spMetadataFileName);
-		} catch (Exception e) {
-			log.error("Unable to find SP metadata file. Tries to look for: " + spMetadataFileName);
-			throw new WrappedException(Layer.DATAACCESS, e);
-		}
-		return unmarshallElementFromFile;
-	}
+        XMLObject unmarshallElementFromFile = null;
+        try {
+            unmarshallElementFromFile = SAMLUtil.unmarshallElementFromFile(spMetadataFileName);
+        } catch (Exception e) {
+            log.error("Unable to find SP metadata file. Tries to look for: " + spMetadataFileName);
+            throw new WrappedException(Layer.DATAACCESS, e);
+        }
+        return unmarshallElementFromFile;
+    }
 
-	public List<XMLObject> getListOfIdpMetadata() throws WrappedException {
-		List<XMLObject> descriptors = new ArrayList<XMLObject>();
-		String protocol = getSystemConfiguration().getString(Constants.PROP_PROTOCOL);
-		if (getSystemConfiguration().getString(Constants.IDP_METADATA_FILE) != null) {
-			String idpFileName = homeDir + getSystemConfiguration().getString(Constants.IDP_METADATA_DIRECTORY) + "/"
-					+ getSystemConfiguration().getString(Constants.IDP_METADATA_FILE);
-			File md = new File(idpFileName);
-			log.info("Loading " + protocol + " metadata from " + md);
-			try {
-				XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
-				if (descriptor instanceof EntityDescriptor) {
-					descriptors.add(descriptor);
-				} else if (descriptor instanceof EntitiesDescriptor) {
-					EntitiesDescriptor desc = (EntitiesDescriptor) descriptor;
-					descriptors.addAll(desc.getEntityDescriptors());
-				} else {
-					throw new RuntimeException("Metadata file " + md + " does not contain an EntityDescriptor. Found "
-							+ descriptor.getElementQName() + ", expected " + EntityDescriptor.ELEMENT_QNAME);
-				}
-			} catch (RuntimeException e) {
-				log.error("Unable to load metadata from " + md
-						+ ". File must contain valid XML and have EntityDescriptor as top tag", e);
-				throw e;
-			}
-		} else {
-			String directory = homeDir + getSystemConfiguration().getString(Constants.IDP_METADATA_DIRECTORY);
-			File idpDir = new File(directory);
-			File[] files = idpDir.listFiles(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".xml");
-				}
-			});
-			if (files != null) {
-				for (File md : files) {
-					log.info("Loading " + protocol + " metadata from " + md);
-					try {
-						XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
-						if (descriptor instanceof EntityDescriptor) {
-							descriptors.add(descriptor);
-						} else if (descriptor instanceof EntitiesDescriptor) {
-							EntitiesDescriptor desc = (EntitiesDescriptor) descriptor;
-							descriptors.addAll(desc.getEntityDescriptors());
-						} else {
-							throw new RuntimeException("Metadata file " + md
-									+ " does not contain an EntityDescriptor. Found " + descriptor.getElementQName()
-									+ ", expected " + EntityDescriptor.ELEMENT_QNAME);
-						}
-					} catch (RuntimeException e) {
-						log.error("Unable to load metadata from " + md
-								+ ". File must contain valid XML and have EntityDescriptor as top tag", e);
-						throw e;
-					}
-				}
-			}
-		}
-		if (descriptors.isEmpty()) {
-			throw new IllegalStateException("No IdP descriptors found in ! At least one file is required.");
-		}
-		return descriptors;
-	}
+    public List<XMLObject> getListOfIdpMetadata() throws WrappedException {
+        List<XMLObject> descriptors = new ArrayList<XMLObject>();
+        String protocol = getSystemConfiguration().getString(Constants.PROP_PROTOCOL);
+        if (getSystemConfiguration().getString(Constants.IDP_METADATA_FILE) != null) {
+            String idpFileName = homeDir + getSystemConfiguration().getString(Constants.IDP_METADATA_DIRECTORY) + "/"
+                    + getSystemConfiguration().getString(Constants.IDP_METADATA_FILE);
+            File md = new File(idpFileName);
+            log.info("Loading " + protocol + " metadata from " + md);
+            try {
+                XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
+                if (descriptor instanceof EntityDescriptor) {
+                    descriptors.add(descriptor);
+                } else if (descriptor instanceof EntitiesDescriptor) {
+                    EntitiesDescriptor desc = (EntitiesDescriptor) descriptor;
+                    descriptors.addAll(desc.getEntityDescriptors());
+                } else {
+                    throw new RuntimeException("Metadata file " + md + " does not contain an EntityDescriptor. Found "
+                            + descriptor.getElementQName() + ", expected " + EntityDescriptor.ELEMENT_QNAME);
+                }
+            } catch (RuntimeException e) {
+                log.error("Unable to load metadata from " + md
+                        + ". File must contain valid XML and have EntityDescriptor as top tag", e);
+                throw e;
+            }
+        } else {
+            String directory = homeDir + getSystemConfiguration().getString(Constants.IDP_METADATA_DIRECTORY);
+            File idpDir = new File(directory);
+            File[] files = idpDir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith(".xml");
+                }
+            });
+            if (files != null) {
+                for (File md : files) {
+                    log.info("Loading " + protocol + " metadata from " + md);
+                    try {
+                        XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
+                        if (descriptor instanceof EntityDescriptor) {
+                            descriptors.add(descriptor);
+                        } else if (descriptor instanceof EntitiesDescriptor) {
+                            EntitiesDescriptor desc = (EntitiesDescriptor) descriptor;
+                            descriptors.addAll(desc.getEntityDescriptors());
+                        } else {
+                            throw new RuntimeException("Metadata file " + md
+                                    + " does not contain an EntityDescriptor. Found " + descriptor.getElementQName()
+                                    + ", expected " + EntityDescriptor.ELEMENT_QNAME);
+                        }
+                    } catch (RuntimeException e) {
+                        log.error("Unable to load metadata from " + md
+                                + ". File must contain valid XML and have EntityDescriptor as top tag", e);
+                        throw e;
+                    }
+                }
+            }
+        }
+        if (descriptors.isEmpty()) {
+            throw new IllegalStateException("No IdP descriptors found in ! At least one file is required.");
+        }
+        return descriptors;
+    }
 
     /**
      * This method ONLY exists to support unit and integration tests. Do not use it for other purposes.
@@ -315,7 +315,7 @@ public class FileConfiguration implements SAMLConfiguration {
      * if {@link Constants#INIT_OIOSAML_HOME} is specified then {@link Constants#INIT_OIOSAML_NAME} is optionally and {@link SAMLUtil#OIOSAML_DEFAULT_CONFIGURATION_FILE} is used as default name for the configuration file.
      * If either {@link Constants#INIT_OIOSAML_FILE} or {@link Constants#INIT_OIOSAML_HOME} is not set then the system is set to be not configured.
      */
-     public void setInitConfiguration(Map<String, String> params) {
+    public void setInitConfiguration(Map<String, String> params) {
         systemConfiguration = null;
         if (params != null) {
             if (params.containsKey(Constants.INIT_OIOSAML_FILE)) {
@@ -328,8 +328,6 @@ public class FileConfiguration implements SAMLConfiguration {
             } else if (params.containsKey(Constants.INIT_OIOSAML_HOME)) {
                 String pathToConfigurationFolder = params.get(Constants.INIT_OIOSAML_HOME);
                 if (pathToConfigurationFolder != null) {
-                    if (!pathToConfigurationFolder.endsWith(File.separator))
-                        pathToConfigurationFolder = pathToConfigurationFolder + File.separator;
                     homeDir = pathToConfigurationFolder;
                     configurationFileName = SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE;
                 }
@@ -337,8 +335,15 @@ public class FileConfiguration implements SAMLConfiguration {
                 // Apply application name if configured
                 String applicationName = params.get(Constants.INIT_OIOSAML_NAME);
                 if(applicationName != null && !applicationName.trim().isEmpty()){
+                    // First remove ending file separator if present
+                    if (homeDir.endsWith(File.separator))
+                        homeDir = homeDir.substring(0, homeDir.length() - 1);
                     homeDir += "-" + applicationName;
                 }
+
+                // Add ending file separator to home dir if not present.
+                if (!homeDir.endsWith(File.separator))
+                    homeDir = homeDir + File.separator;
             }
             else{
                 homeDir = null;
@@ -351,9 +356,9 @@ public class FileConfiguration implements SAMLConfiguration {
         }
     }
 
-	public void setConfiguration(Configuration configuration) {
-		systemConfiguration = configuration;
-	}
+    public void setConfiguration(Configuration configuration) {
+        systemConfiguration = configuration;
+    }
 
     public String getHomeDir() {
         return homeDir;
