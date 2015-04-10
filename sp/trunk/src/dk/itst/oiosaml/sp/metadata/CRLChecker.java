@@ -21,7 +21,7 @@
  *   Rolf Njor Jensen <rolf@trifork.com>
  *   Aage Nielsen <ani@openminds.dk>
  *   Carsten Larsen <cas@schultz.dk>
- *
+ *   Kasper Vestergaard Møller<kvm@schultz.dk>
  */
 package dk.itst.oiosaml.sp.metadata;
 
@@ -58,7 +58,6 @@ import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import sun.security.provider.certpath.OCSP;
 
 /**
  * Revocation of certificates are done using the follow methods.
