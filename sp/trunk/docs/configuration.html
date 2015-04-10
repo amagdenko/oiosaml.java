@@ -100,6 +100,11 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.crl.truststore.password: Password for the CRL truststore.</li>
 <li>oiosaml-sp.crl.ocsp.ca: URL pointing to public certificate for Certificate Authority. Used for validating OCSP responses.</li>
 <li>oiosaml-sp.crl.ocsp.responder: URL pointing to OCSP responder. Only used to validate IdP certificate.</li>
+<li>oiosaml-sp.cb.attempts.before.opening: The number of failures doing CRL or OCSP check that will be tolerated (i.e. the number of failures has to be strictly greater than this number in order to trip the breaker). For example, if the limit is 3, the fourth failure during the window (oiosaml-sp.cb.attempts.within.in.second) will cause the breaker to trip. Default value 3</li>
+<li>oiosaml-sp.cb.attempts.within.in.seconds: Length of the window in seconds. Default value: 60</li>
+<li>oiosaml-sp.cb.reset.time.in.seconds: Length of the reset period in seconds. The circuit breaker will open and reject CRL and OCSP calls when to many attempts has been made within the configured window. When reset period is ended the circuit breaker will close and again accept CRL and OCSP checks. Default value: 300</li>
+<li>oiosaml-sp.cb.delay.between.attempts.in.seconds: Delay between attempts in seconds. Default value: 5</li>
+<li>oiosaml-sp.remain.valid.period.in.seconds: Certificates that first have been validated successfully will remain valid for a configured period of time in seconds in case network errors should occur. If a successful CRL or OCSP call specifies that a certificate is revoked ... then the certificate will be marked as invalid immediately. Default value: 3600 (one hour) which corresponds to the maximum time between revocation checks in the "Certifikatpolitik for NemLog-in" version 1.2</li>
 <li>oiosaml-sp.encryption.force: Only allow encrypted assertions to be processed. If set to false, unencrypted assertions are allowed, but encrypted assertions are still supported.</li>
 <li>oiosaml-sp.nameid.policy: Value to use as NameIDPolicy format in AuthnRequests. Set to persistent or transient. Defaults to blank, ie no NameIDPolicy is sent.</li>
 <li>oiosaml-sp.nameid.allowcreate: Set to true to allow creation of new identifiers. Only relevant when NameID policy has been set.</li>

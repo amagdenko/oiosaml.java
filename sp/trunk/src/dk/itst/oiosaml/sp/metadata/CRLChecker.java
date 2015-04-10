@@ -27,29 +27,14 @@ package dk.itst.oiosaml.sp.metadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
-import java.security.cert.CertPathValidatorException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXParameters;
-import java.security.cert.TrustAnchor;
-import java.security.cert.X509CRL;
-import java.security.cert.X509CRLEntry;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.security.cert.*;
+import java.util.*;
+import java.util.concurrent.Callable;
 
 import dk.itst.oiosaml.logging.Logger;
 import dk.itst.oiosaml.logging.LoggerFactory;
@@ -59,8 +44,10 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.i18n.filter.UntrustedUrlInput;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
+import org.fishwife.jrugged.*;
 import org.opensaml.xml.security.x509.X509Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
@@ -71,6 +58,7 @@ import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import sun.security.provider.certpath.OCSP;
 
 /**
  * Revocation of certificates are done using the follow methods.
@@ -87,48 +75,115 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 public class CRLChecker {
 	private static final Logger log = LoggerFactory.getLogger(CRLChecker.class);
 	private static final String AUTH_INFO_ACCESS = X509Extension.authorityInfoAccess.getId();
+    private static final CircuitBreakerFactory CIRCUIT_BREAKER_FACTORY = new CircuitBreakerFactory();
 	private Timer timer;
 
-	public void checkCertificates(IdpMetadata metadata, Configuration conf) {
-		for (String entityId : metadata.getEntityIDs()) {
-			Metadata md = metadata.getMetadata(entityId);
+	public void checkCertificates(IdpMetadata metadata, final Configuration conf) {
+        final long resetTime = conf.getLong(Constants.PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS) * 1000L;
+        final int attemptsBeforeOpening = conf.getInt(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING);
+        final long attemptsWithin = conf.getLong(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS) * 1000L;
+        final long delayBetweenAttempts = conf.getLong(Constants.PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS) * 1000L;
+        final long certificatesRemainValidPeriod = conf.getLong(Constants.PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS) * 1000L;
 
-			for (X509Certificate certificate : md.getAllCertificates()) {
+        for (final String entityId : metadata.getEntityIDs()) {
+            final Metadata md = metadata.getMetadata(entityId);
 
-				try {
-					if (doOCSPCheck(conf, entityId, md, certificate)) {
-						Audit.log(Operation.OCSPCHECK, false, entityId, "Revoked: NO");
-						continue;
-					}
-
-					if (doCRLCheck(conf, entityId, md, certificate)) {
-						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
-						continue;
-					}
-
-					md.setCertificateValid(certificate, false);
-
-					log.debug("Revocation check failed or could not be performed. Permanent failure.");
-
-					Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: YES");
-
-				} catch (Exception e) {
-					log.error("Unexpected error while checking revokation of certificates.", e);
-
-					Audit.log(Operation.CRLCHECK, false, entityId,
-							"Unable to perform revocation check. certificate is state is set to - Revoked: YES");
-
-					// Default to non-valid certificate.
-					if (certificate != null && md != null)
-						md.setCertificateValid(certificate, false);
-
-					throw new WrappedException(Layer.BUSINESS, e);
-				}
-			}
-		}
+            for (final X509Certificate certificate : md.getAllCertificates()) {
+                // Close circuit after 5 minutes. Open circuit if four or more attempts fails within 1 minute.
+                CircuitBreaker circuitBreaker = CIRCUIT_BREAKER_FACTORY.createCircuitBreaker(certificate.getSubjectDN().toString(), new CircuitBreakerConfig(resetTime, new DefaultFailureInterpreter(attemptsBeforeOpening, attemptsWithin)));
+                boolean errorState = false;
+                // Always check once ... and continue to check if errors occur. Stop checking when circuit is open.
+                do {
+                    try {
+                        if (circuitBreaker.invoke(new Callable<Boolean>() {
+                            public Boolean call() {
+                                return checkCertificate(conf, entityId, md, certificate);
+                            }
+                        })) {
+                            md.setCertificateValid(certificate, true);
+                            log.debug("Certificate validated successfully: " + certificate.getSubjectDN());
+                        } else {
+                            md.setCertificateValid(certificate, false);
+                            log.debug("Certificate did not validate: " + certificate.getSubjectDN());
+                        }
+                        errorState = false; // Stop while loop because call was successful. This is necessary if an exception first has been thrown.
+                    } catch (CircuitBreakerException cbe) {
+                        RevokeCertificateIfRemainValidPeriodIsExpired(md, certificate, cbe, certificatesRemainValidPeriod);
+                        errorState = false; // Stop while loop because circuit is open.
+                    } catch (Exception e) {
+                        RevokeCertificateIfRemainValidPeriodIsExpired(md, certificate, e, certificatesRemainValidPeriod);
+                        errorState = true; // Continue to try checking certificate.
+                        try {
+                            Thread.sleep(delayBetweenAttempts); // Wait 5 seconds and try again.
+                        } catch (InterruptedException e1) {
+                            // Do nothing
+                        }
+                    }
+                } while (errorState);
+            }
+        }
 	}
 
-	/**
+    private void RevokeCertificateIfRemainValidPeriodIsExpired(Metadata md, X509Certificate certificate, Exception e, long certificatesRemainValidPeriod) {
+        final Date lastTimeForCertificationValidation = md.getLastTimeForCertificationValidation(certificate);
+        // No need to check if certificate should be revoked if it is not in the valid certificates list.
+        if (lastTimeForCertificationValidation != null) {
+            final Date lastTimeForCertificationValidationPlusConfiguiredRemainValidPeriod = new Date(lastTimeForCertificationValidation.getTime() + certificatesRemainValidPeriod);
+            final Date currentTime = new Date();
+            if(currentTime.before(lastTimeForCertificationValidationPlusConfiguiredRemainValidPeriod))
+                log.warn("Unexpected error while checking revocation of certificate. Certificate " + certificate.getSubjectDN() + " will remain valid until " + lastTimeForCertificationValidationPlusConfiguiredRemainValidPeriod + " if not validated successfully before.", e);
+            else
+            {
+                log.error("Unexpected error while checking revocation of certificate. Certificate " + certificate.getSubjectDN() + " has been marked as revoked!!", e);
+                md.setCertificateValid(certificate, false);
+            }
+        }
+    }
+
+    /**
+     * First attempt is an OCSP check. If this fail the CRL check is used as fail over.
+     * @param conf
+     * @param entityId
+     * @param md
+     * @param certificate
+     * @return
+     */
+    private Boolean checkCertificate(Configuration conf, String entityId, Metadata md, X509Certificate certificate) {
+        boolean validated = false;
+        Exception error = null;
+
+        try{
+            log.debug("Checking if certificate with the following subject is revoked using OCSP: " + certificate.getSubjectDN());
+            validated = doOCSPCheck(conf, entityId, md, certificate);
+            if(validated)
+                log.info("Certificate with the following subject IS NOT marked as revoked using OCSP: " + certificate.getSubjectDN());
+            else
+                log.info("Certificate with the following subject IS revoked using OCSP: " + certificate.getSubjectDN());
+        }
+        catch (Exception e){
+            // OCSP check failed. Try CRL check.
+            log.warn("Unexpected error while validating certificate using OCSP.", e);
+            try{
+                log.debug("Checking if certificate with the following subject is revoked using CRL: " + certificate.getSubjectDN());
+                validated = doCRLCheck(conf, entityId, md, certificate);
+                if(validated)
+                    log.info("Certificate with the following subject IS NOT marked as revoked using CRL: " + certificate.getSubjectDN());
+                else
+                    log.info("Certificate with the following subject IS revoked using CRL: " + certificate.getSubjectDN());
+            }
+            catch (Exception ex){
+                log.warn("Unexpected error while validating certificate using CRL.", e);
+                error = ex;
+            }
+        }
+
+        if(error != null)
+            throw new WrappedException(Layer.BUSINESS, error);
+        else
+            return validated;
+    }
+
+    /**
 	 * Check the revocation status of a public key certificate using OCSP.
 	 * 
 	 * @param conf
@@ -139,25 +194,28 @@ public class CRLChecker {
 	 * @throws CertificateException
 	 */
 	private boolean doOCSPCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate)
-			throws CertificateException {
+            throws CertificateException, CertPathValidatorException, InvalidAlgorithmParameterException, IOException, NoSuchAlgorithmException {
+        boolean revoked;
+
 		String ocspServer = getOCSPUrl(conf, entityId, certificate);
 
 		if (ocspServer == null) {
-			log.debug("No OCSP access location could be found for " + entityId);
-			return false;
+            final String message = "No OCSP access location could be found for " + entityId;
+            log.debug(message);
+            throw new RuntimeException(message);
 		}
 
 		log.debug("Starting OCSP validation of certificate " + certificate.getSubjectDN());
 
-		X509Certificate ca = getCertificateCA(conf, ocspServer);
+		X509Certificate ca = getCertificateCA(conf);
 		if (ca == null) {
-			return false;
+            throw new RuntimeException("CA Certificate for OCSP check could not be retrieved!");
 		}
 
 		// Create certificate chain
 		List<X509Certificate> certList = new ArrayList<X509Certificate>();
 		certList.add(certificate);
-		certList.add(ca);
+//		certList.add(ca);
 		CertPath cp;
 
 		CertificateFactory cf;
@@ -177,30 +235,35 @@ public class CRLChecker {
 			CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
 			cpv.validate(cp, params);
 
-			log.debug("Certificate successfully validated.");
-
+			log.debug("Certificate successfully validated during OCSP check.");
+            revoked = false;
 		} catch (CertPathValidatorException cpve) {
-			log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
-			return false;
-		} catch (NoSuchAlgorithmException e) {
-			log.error("Unexpected error while validating certficate using OCSP.", e);
-			return false;
-		} catch (InvalidAlgorithmParameterException e) {
-			log.error("Unexpected error while validating certficate using OCSP.", e);
-			return false;
-		}
+            if ("Certificate has been revoked".equals(cpve.getMessage())) {
+                revoked = true;
+                log.info("Certificate revoked, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
+            }
+            else{
+                log.error("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
+                throw cpve;
+            }
+        }
 
-		return true;
+        if(!revoked)
+            Audit.log(Operation.OCSPCHECK, false, entityId, "Revoked: NO");
+        else
+            Audit.log(Operation.OCSPCHECK, false, entityId, "Revoked: YES");
+
+		return !revoked;
 	}
 
-	private X509Certificate getCertificateCA(Configuration conf, String certificateUrl) throws CertificateException {
+	private X509Certificate getCertificateCA(Configuration conf) throws CertificateException {
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate ca = null;
 		InputStream is = null;
 
-		try {
-			String caPath = conf.getString(Constants.PROP_OCSP_CA);
+        String caPath = conf.getString(Constants.PROP_OCSP_CA);
 
+        try {
 			if (caPath == null) {
 				log.debug("CA certificate path is not configured");
 				return null;
@@ -208,19 +271,16 @@ public class CRLChecker {
 
 			log.debug("Fetching CA certificate located at: " + caPath);
 
-			URL u = new URL(conf.getString(Constants.PROP_OCSP_CA));
+			URL u = new URL(caPath);
 			is = u.openStream();
 			ca = (X509Certificate) cf.generateCertificate(is);
 			is.close();
 
-		} catch (IOException e) {
-			log.error("Unable to read CA certficate from: " + certificateUrl, e);
-			return null;
 		} catch (CertificateException e) {
-			log.error("Unable to validate CA certficate from: " + certificateUrl, e);
+			log.error("Unable to read CA certficate from: " + caPath, e);
 			return null;
 		} catch (Exception e) {
-			log.error("Unexpected error while validating CA certficate from: " + certificateUrl, e);
+			log.error("Unexpected error while reading CA certficate from: " + caPath, e);
 			return null;
 		} finally {
 			if (is != null) {
@@ -319,12 +379,15 @@ public class CRLChecker {
 	 * @return true if CRL check was completed and the certificate is not
 	 *         revoked.
 	 */
-	private boolean doCRLCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate) {
-		String url = getCRLUrl(conf, entityId, certificate);
+	private boolean doCRLCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate) throws IOException, CertificateException, CRLException, KeyStoreException, NoSuchAlgorithmException {
+		boolean revoked = true;
+
+        String url = getCRLUrl(conf, entityId, certificate);
 
 		if (url == null) {
-			log.debug("No CRL url could be found for " + entityId);
-			return false;
+            final String message = "No CRL url could be found for " + entityId;
+            log.debug(message);
+			throw new RuntimeException(message);
 		}
 
 		InputStream is = null;
@@ -339,26 +402,19 @@ public class CRLChecker {
 			log.debug("CRL for " + url + ": " + crl);
 
 			if (!checkCRLSignature(crl, certificate, conf)) {
-				return false;
+                final String message = "CRL Signature could not be validated!!!";
+                Audit.log(Operation.CRLCHECK, false, entityId, message);
+				throw new RuntimeException(message);
 			}
 
 			X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
 			if (revokedCertificate != null) {
 				log.debug("Certificate found in revocation list " + certificate.getSubjectDN());
-				return false;
+                revoked = true;
 			}
+            else
+                revoked = false;
 
-			return true;
-
-		} catch (MalformedURLException e) {
-			log.error("Unable to parse url " + url, e);
-			return false;
-		} catch (IOException e) {
-			log.error("Unable to read CRL from " + url, e);
-			return false;
-		} catch (GeneralSecurityException e) {
-			log.error("Unexpected error reading CRL from " + url, e);
-			return false;
 		} finally {
 			if (is != null) {
 				try {
@@ -367,6 +423,13 @@ public class CRLChecker {
 				}
 			}
 		}
+
+        if(!revoked)
+            Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
+        else
+            Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: YES");
+
+        return !revoked;
 	}
 
 	/**

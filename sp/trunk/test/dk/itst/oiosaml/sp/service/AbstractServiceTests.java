@@ -1,5 +1,6 @@
 package dk.itst.oiosaml.sp.service;
 
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.jmock.Expectations;
 import org.junit.Before;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -59,8 +61,15 @@ public abstract class AbstractServiceTests extends AbstractTests {
 		handlerFactory = SessionHandlerFactory.Factory.newInstance(TestHelper.buildConfiguration(new HashMap<String, String>() {{ put(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName()); }}));
 		handler = handlerFactory.getHandler();
 		handler.resetReplayProtection(10);
-		
-		idpMetadata = new IdpMetadata(SAMLConstants.SAML20P_NS, TestHelper.buildEntityDescriptor(credential));
+
+        final EntityDescriptor entityDescriptor = TestHelper.buildEntityDescriptor(credential);
+        idpMetadata = new IdpMetadata(SAMLConstants.SAML20P_NS, entityDescriptor);
+
+        // Mark certificates as valid
+        final IdpMetadata.Metadata metadata = idpMetadata.getMetadata(entityDescriptor.getEntityID());
+        for (X509Certificate certificate : metadata.getCertificates())
+            metadata.setCertificateValid(certificate, true);
+
 		spMetadata = TestHelper.buildSPMetadata();
 		idpEntityId = idpMetadata.getEntityIDs().iterator().next();
 	}

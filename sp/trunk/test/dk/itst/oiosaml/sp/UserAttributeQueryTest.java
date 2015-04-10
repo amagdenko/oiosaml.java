@@ -45,6 +45,7 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -87,8 +88,15 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		props.put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		
 		//FileConfiguration.setSystemConfiguration(TestHelper.buildConfiguration(props));
-		IdpMetadata.setMetadata(new IdpMetadata(SAMLConstants.SAML20P_NS, TestHelper.buildEntityDescriptor(cred)));
-		SPMetadata.setMetadata(spMetadata);
+        final EntityDescriptor entityDescriptor = TestHelper.buildEntityDescriptor(cred);
+        IdpMetadata.setMetadata(new IdpMetadata(SAMLConstants.SAML20P_NS, entityDescriptor));
+
+        // Mark certificates as valid
+        final IdpMetadata.Metadata metadata = idpMetadata.getMetadata(entityDescriptor.getEntityID());
+        for (X509Certificate certificate : metadata.getCertificates())
+            metadata.setCertificateValid(certificate, true);
+
+        SPMetadata.setMetadata(spMetadata);
 	}
 	
 	@After

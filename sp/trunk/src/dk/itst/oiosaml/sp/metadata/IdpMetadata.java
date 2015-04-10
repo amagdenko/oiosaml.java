@@ -149,7 +149,7 @@ public class IdpMetadata {
 		private EntityDescriptor entityDescriptor;
 		private IDPSSODescriptor idpSSODescriptor;
 		private Collection<X509Certificate> certificates = new ArrayList<X509Certificate>();
-		private Collection<X509Certificate> validCertificates = new HashSet<X509Certificate>();
+		private Map<X509Certificate, Date> validCertificates = new HashMap<X509Certificate, Date>();
 
 		private Metadata(EntityDescriptor entityDescriptor, String protocol) {
 			this.entityDescriptor = entityDescriptor;
@@ -157,18 +157,14 @@ public class IdpMetadata {
 			try {
 				X509Certificate cert = SecurityHelper.buildJavaX509Cert(getCertificateNode().getValue());
 				certificates.add(cert);
-				validCertificates.add(cert);
 			} catch (CertificateException e) {
 				throw new WrappedException(Layer.BUSINESS, e);
 			}
 		}
 
-
 		public void addCertificates(Collection<X509Certificate> certificates) {
 			this.certificates.addAll(certificates);
-			this.validCertificates.addAll(certificates);
 		}
-
 
 		/**
 		 * 
@@ -283,29 +279,56 @@ public class IdpMetadata {
 		}
 
 		/**
-		 * Get a list of all valid certificates for this IdP.
+		 * Get a list of all certificates for this IdP.
 		 * 
-		 * Any expired or revoked certificates will not be included in the list. 
+		 * Any expired certificates will not be included in the list.
 		 */
 		public Collection<X509Certificate> getCertificates() {
 			Collection<X509Certificate> res = new ArrayList<X509Certificate>();
-			for (X509Certificate certificate : validCertificates) {
-				if (certificate.getNotAfter().after(new Date())) {
-					res.add(certificate);
+			for (X509Certificate cert: certificates) {
+				if (cert.getNotAfter().after(new Date())) {
+					res.add(cert);
 				} else {
-					log.debug("Local Metadata certificate for " + getEntityID() + " expired at " + certificate.getNotAfter() + ", current: " + new Date());
+					log.debug("Local Metadata certificateValidated for " + getEntityID() + " expired at " + cert.getNotAfter() + ", current: " + new Date());
 				}
 			}
 			return res;
 		}
 
-		void setCertificateValid(X509Certificate cert, boolean valid) {
+        /**
+         * Get a list of all certificates for this IdP.
+         *
+         * Any expired or revoked certificates will not be included in the list.
+         */
+        public Collection<X509Certificate> getValidCertificates() {
+            Collection<X509Certificate> res = new ArrayList<X509Certificate>();
+            for (X509Certificate cert: validCertificates.keySet()) {
+                if (cert.getNotAfter().after(new Date())) {
+                    res.add(cert);
+                } else {
+                    log.debug("Local Metadata certificateValidated for " + getEntityID() + " expired at " + cert.getNotAfter() + ", current: " + new Date());
+                }
+            }
+            return res;
+        }
+
+		public void setCertificateValid(X509Certificate cert, boolean valid) {
 			if (valid) {
-				validCertificates.add(cert);
+                // HashMap does not add the cert if it already existed in the Map. Instead it is replaced with the current time of validation.
+                validCertificates.put(cert, new Date());
 			} else {
 				validCertificates.remove(cert);
 			}
 		}
+
+        /**
+         * Returns the time for last successful certificate validation.
+         * @param certificate certificate to from to get the time for last successful certificate validation.
+         * @return the time for last successful certificate validation or null if certificate does not exist.
+         */
+        public Date getLastTimeForCertificationValidation(X509Certificate certificate){
+            return validCertificates.get(certificate);
+        }
 		
 
 		/**

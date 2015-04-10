@@ -130,7 +130,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 		boolean allowPassive = ctx.getConfiguration().getBoolean(Constants.PROP_PASSIVE, false);
 		Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 		response.decryptAssertion(ctx.getCredential(), !ctx.getConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, false));
-		response.validateResponse(ctx.getSpMetadata().getAssertionConsumerServiceLocation(0), metadata.getCertificates(), allowPassive);
+		response.validateResponse(ctx.getSpMetadata().getAssertionConsumerServiceLocation(0), metadata.getValidCertificates(), allowPassive);
 		if (allowPassive && response.isPassive()) {
 			log.debug("Received passive response, setting passive userassertion");
 			Assertion assertion = SAMLUtil.buildXMLObject(Assertion.class);

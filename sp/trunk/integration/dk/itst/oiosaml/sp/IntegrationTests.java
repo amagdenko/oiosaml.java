@@ -29,18 +29,27 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.cert.CRLException;
 import java.security.cert.Certificate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.security.cert.X509Certificate;
+import java.util.*;
 
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.CRLReason;
+import org.bouncycastle.cert.X509CRLHolder;
+import org.bouncycastle.cert.X509v2CRLBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -119,14 +128,17 @@ public abstract class IntegrationTests {
 		fos = new FileOutputStream(new File(tmpdir, "oiosaml-sp.log4j.xml"));
 		IOUtils.write("<!DOCTYPE log4j:configuration SYSTEM \"http://logging.apache.org/log4j/docs/api/org/apache/log4j/xml/log4j.dtd\"><log4j:configuration xmlns:log4j=\"http://jakarta.apache.org/log4j/\" debug=\"false\"></log4j:configuration>", fos);
 		fos.close();
-		
+
+        final File crlFile = generateCRL(null);
+
 		Properties props = new Properties();
         props.setProperty(Constants.PROP_SHOW_ERROR, "true");
 		props.setProperty(Constants.PROP_CERTIFICATE_LOCATION, "keystore");
 		props.setProperty(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		props.setProperty(Constants.PROP_LOG_FILE_NAME, "oiosaml-sp.log4j.xml");
 		props.setProperty(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
-		
+		props.setProperty(Constants.PROP_CRL + idpMetadata.getFirstMetadata().getEntityID(), crlFile.toURI().toString());
+
 		KeyStore ks = KeyStore.getInstance("JKS");
 		ks.load(null, null);
 		ks.setKeyEntry("oiosaml", credential.getPrivateKey(), "password".toCharArray(), new Certificate[] { 
@@ -151,6 +163,8 @@ public abstract class IntegrationTests {
 		
 		server.setHandler(wac);
 		server.start();
+
+        Thread.sleep(1000); // This sleep is necessary to ensure that CRLChecker finishes before the first request. Otherwise, no certificates will be valid.
 		
 		client = new WebClient();
 		client.setRedirectEnabled(false);
@@ -199,5 +213,24 @@ public abstract class IntegrationTests {
 		return req;
 	}
 
+    private File generateCRL(X509Certificate cert) throws CRLException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException, OperatorCreationException {
+        X500Name issuer = new X500Name("CN=ca");
+        Date thisUpdate = new Date();
+        X509v2CRLBuilder gen = new X509v2CRLBuilder(issuer, thisUpdate);
+        gen.setNextUpdate(new Date(System.currentTimeMillis() + 60000));
 
+        if (cert != null) {
+            gen.addCRLEntry(cert.getSerialNumber(), new Date(System.currentTimeMillis() - 1000), CRLReason.keyCompromise);
+        }
+
+        ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(credential.getPrivateKey());
+        X509CRLHolder crl = gen.build(sigGen);
+
+        final File crlFile = File.createTempFile("test", "test");
+        crlFile.deleteOnExit();
+        FileOutputStream fos = new FileOutputStream(crlFile);
+        IOUtils.write(crl.getEncoded(), fos);
+        fos.close();
+        return crlFile;
+    }
 }

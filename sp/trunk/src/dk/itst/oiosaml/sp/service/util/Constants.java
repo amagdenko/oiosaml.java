@@ -55,13 +55,22 @@ public interface Constants {
 	static final String PROP_ASSURANCE_LEVEL = "oiosaml-sp.assurancelevel";
 	static final String PROP_HTTP_PROXY_HOST = "oiosaml-sp.http.proxy.host";
 	static final String PROP_HTTP_PROXY_PORT = "oiosaml-sp.http.proxy.port";
-	static final String PROP_CRL = "oiosaml-sp.crl.";
+
+    // OCSP and CRL related configuration settings
+    static final String PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING = "oiosaml-sp.cb.attempts.before.opening";
+    static final String PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS = "oiosaml-sp.cb.attempts.within.in.seconds";
+    static final String PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS = "oiosaml-sp.cb.reset.time.in.seconds";
+    static final String PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS = "oiosaml-sp.cb.delay.between.attempts.in.seconds";
+    static final String PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS = "oiosaml-sp.remain.valid.period.in.seconds";
+    static final String PROP_CRL = "oiosaml-sp.crl.";
 	static final String PROP_CRL_CHECK_PERIOD = "oiosaml-sp.crl.period";
 	static final String PROP_CRL_TRUSTSTORE = "oiosaml-sp.crl.truststore";
 	static final String PROP_CRL_TRUSTSTORE_PASSWORD = "oiosaml-sp.crl.truststore.password";
 	static final String PROP_OCSP_CA = "oiosaml-sp.ocsp.ca";
 	static final String PROP_OCSP_RESPONDER = "oiosaml-sp.ocsp.responder";
-	static final String PROP_REQUIRE_ENCRYPTION = "oiosaml-sp.encryption.force";
+
+
+    static final String PROP_REQUIRE_ENCRYPTION = "oiosaml-sp.encryption.force";
 	static final String PROP_NUM_TRACKED_ASSERTIONIDS = "common.saml2.loggedinhandler.numusedassertionids";
 	static final String PROP_VALIDATOR = "oiosaml-sp.assertion.validator";
 	

@@ -67,9 +67,15 @@ public class CRLCheckerTest extends AbstractTests {
 
 	@Test
 	public void testCheckCertificatesWithNoRevoked() throws Exception {
-		checker.checkCertificates(idp, TestHelper.buildConfiguration(new HashMap<String, String>()));
+		checker.checkCertificates(idp, TestHelper.buildConfiguration(new HashMap<String, String>() {{
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING, "3");
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS, "60");
+            put(Constants.PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS, "5");
+            put(Constants.PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS, "300");
+            put(Constants.PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS, "3600");
+        }}));
 
-		assertNotNull(idp.getFirstMetadata().getCertificates());
+		assertNotNull(idp.getFirstMetadata().getValidCertificates());
 	}
 	
 	
@@ -81,11 +87,16 @@ public class CRLCheckerTest extends AbstractTests {
 
 		Configuration conf = TestHelper.buildConfiguration(new HashMap<String, String>() {{
 			put(Constants.PROP_CRL + idp.getFirstMetadata().getEntityID(), crlFile.toURI().toString());
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING, "3");
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS, "60");
+            put(Constants.PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS, "5");
+            put(Constants.PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS, "300");
+            put(Constants.PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS, "3600");
 		}});
 		
 		checker.checkCertificates(idp, conf);
 
-		assertEquals(0, idp.getFirstMetadata().getCertificates().size());
+		assertEquals(0, idp.getFirstMetadata().getValidCertificates().size());
 	}
 
 
@@ -98,20 +109,25 @@ public class CRLCheckerTest extends AbstractTests {
 
 		Configuration conf = TestHelper.buildConfiguration(new HashMap<String, String>() {{
 			put(Constants.PROP_CRL + idp.getFirstMetadata().getEntityID(), crlFile.toURI().toString());
+			put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING, "3");
+			put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS, "60");
+			put(Constants.PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS, "5");
+			put(Constants.PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS, "300");
+			put(Constants.PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS, "3600");
 		}});
 		
-		assertNotNull(idp.getFirstMetadata().getCertificates());
+		assertNotNull(idp.getFirstMetadata().getValidCertificates());
 		
 		checker.startChecker(1, idp, conf);
 		Thread.sleep(1500);
-		assertNotNull(idp.getFirstMetadata().getCertificates());
+		assertNotNull(idp.getFirstMetadata().getValidCertificates());
 
 		crlFile.delete();
 		generateCRL(cert).renameTo(crlFile);
 		
 		Thread.sleep(1500);
 		
-		assertEquals(0, idp.getFirstMetadata().getCertificates().size());
+		assertEquals(0, idp.getFirstMetadata().getValidCertificates().size());
 	}
 	
 	@Test
@@ -131,6 +147,11 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL_TRUSTSTORE_PASSWORD, "password");
 			put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 			put(Constants.PROP_CERTIFICATE_LOCATION,keystore.getAbsolutePath());
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING, "3");
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS, "60");
+            put(Constants.PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS, "5");
+            put(Constants.PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS, "300");
+            put(Constants.PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS, "3600");
 		}});
 
 		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
@@ -141,7 +162,7 @@ public class CRLCheckerTest extends AbstractTests {
 
 		checker.checkCertificates(idp, conf);
 		
-		assertEquals(0, idp.getFirstMetadata().getCertificates().size());
+		assertEquals(0, idp.getFirstMetadata().getValidCertificates().size());
 	}
 	
 	@Test
@@ -161,6 +182,11 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL_TRUSTSTORE_PASSWORD, "password");
 			put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 			put(Constants.PROP_CERTIFICATE_LOCATION,keystore.getAbsolutePath());
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_BEFORE_OPENING, "3");
+            put(Constants.PROP_CIRCUIT_BREAKER_ATTEMPTS_WITHIN_IN_SECONDS, "60");
+            put(Constants.PROP_CIRCUIT_BREAKER_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS, "5");
+            put(Constants.PROP_CIRCUIT_BREAKER_RESET_TIME_IN_SECONDS, "300");
+            put(Constants.PROP_CERTIFICATES_REMAIN_VALID_PERIOD_IN_SECONDS, "3600");
 		}});
 
 		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
