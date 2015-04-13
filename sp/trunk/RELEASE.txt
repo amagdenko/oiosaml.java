@@ -1,8 +1,11 @@
 Releases log for OIOSAML.Java
 -----------------------------
-Release note ?
+Release note 21169
 The following have been included in this release:
 * Fixed bug that prevented the component from working under JRE 1.8.
+* Fixed IdP certificate check. The component is now resistant to network errors doing OCSP or CRL check. A validated certificate will remain valid for default 1 hour in case of network errors.
+* Fixed OCSP failover to CRL. Previously CRL check would always override the OCSP result. Thus, if the OCSP check resulted in the certificate being revoked and the CRL was not yet updated (or cached) ... the IdP certificate would not be considered revoked.
+* Changed default home dir back to /.oiosaml-<application-name> from /.oiosaml/-<application-name>
 
 Release note, 11442
 The following have been included in this release:
