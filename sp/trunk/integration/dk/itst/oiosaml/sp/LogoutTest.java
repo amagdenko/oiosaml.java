@@ -52,8 +52,8 @@ public class LogoutTest extends IntegrationTests {
 		Page logoutPage = client.getPage(BASE + "/saml/Logout");
 		assertEquals(302, logoutPage.getWebResponse().getStatusCode());
 		String logoutRedirect = logoutPage.getWebResponse().getResponseHeaderValue("Location");
-		assertTrue(logoutRedirect.startsWith(idpMetadata.getFirstMetadata().getSingleLogoutServiceLocation()));
-		
+        assertTrue(logoutRedirect + " did not start with: " + idpMetadata.getFirstMetadata().getSingleLogoutServiceLocation(), logoutRedirect.startsWith(idpMetadata.getFirstMetadata().getSingleLogoutServiceLocation()));
+
 		handler.url = null;
 		client.getPage(BASE + "/sp/priv1.jsp");
 		assertNotNull(handler.url);

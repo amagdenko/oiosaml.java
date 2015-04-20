@@ -1,5 +1,9 @@
 Releases log for OIOSAML.Java
 -----------------------------
+Release note ?
+The following have been included in this release:
+* Readded the option to support self signed certificates by setting oiosaml-sp.crl.period=0.
+
 Release note 21169
 The following have been included in this release:
 * Fixed bug that prevented the component from working under JRE 1.8.

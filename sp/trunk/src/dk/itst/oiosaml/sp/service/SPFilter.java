@@ -280,6 +280,10 @@ public class SPFilter implements Filter {
 		if (period > 0) {
 			crlChecker.startChecker(period, IdpMetadata.getInstance(), conf);
 		}
+        else {
+            log.warn("Revocation check of IdP certificates has been disabled. All certificates including self signed certificates will be considered valid.");
+            crlChecker.setAllCertificatesValid(IdpMetadata.getInstance());
+        }
 	}
 
 	public void setHostname(String hostname) {

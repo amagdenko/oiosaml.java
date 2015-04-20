@@ -551,4 +551,17 @@ public class CRLChecker {
 			timer = null;
 		}
 	}
+
+    /**
+     * Marks all certificates as valid without making any certificate check.
+     * @param metadata contains the list of IdP certificates.
+     */
+    public void setAllCertificatesValid(IdpMetadata metadata) {
+        for (final String entityId : metadata.getEntityIDs()) {
+            final Metadata md = metadata.getMetadata(entityId);
+            for (final X509Certificate certificate : md.getAllCertificates()) {
+                md.setCertificateValid(certificate, true);
+            }
+        }
+    }
 }

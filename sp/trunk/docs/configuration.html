@@ -94,7 +94,7 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.discovery.default: The IdP entity ID to use for SSO if none was discovered using the discovery service.</li>
 <li>oiosaml-sp.discovery.prompt: Set to false to turn off user prompting when no IdP can be discovered automatically. This is not used if oiosaml-sp.discovery.default is set</li>
 <li>oiosaml-sp.discovery.prompt.servlet: Local servlet to use when prompting user for IdP. See <a href="discovery.html">the discovery page</a> for more information.</li>  
-<li>oiosaml-sp.crl.period: How often the IdP CRL should be updated in seconds. The default value is 600.</li>
+<li>oiosaml-sp.crl.period: How often the IdP revocation check should be activated in seconds. Set value to 0 in order to disable revocation check. Setting value to 0 should only be used in test environments in order to support self signed certificates. The default value is 600 (10 minutes). </li>
 <li>oiosaml-sp.crl.&lt;entityId&gt;: Location of the CRL for a specific IdP, specified by entityId. This overwrites the CRL from the certificate's CRLDistributionPoint extension value.</li>
 <li>oiosaml-sp.crl.truststore: Location of the truststore used for checking the CRL signature. The path is relative to oiosaml.home. If more than one IdP is used, the truststore should contain certificates for all CRL issuers.</li>
 <li>oiosaml-sp.crl.truststore.password: Password for the CRL truststore.</li>
