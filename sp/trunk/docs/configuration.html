@@ -98,8 +98,8 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.crl.&lt;entityId&gt;: Location of the CRL for a specific IdP, specified by entityId. This overwrites the CRL from the certificate's CRLDistributionPoint extension value.</li>
 <li>oiosaml-sp.crl.truststore: Location of the truststore used for checking the CRL signature. The path is relative to oiosaml.home. If more than one IdP is used, the truststore should contain certificates for all CRL issuers.</li>
 <li>oiosaml-sp.crl.truststore.password: Password for the CRL truststore.</li>
-<li>oiosaml-sp.crl.ocsp.ca: URL pointing to public certificate for Certificate Authority. Used for validating OCSP responses.</li>
-<li>oiosaml-sp.crl.ocsp.responder: URL pointing to OCSP responder. Only used to validate IdP certificate.</li>
+<li>oiosaml-sp.ocsp.ca: URL pointing to public certificate for Certificate Authority. Used for validating OCSP responses.</li>
+<li>oiosaml-sp.ocsp.responder: URL pointing to OCSP responder. Only used to validate IdP certificate.</li>
 <li>oiosaml-sp.cb.attempts.before.opening: The number of failures doing CRL or OCSP check that will be tolerated (i.e. the number of failures has to be strictly greater than this number in order to trip the breaker). For example, if the limit is 3, the fourth failure during the window (oiosaml-sp.cb.attempts.within.in.second) will cause the breaker to trip. Default value 3</li>
 <li>oiosaml-sp.cb.attempts.within.in.seconds: Length of the window in seconds. Default value: 60</li>
 <li>oiosaml-sp.cb.reset.time.in.seconds: Length of the reset period in seconds. The circuit breaker will open and reject CRL and OCSP calls when to many attempts has been made within the configured window. When reset period is ended the circuit breaker will close and again accept CRL and OCSP checks. Default value: 300</li>
