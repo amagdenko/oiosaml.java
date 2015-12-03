@@ -206,7 +206,7 @@ target (zipdist: 'Build distributable zip file') {
 }
 
 target (build_everything: 'Build everything') {
-	depends(clean, compile, javadoc, test, war, zipdist)
+	depends(clean, compile, javadoc, war, zipdist)
 }
 
 setDefaultTarget ( jar )
