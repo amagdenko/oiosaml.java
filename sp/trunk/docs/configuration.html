@@ -112,6 +112,7 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.passive: Set to true to enable passive mode (IsPassive). Defaults to false.</li>
 <li>oiosaml-sp.passive.user: User id used for the anonymous user when passive mode is enabled.</li>
 <li>oiosaml-sp.errors: Path to the servlet handling errors. This uses the same mechanism as POSTDispatchServlet below. Default is to use an internal error page. When the page is called, the request contains two attributes: "error" is a String containing an error message, "exception" is the exception thrown. The exception can be null.</li>
+<li>oiosaml-sp.authenticationhandler.failed.servlet: Path to the servlet handling false result during AuthenticationHandler processing. This uses the same mechanism as POSTDispatchServlet below. Default is to use blank page for SAMLAssertionConsumerHandler.</li>
 <li>common.saml2.metadata.sp.directory: Directory containing SP metadata. Defaults to ./metadata/SP</li>
 <li>common.saml2.metadata.sp.filename: Name of the SP metadata file. Defaults to SPMetadata.xml</li>
 <li>common.saml2.metadata.idp.directory: Directory containing IdP metadata. Defaults to ./metadata/IdP</li>

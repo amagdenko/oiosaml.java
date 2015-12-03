@@ -149,6 +149,9 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			if (!invokeAuthenticationHandler(ctx, userAssertion)) {
 				Audit.logError(Operation.LOGIN, false, response.getInResponseTo(), "Authentication handler stopped authentication");
 				log.error("Authentication handler stopped authentication");
+
+				handleFailedAuthenticaion(ctx);
+
 				return;
 			}
 			Audit.setAssertionId(assertion.getID());
@@ -187,4 +190,20 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 		}
 	}
 
+	/**
+	 *
+	 * @param ctx
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	private void handleFailedAuthenticaion(RequestContext ctx) throws ServletException, IOException {
+		String err = null;
+		if (ctx.getConfiguration() != null) {
+			err = ctx.getConfiguration().getString(Constants.PROP_AUTHENTICATION_HANDLER_FAILED_SERVLET, null);
+		}
+
+		if (err != null) {
+			ctx.getRequest().getRequestDispatcher(err).forward(ctx.getRequest(), ctx.getResponse());
+		}
+	}
 }
