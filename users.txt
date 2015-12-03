@@ -1,0 +1,12 @@
+ajay.nambissan = ajay nambissan <ajay.nambissan@email.com>
+bbg = bbg <bbg@email.com>
+cas@schultz.dk = cas <cas@schultz.dk>
+cst = cst <cst@email.com>
+jre = jre <jre@email.com>
+jrf = jrf <jrf@email.com>
+kfr = kfr <kfr@email.com>
+mkhansen = mkhansen <mkhansen@email.com>
+mollekas = mollekas <mollekas@email.com>
+spe@schultz.dk = spe <spe@schultz.dk>
+tommy = tommy <tommy@email.com>
+usk@trifork.com = usk <usk@trifork.com>
